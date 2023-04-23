@@ -3,7 +3,7 @@
 # :::::::::::::::::: Options ::::::::::::::::::
 PYTHON_VERSION=$( bc <<< "3.11" )
 ENV_NAME="hist"
-REQUIREMENTS_PATH="requirements.txt"
+REQUIREMENTS_PATH="requirements/dev.txt"
 # :::::::::::::::::::::::::::::::::::::::::::::
 
 conda update -n base -c defaults conda --yes
