@@ -72,7 +72,7 @@ jobs:
 #        echo -e "${GREEN}Job completed successfully${NC}"
 
   reporting:
-    needs: [unit-testing]
+    needs: [lint-testing]
     runs-on: ubuntu-latest
     name: Reporting
     # optionally use a convenient Ubuntu LTS + DVC + CML image
