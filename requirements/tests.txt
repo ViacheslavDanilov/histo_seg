@@ -1,1 +1,2 @@
-# A list of the packages used for testing
+# A list of the packages used for testing only
+pre-commit==3.2.2
