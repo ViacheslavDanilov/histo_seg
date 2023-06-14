@@ -1,0 +1,38 @@
+defaults:
+  - main
+  - _self_
+
+data_dir: data/final/smp/val/img
+save_dir: data/final/experiment/images
+
+classes: [
+  Arteriole lumen,
+  Arteriole media,
+  Arteriole adventitia,
+  Capillary lumen,
+  Capillary wall,
+  Venula lumen,
+  Venule wall
+]
+classes_color:
+  Arteriole lumen: [ 212, 0, 2 ]
+  Arteriole media: [ 255, 124, 121 ]
+  Arteriole adventitia: [ 227, 119, 194 ]
+  Capillary lumen: [ 105, 45, 33 ]
+  Capillary wall: [ 196, 156, 148 ]
+  Venula lumen: [ 31, 119, 180 ]
+  Venule wall: [ 174, 199, 232 ]
+
+classes_idx:
+  Arteriole lumen: 0
+  Arteriole media: 10
+  Arteriole adventitia: 11
+  Capillary lumen: 5
+  Capillary wall: 8
+  Venula lumen: 6
+  Venule wall: 9
+
+input_size: 448
+architecture: unet
+encoder: resnet50
+device: cuda
