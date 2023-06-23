@@ -369,3 +369,6 @@ cython_debug/
 .dvc/config.local
 .dvc/tmp
 .dvc/cache
+
+# Data
+/data/sly/

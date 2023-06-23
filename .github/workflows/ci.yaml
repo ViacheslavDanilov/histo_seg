@@ -5,7 +5,9 @@ on:
   pull_request:
     branches:
     - main
-
+  push:
+    branches:
+    - main
 env:
   GREEN: '\033[0;32m'
   NO_COLOR: '\033[0m'
@@ -46,6 +48,7 @@ jobs:
         pre-commit run pretty-format-yaml --all-files --verbose
         pre-commit run pycln --all-files --verbose
         pre-commit run isort --all-files --verbose
+        pre-commit run ruff --all-files --verbose
         echo -e "${GREEN}Job completed successfully${NC}"
 
 #  unit-testing:
@@ -91,13 +94,13 @@ jobs:
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        echo ":white_check_mark: **linting**" >> report.md
-        echo ">  complete" >> report.md
-        echo " " >> report.md
-        echo ":white_check_mark: **testing**" >> report.md
-        echo ">  complete" >> report.md
-        echo " " >> report.md
-        echo ":white_check_mark: **reporting**" >> report.md
-        echo ">  complete" >> report.md
-        cml comment create report.md
         echo -e "${GREEN}Job completed successfully${NC}"
+#        echo ":white_check_mark: **linting**" >> report.md
+#        echo ">  complete" >> report.md
+#        echo " " >> report.md
+#        echo ":white_check_mark: **testing**" >> report.md
+#        echo ">  complete" >> report.md
+#        echo " " >> report.md
+#        echo ":white_check_mark: **reporting**" >> report.md
+#        echo ">  complete" >> report.md
+#        cml comment create report.md

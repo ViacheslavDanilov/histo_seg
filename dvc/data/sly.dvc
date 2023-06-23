@@ -1,0 +1,6 @@
+wdir: ../../data
+outs:
+- md5: 7e27598c542abbfcb9e8c2ef1f1fde33.dir
+  size: 460712181
+  nfiles: 1001
+  path: sly
