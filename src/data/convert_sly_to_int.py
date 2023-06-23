@@ -126,6 +126,7 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     project_sly = sly.Project(cfg.data_dir, sly.OpenMode.READ)
     meta = json.load(open(os.path.join(cfg.data_dir, 'meta.json')))
+    # TODO: use CLASS_ID from utils.py
     class_ids = {value['title']: id for (id, value) in enumerate(meta['classes'])}
 
     # 1. Annotation parsing
