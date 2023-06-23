@@ -5,7 +5,7 @@ defaults:
 df_path: data/interim/metadata.xlsx
 save_dir: data/final/smp
 train_size: 0.85
-seed: 21
+seed: 11
 classes: |
   - Arteriole lumen
   - Arteriole media
