@@ -1,22 +1,16 @@
 defaults:
-  - main
-  - _self_
+- main
+- _self_
 
 df_path: data/interim/metadata.xlsx
 save_dir: data/final/smp
 train_size: 0.85
 seed: 21
-classes: [
-  Arteriole lumen,
-  Arteriole media,
-  Arteriole adventitia,
-  Capillary lumen,
-  Capillary wall,
-  Venula lumen,
-  Venule wall
-  #  Nerve trunks,
-  #  Immune cells,
-  #  Lymphatic vessels lumen,
-  #    Lymphatic vessels wall,
-
-]
+classes: |
+  - Arteriole lumen
+  - Arteriole media
+  - Arteriole adventitia
+  - Capillary lumen
+  - Capillary wall
+  - Venula lumen
+  - Venule wall

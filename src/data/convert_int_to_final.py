@@ -18,17 +18,17 @@ log.setLevel(logging.INFO)
 
 
 def get_mask(
-        img_path: str,
-        classes: List[str],
-        data: pd.DataFrame,
-        save_dir: str,
+    img_path: str,
+    classes: List[str],
+    data: pd.DataFrame,
+    save_dir: str,
 ) -> None:
     if len(data) > 0 and len(list(set(classes) & set(data.class_name.unique()))) > 0:
         mask = np.zeros((int(data.image_width.mean()), int(data.image_height.mean())))
         for _, row in data.iterrows():
             if row.class_name in classes:
                 figure_data = sly.Bitmap.base64_2_data(row.mask_b64)
-                mask[figure_data == True] = row.class_id + 1
+                mask[figure_data is True] = row.class_id + 1
         cv2.imwrite(f'{save_dir}/mask/{os.path.basename(img_path)}', mask)
         shutil.copy(img_path, f'{save_dir}/img/{os.path.basename(img_path)}')
 

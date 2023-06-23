@@ -19,18 +19,16 @@ log.setLevel(logging.INFO)
 
 
 def get_mask_properties(
-        figure: dict,
-        mask: np.ndarray,
+    figure: dict,
+    mask: np.ndarray,
 ) -> Tuple[str, Polygon, List[List[Any]]]:
     if figure['geometryType'] == 'bitmap':
         mask = mask.astype(bool)
         bitmap = figure['bitmap']['data']
         mask_ = sly.Bitmap.base64_2_data(bitmap)
         mask[
-        figure['bitmap']['origin'][1]: figure['bitmap']['origin'][1]
-                                       + mask_.shape[0],
-        figure['bitmap']['origin'][0]: figure['bitmap']['origin'][0]
-                                       + mask_.shape[1],
+            figure['bitmap']['origin'][1] : figure['bitmap']['origin'][1] + mask_.shape[0],
+            figure['bitmap']['origin'][0] : figure['bitmap']['origin'][0] + mask_.shape[1],
         ] = mask_[:, :]
     else:
         return None, None, None
@@ -47,9 +45,9 @@ def get_mask_properties(
 
 
 def parse_single_annotation(
-        dataset: sly.VideoDataset,
-        class_ids: dict,
-        save_dir: str,
+    dataset: sly.VideoDataset,
+    class_ids: dict,
+    save_dir: str,
 ) -> pd.DataFrame:
     df_ann = pd.DataFrame()
     study = dataset.name
@@ -102,9 +100,9 @@ def parse_single_annotation(
 
 
 def annotation_parsing(
-        datasets: sly.Project.DatasetDict,
-        class_ids: dict,
-        save_dir: str,
+    datasets: sly.Project.DatasetDict,
+    class_ids: dict,
+    save_dir: str,
 ):
     num_cores = multiprocessing.cpu_count()
     annotation = Parallel(n_jobs=num_cores, backend='threading')(
