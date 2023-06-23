@@ -2,42 +2,77 @@ import os
 from pathlib import Path
 from typing import List, Union
 
-# TODO: change wall to media and adventitia
 CLASS_MAP = {
-    '': None,
-    'Arteriole lumen': 1,
-    'Arteriole media': 2,
-    'Arteriole adventitia': 3,
-    'Venula lumen': 4,
-    'Venule wall': 5,
-    'Capillary lumen': 6,
-    'Capillary wall': 7,
-    'Immune cells': 8,
-    'Nerve trunks': 9,
+    'Arteriole lumen': {
+        'id': 1,
+        'color': [212, 0, 2],
+    },
+    'Arteriole media': {
+        'id': 2,
+        'color': [255, 124, 121],
+    },
+    'Arteriole adventitia': {
+        'id': 3,
+        'color': [227, 119, 194],
+    },
+    'Venula lumen': {
+        'id': 4,
+        'color': [31, 119, 180],
+    },
+    'Venula wall': {
+        'id': 5,
+        'color': [174, 199, 232],
+    },
+    'Capillary lumen': {
+        'id': 6,
+        'color': [105, 45, 33],
+    },
+    'Capillary wall': {
+        'id': 7,
+        'color': [196, 156, 148],
+    },
+    'Immune cells': {
+        'id': 8,
+        'color': [100, 100, 100],  # TODO: define a unique color
+    },
+    'Nerve trunks': {
+        'id': 9,
+        'color': [127, 127, 127],  # TODO: define a unique color
+    },
+    'Cell nucleus': {
+        'id': 10,
+        'color': [150, 150, 150],  # TODO: define a unique color
+    },
 }
 
-CLASS_MAP_REVERSED = dict((v, k) for k, v in CLASS_MAP.items())
+CLASS_COLOR = {
+    class_name: tuple(class_info['color']) for class_name, class_info in CLASS_MAP.items()  # type: ignore
+}
+
+CLASS_ID = {class_name: class_info['id'] for class_name, class_info in CLASS_MAP.items()}
+
+CLASS_ID_REVERSED = dict((v, k) for k, v in CLASS_ID.items())
 
 METADATA_COLUMNS = [
-    'Image path',
+    'image_path',
     'Image name',
-    'Slide',
-    'Tile',
-    'Dataset',
-    'Image width',
-    'Image height',
+    'slide',
+    'tile',
+    'dataset',
+    'image_width',
+    'image_height',
     'x1',
     'y1',
     'x2',
     'y2',
-    'Box width',
-    'Box height',
-    'Box area',
-    'Box label',
-    'Area',
-    'Mask',
-    'Class ID',
-    'Class',
+    'box_width',
+    'box_height',
+    'box_area',
+    'box_label',
+    'area',
+    'mask',
+    'class_id',
+    'class',
 ]
 
 
