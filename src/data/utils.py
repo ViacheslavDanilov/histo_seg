@@ -2,16 +2,43 @@ import os
 from pathlib import Path
 from typing import List, Union
 
-# TODO: add classes
+# TODO: change wall to media and adventitia
 CLASS_MAP = {
     '': None,
-    'ABC': 1,
-    'BCD': 2,
-    'EFG': 3,
-    'XYZ': 4,
+    'Arteriole lumen': 1,
+    'Arteriole media': 2,
+    'Arteriole adventitia': 3,
+    'Venula lumen': 4,
+    'Venule wall': 5,
+    'Capillary lumen': 6,
+    'Capillary wall': 7,
+    'Immune cells': 8,
+    'Nerve trunks': 9,
 }
 
 CLASS_MAP_REVERSED = dict((v, k) for k, v in CLASS_MAP.items())
+
+METADATA_COLUMNS = [
+    'Image path',
+    'Image name',
+    'Slide',
+    'Tile',
+    'Dataset',
+    'Image width',
+    'Image height',
+    'x1',
+    'y1',
+    'x2',
+    'y2',
+    'Box width',
+    'Box height',
+    'Box area',
+    'Box label',
+    'Area',
+    'Mask',
+    'Class ID',
+    'Class',
+]
 
 
 def get_file_list(
