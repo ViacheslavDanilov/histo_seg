@@ -55,7 +55,7 @@ CLASS_ID_REVERSED = dict((v, k) for k, v in CLASS_ID.items())
 
 METADATA_COLUMNS = [
     'image_path',
-    'Image name',
+    'image_name',
     'slide',
     'tile',
     'dataset',

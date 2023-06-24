@@ -88,7 +88,7 @@ def parse_single_annotation(
                 if encoded_mask is not None:
                     result_dict = {
                         'image_path': f'{save_dir}/{study}/{img_name}',
-                        'Image name': img_name,
+                        'image_name': img_name,
                         'slide': slide,
                         'tile': tile,
                         'dataset': study,
