@@ -19,7 +19,7 @@ CLASS_MAP = {
         'id': 4,
         'color': [31, 119, 180],
     },
-    'Venula wall': {
+    'Venule wall': {
         'id': 5,
         'color': [174, 199, 232],
     },
@@ -65,6 +65,8 @@ METADATA_COLUMNS = [
     'y1',
     'x2',
     'y2',
+    'xc',
+    'yc',
     'box_width',
     'box_height',
     'box_area',
