@@ -61,6 +61,7 @@ METADATA_COLUMNS = [
     'dataset',
     'image_width',
     'image_height',
+    'type',
     'x1',
     'y1',
     'x2',

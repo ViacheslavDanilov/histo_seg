@@ -150,6 +150,7 @@ def parse_single_annotation(
                 'dataset': study,
                 'image_width': img_width,
                 'image_height': img_height,
+                'type': obj_type,
                 'x1': xy['x1'],
                 'y1': xy['y1'],
                 'x2': xy['x2'],
