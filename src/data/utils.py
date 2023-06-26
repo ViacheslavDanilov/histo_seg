@@ -15,11 +15,11 @@ CLASS_MAP = {
         'id': 3,
         'color': [227, 119, 194],
     },
-    'Venula lumen': {
+    'Venule lumen': {
         'id': 4,
         'color': [31, 119, 180],
     },
-    'Venula wall': {
+    'Venule wall': {
         'id': 5,
         'color': [174, 199, 232],
     },
@@ -55,21 +55,21 @@ CLASS_ID_REVERSED = dict((v, k) for k, v in CLASS_ID.items())
 
 METADATA_COLUMNS = [
     'image_path',
-    'Image name',
+    'image_name',
     'slide',
     'tile',
     'dataset',
     'image_width',
     'image_height',
+    'type',
     'x1',
     'y1',
     'x2',
     'y2',
     'box_width',
     'box_height',
-    'box_area',
-    'box_label',
     'area',
+    'area_label',
     'mask',
     'class_id',
     'class',

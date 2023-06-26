@@ -1,9 +1,9 @@
 import json
 import logging
-import multiprocessing
 import os
 import shutil
-from typing import Any, List, Tuple
+from pathlib import Path
+from typing import Tuple
 
 import hydra
 import numpy as np
@@ -11,110 +11,162 @@ import pandas as pd
 import supervisely_lib as sly
 from joblib import Parallel, delayed
 from omegaconf import DictConfig, OmegaConf
-from supervisely import Polygon
 from tqdm import tqdm
+
+from src.data.utils import CLASS_ID, METADATA_COLUMNS
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
-def get_mask_properties(
-    figure: dict,
-    mask: np.ndarray,
-) -> Tuple[str, Polygon, List[List[Any]]]:
-    if figure['geometryType'] == 'bitmap':
-        mask = mask.astype(bool)
-        bitmap = figure['bitmap']['data']
-        mask_ = sly.Bitmap.base64_2_data(bitmap)
-        mask[
-            figure['bitmap']['origin'][1] : figure['bitmap']['origin'][1] + mask_.shape[0],
-            figure['bitmap']['origin'][0] : figure['bitmap']['origin'][0] + mask_.shape[1],
-        ] = mask_[:, :]
+def get_obj_coords(
+    obj: dict,
+) -> dict:
+    """Extract box coordinates from a Supervisely annotation.
+
+    Args:
+        obj: dictionary with information about an object from Supervisely annotations
+    Returns:
+        dictionary which contains coordinates for a rectangle (left, top, right, bottom)
+    """
+    if obj['geometryType'] == 'bitmap':
+        bitmap = sly.Bitmap.base64_2_data(obj['bitmap']['data'])
+        x1, y1 = obj['bitmap']['origin'][0], obj['bitmap']['origin'][1]
+        x2 = x1 + bitmap.shape[1]
+        y2 = y1 + bitmap.shape[0]
     else:
-        return None, None, None
+        xs = [x[0] for x in obj['points']['exterior']]
+        ys = [x[1] for x in obj['points']['exterior']]
+        x1, y1, x2, y2 = min(xs), min(ys), max(xs), max(ys)
 
-    encoded_mask = sly.Bitmap.data_2_base64(mask)
-    mask = sly.Bitmap(mask)
-    contour = mask.to_contours()[0]
-    bbox = [
-        [min(contour.exterior_np[:, 1]), min(contour.exterior_np[:, 0])],
-        [max(contour.exterior_np[:, 1]), max(contour.exterior_np[:, 0])],
-    ]
+    return {
+        'x1': x1,
+        'y1': y1,
+        'x2': x2,
+        'y2': y2,
+    }
 
-    return encoded_mask, contour, bbox
+
+def get_box_size(
+    x1: int,
+    y1: int,
+    x2: int,
+    y2: int,
+) -> Tuple[int, int]:
+    """Extract box sizes by its coordinates.
+
+    Args:
+        x1: left x
+        y1: top y
+        x2: right x
+        y2: bottom y
+    Returns:
+        width and height of a box
+    """
+    box_height = abs(y2 - y1 + 1)
+    box_width = abs(x2 - x1 + 1)
+
+    return box_height, box_width
+
+
+def get_object_area(
+    obj: dict,
+) -> Tuple[int, str]:
+    """Use an encoded mask to get the object area and its label.
+
+    Args:
+        obj: dictionary with information about an object from Supervisely annotations
+
+    Returns:
+        area: the area of an object and its label
+    """
+    if obj['geometryType'] == 'bitmap':
+        encoded_mask = obj['bitmap']['data']
+        mask = sly.Bitmap.base64_2_data(encoded_mask)
+        area = np.count_nonzero(mask)
+    elif obj['geometryType'] == 'point':
+        area = 1
+    else:
+        raise ValueError(f'Unknown geometry type: {obj["geometryType"]}')
+
+    label = get_area_label(area)
+
+    return area, label
+
+
+def get_area_label(
+    area: int,
+) -> str:
+    """Extract box sizes by its coordinates.
+
+    Args:
+        area: object area
+    Returns:
+        area label of an object
+    """
+    if area < 32 * 32:
+        area_label = 'small'
+    elif 32 * 32 <= area <= 96 * 96:
+        area_label = 'medium'
+    else:
+        area_label = 'large'
+
+    return area_label
 
 
 def parse_single_annotation(
-    dataset: sly.VideoDataset,
-    class_ids: dict,
+    dataset: sly.Dataset,
     save_dir: str,
 ) -> pd.DataFrame:
-    df_ann = pd.DataFrame()
+    df_ann = pd.DataFrame(columns=METADATA_COLUMNS)
     study = dataset.name
-
-    if not os.path.exists(f'{save_dir}/{study}'):
-        os.makedirs(f'{save_dir}/{study}')
+    img_dir = os.path.join(save_dir, 'img')
+    os.makedirs(img_dir, exist_ok=True)
 
     for img_name in dataset:
         ann_path = os.path.join(dataset.ann_dir, f'{img_name}.json')
         ann = json.load(open(ann_path))
-        shutil.copy(os.path.join(dataset.img_dir, img_name), f'{save_dir}/{study}/{img_name}')
+        src_img_path = os.path.join(dataset.img_dir, img_name)
+        dst_img_path = os.path.join(img_dir, img_name)
+        shutil.copy(src_img_path, dst_img_path)
 
-        if len(ann['objects']) > 0:
-            for obj in ann['objects']:
-                if obj['geometryType'] == 'bitmap':
-                    mask = np.zeros((ann['size']['width'], ann['size']['height']))
-                    encoded_mask, contour, bbox = get_mask_properties(
-                        figure=obj,
-                        mask=mask,
-                    )
-                    if encoded_mask is not None:
-                        result_dict = {
-                            'image_path': f'{save_dir}/{study}/{img_name}',
-                            'image_name': img_name,
-                            'study': study,
-                            'image_width': ann['size']['width'],
-                            'image_height': ann['size']['height'],
-                            'class_id': class_ids[obj['classTitle']],
-                            'class_name': obj['classTitle'],
-                            'x1': bbox[0][0],
-                            'y1': bbox[0][1],
-                            'x2': bbox[1][0],
-                            'y2': bbox[1][1],
-                            'xc': int(np.mean([bbox[0][0], bbox[1][0]])),
-                            'yc': int(np.mean([bbox[0][1], bbox[1][1]])),
-                            'box_width': bbox[1][0] - bbox[0][0],
-                            'box_height': bbox[1][1] - bbox[0][1],
-                            'area': int(contour.area),
-                            'mask_b64': encoded_mask,
-                        }
-                        df_ann = pd.concat([df_ann, pd.DataFrame(result_dict, index=[0])])
-                    else:
-                        pass
-                else:
-                    pass
-        else:
-            pass
+        slide, tile = Path(img_name).stem.split('_')
+        img_height = ann['size']['height']
+        img_width = ann['size']['width']
+
+        for obj in ann['objects']:
+            obj_type = obj['geometryType']
+            class_name = obj['classTitle']
+            xy = get_obj_coords(obj)
+            box_height, box_width = get_box_size(*xy.values())
+            area, area_label = get_object_area(obj)
+            encoded_mask = obj['bitmap']['data'] if obj_type == 'bitmap' else ''
+
+            obj_info = {
+                'image_path': dst_img_path,
+                'image_name': img_name,
+                'slide': slide,
+                'tile': tile,
+                'dataset': study,
+                'image_width': img_width,
+                'image_height': img_height,
+                'type': obj_type,
+                'x1': xy['x1'],
+                'y1': xy['y1'],
+                'x2': xy['x2'],
+                'y2': xy['y2'],
+                'box_width': box_width,
+                'box_height': box_height,
+                'area': area,
+                'area_label': area_label,
+                'mask': encoded_mask,
+                'class_id': CLASS_ID[class_name],
+                'class': class_name,
+            }
+
+            df_ann = df_ann.append(obj_info, ignore_index=True)
 
     return df_ann
-
-
-def annotation_parsing(
-    datasets: sly.Project.DatasetDict,
-    class_ids: dict,
-    save_dir: str,
-):
-    num_cores = multiprocessing.cpu_count()
-    annotation = Parallel(n_jobs=num_cores, backend='threading')(
-        delayed(parse_single_annotation)(
-            dataset=dataset,
-            class_ids=class_ids,
-            save_dir=save_dir,
-        )
-        for dataset in tqdm(datasets, desc='Annotation parsing')
-    )
-
-    return annotation
 
 
 @hydra.main(
@@ -124,18 +176,18 @@ def annotation_parsing(
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
-    project_sly = sly.Project(cfg.data_dir, sly.OpenMode.READ)
-    meta = json.load(open(os.path.join(cfg.data_dir, 'meta.json')))
-    class_ids = {value['title']: id for (id, value) in enumerate(meta['classes'])}
+    project = sly.Project(cfg.data_dir, sly.OpenMode.READ)
 
-    # 1. Annotation parsing
-    df_list = annotation_parsing(
-        datasets=project_sly.datasets,
-        class_ids=class_ids,
-        save_dir=cfg.save_dir,
+    # Parse Supervisely dataset and get metadata
+    df_list = Parallel(n_jobs=-1, backend='threading')(
+        delayed(parse_single_annotation)(
+            dataset=dataset,
+            save_dir=cfg.save_dir,
+        )
+        for dataset in tqdm(project, desc='Supervisely dataset processing')
     )
 
-    # 3. Save annotation data frame
+    # Save metadata
     df = pd.concat(df_list)
     df.sort_values(['image_path', 'class_id'], inplace=True)
     df.reset_index(drop=True, inplace=True)

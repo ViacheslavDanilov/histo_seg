@@ -3,5 +3,4 @@ defaults:
 - _self_
 
 data_dir: data/sly
-crop: [[0, 0], [1000, 1000]]
 save_dir: data/interim
