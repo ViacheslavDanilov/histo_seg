@@ -15,7 +15,7 @@ CLASS_MAP = {
         'id': 3,
         'color': [227, 119, 194],
     },
-    'Venula lumen': {
+    'Venule lumen': {
         'id': 4,
         'color': [31, 119, 180],
     },
