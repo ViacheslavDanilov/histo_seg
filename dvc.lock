@@ -1,0 +1,28 @@
+schema: '2.0'
+stages:
+  convert_sly_to_int:
+    cmd:
+    - rm -rf data/interim || true
+    - python src/data/convert_sly_to_int.py
+    deps:
+    - path: configs/convert_sly_to_int.yaml
+      md5: 1a1c51e114ed375b92af2859454ef08e
+      size: 69
+    - path: data/sly
+      md5: f62bde43a7f1cc64e6cd5630523f0cee.dir
+      size: 460712181
+      nfiles: 1001
+    - path: src/data/convert_sly_to_int.py
+      md5: 8402347c96a5fbc6a7e3b541f6c188cc
+      size: 5528
+    - path: src/data/utils.py
+      md5: 8435279515ed06dfc3d3659681a5a331
+      size: 2986
+    outs:
+    - path: data/interim/img
+      md5: c380910a8c29d63a17838ac88045f254.dir
+      size: 436168437
+      nfiles: 500
+    - path: data/interim/metadata.xlsx
+      md5: 4ee19e2e6ab46da388faf2177aa40f8c
+      size: 13983302
