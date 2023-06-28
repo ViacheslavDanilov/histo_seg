@@ -109,16 +109,15 @@ def get_file_list(
 
 
 def get_figure_to_mask(
-        mask: np.ndarray,
-        figure: np.ndarray,
-        cl_id: int,
-        points_start: List[int],
-        points_end: List[int],
+    mask: np.ndarray,
+    figure: np.ndarray,
+    class_id: int,
+    points_start: List[int],
+    points_end: List[int],
 ) -> np.ndarray:
-    figure[figure == 1] = cl_id
+    figure[figure == 1] = class_id
     mask[
-        points_start[1]: points_end[1],
-        points_start[0]: points_end[0],
+        points_start[1] : points_end[1],
+        points_start[0] : points_end[0],
     ] = figure[:, :]
     return mask
-
