@@ -159,9 +159,9 @@ def parse_single_annotation(
                 'box_height': box_height,
                 'area': area,
                 'area_label': area_label,
-                'mask': encoded_mask,
+                'encoded_mask': encoded_mask,
                 'class_id': CLASS_ID[class_name],
-                'class': class_name,
+                'class_name': class_name,
             }
 
             df_ann = df_ann.append(obj_info, ignore_index=True)

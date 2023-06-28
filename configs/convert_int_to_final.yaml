@@ -6,11 +6,12 @@ df_path: data/interim/metadata.xlsx
 save_dir: data/final/smp
 train_size: 0.85
 seed: 11
-classes: |
-  - Arteriole lumen
-  - Arteriole media
-  - Arteriole adventitia
-  - Capillary lumen
-  - Capillary wall
-  - Venula lumen
-  - Venule wall
+classes: [
+  Arteriole lumen,
+  Arteriole media,
+  Arteriole adventitia,
+  Capillary lumen,
+  Capillary wall,
+  Venule lumen,
+  Venule wall
+]

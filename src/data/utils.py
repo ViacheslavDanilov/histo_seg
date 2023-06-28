@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from typing import List, Union
 
+import numpy as np
+
 CLASS_MAP = {
     'Arteriole lumen': {
         'id': 1,
@@ -33,11 +35,11 @@ CLASS_MAP = {
     },
     'Immune cells': {
         'id': 8,
-        'color': [100, 100, 100],  # TODO: define a unique color
+        'color': [150, 240, 52],  # TODO: define a unique color
     },
     'Nerve trunks': {
         'id': 9,
-        'color': [127, 127, 127],  # TODO: define a unique color
+        'color': [144, 19, 254],  # TODO: define a unique color
     },
     'Cell nucleus': {
         'id': 10,
@@ -70,9 +72,9 @@ METADATA_COLUMNS = [
     'box_height',
     'area',
     'area_label',
-    'mask',
+    'encoded_mask',
     'class_id',
-    'class',
+    'class_name',
 ]
 
 
@@ -104,3 +106,19 @@ def get_file_list(
                     all_files.append(file_path)
     all_files.sort()
     return all_files
+
+
+def get_figure_to_mask(
+        mask: np.ndarray,
+        figure: np.ndarray,
+        cl_id: int,
+        points_start: List[int],
+        points_end: List[int],
+) -> np.ndarray:
+    figure[figure == 1] = cl_id
+    mask[
+        points_start[1]: points_end[1],
+        points_start[0]: points_end[0],
+    ] = figure[:, :]
+    return mask
+
