@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, List
 
 import cv2
 import hydra
@@ -25,47 +25,40 @@ def process_mask(
     df: pd.DataFrame,
     save_dir: str,
 ) -> None:
-    # TODO 1: drop rows excluded classes in process_metadata
-    # TODO 2: Too complicated condition. I think it is better to process dataframe before this step
-    if (
-        len(df) > 0 and len(list(set(class_names) & set(df.class_name.unique()))) > 0
-    ):  # TODO: remove condition
-        image_width = int(df.image_width.unique())
-        image_height = int(df.image_height.unique())
-        mask = np.zeros((image_height, image_width), dtype='uint8')
-        mask_color = np.zeros((image_height, image_width, 3), dtype='uint8')
-        mask_color[:, :] = (128, 128, 128)
-        for _, row in df.iterrows():
-            if row.class_name in class_names:  # TODO: remove condition
-                try:
-                    figure_data = sly.Bitmap.base64_2_data(row.encoded_mask).astype(int)
-                    mask = get_figure_to_mask(
-                        mask=mask,
-                        figure=figure_data,
-                        class_id=CLASS_ID[row.class_name],
-                        points_start=[row['x1'], row['y1']],
-                        points_end=[row['x2'], row['y2']],
-                    )
-                    mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
-                except Exception as error:
-                    print(error)
+    image_width = int(df.image_width.unique())
+    image_height = int(df.image_height.unique())
+    mask = np.zeros((image_height, image_width), dtype='uint8')
+    mask_color = np.zeros((image_height, image_width, 3), dtype='uint8')
+    mask_color[:, :] = (128, 128, 128)
+    for _, row in df.iterrows():
+        # TODO: Incorrect padding
+        import base64
+        figure_data = sly.Bitmap.base64_2_data(row.encoded_mask).astype(int)
+        mask = get_figure_to_mask(
+            mask=mask,
+            figure=figure_data,
+            class_id=CLASS_ID[row.class_name],
+            points_start=[row['x1'], row['y1']],
+            points_end=[row['x2'], row['y2']],
+        )
+        mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
 
-        img_name = Path(img_path).name
-        new_img_path = os.path.join(save_dir, 'img', img_name)
-        mask_path = os.path.join(save_dir, 'mask', img_name)
-        color_mask_path = os.path.join(save_dir, 'mask_color', img_name)
-        cv2.imwrite(mask_path, mask)
-        cv2.imwrite(color_mask_path, mask_color)
-        shutil.copy(img_path, new_img_path)
+    img_name = Path(img_path).name
+    new_img_path = os.path.join(save_dir, 'img', img_name)
+    mask_path = os.path.join(save_dir, 'mask', img_name)
+    color_mask_path = os.path.join(save_dir, 'mask_color', img_name)
+    cv2.imwrite(mask_path, mask)
+    cv2.imwrite(color_mask_path, mask_color)
+    shutil.copy(img_path, new_img_path)
 
 
 def process_metadata(
-    df: pd.DataFrame,
+        df: pd.DataFrame,
+        classes: List[str],
 ) -> pd.DataFrame:
-    df_out = df.drop('id', axis=1)
-    # TODO: filter data by classes, drop empty masks, etc.
-
-    return df_out
+    df = df[df['class_name'].isin(classes)]
+    df = df[df['area'] > 0]
+    return df
 
 
 def split_dataset(
@@ -102,8 +95,7 @@ def main(cfg: DictConfig) -> None:
     # Read and process metadata
     df_path = os.path.join(cfg.data_dir, 'metadata.xlsx')
     df = pd.read_excel(df_path)
-    df_filtered = process_metadata(df)
-    # TODO: call process_metadata
+    df_filtered = process_metadata(df=df, classes=cfg.class_names)
 
     # Split dataset
     df_train, df_test = split_dataset(
