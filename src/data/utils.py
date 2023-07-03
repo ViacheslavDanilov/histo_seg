@@ -117,7 +117,7 @@ def get_figure_to_mask(
 ) -> np.ndarray:
     figure[figure == 1] = class_id
     mask[
-        points_start[1] : points_end[1],
-        points_start[0] : points_end[0],
+        points_start[0]: points_end[0],
+        points_start[1]: points_end[1],
     ] = figure[:, :]
     return mask
