@@ -32,8 +32,8 @@ def get_obj_coords(
     if obj['geometryType'] == 'bitmap':
         bitmap = sly.Bitmap.base64_2_data(obj['bitmap']['data'])
         x1, y1 = obj['bitmap']['origin'][0], obj['bitmap']['origin'][1]
-        x2 = x1 + bitmap.shape[1]
-        y2 = y1 + bitmap.shape[0]
+        x2 = x1 + bitmap.shape[0]
+        y2 = y1 + bitmap.shape[1]
     else:
         xs = [x[0] for x in obj['points']['exterior']]
         ys = [x[1] for x in obj['points']['exterior']]
