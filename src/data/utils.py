@@ -35,15 +35,15 @@ CLASS_MAP = {
     },
     'Immune cells': {
         'id': 8,
-        'color': [150, 240, 52],  # TODO: define a unique color
+        'color': [150, 240, 52],
     },
     'Nerve trunks': {
         'id': 9,
-        'color': [144, 19, 254],  # TODO: define a unique color
+        'color': [144, 19, 254],
     },
     'Cell nucleus': {
         'id': 10,
-        'color': [150, 150, 150],  # TODO: define a unique color
+        'color': [150, 150, 150],
     },
 }
 
@@ -108,16 +108,16 @@ def get_file_list(
     return all_files
 
 
-def get_figure_to_mask(
+def build_mask(
     mask: np.ndarray,
-    figure: np.ndarray,
+    obj_mask: np.ndarray,
     class_id: int,
-    points_start: List[int],
-    points_end: List[int],
+    point_1: List[int],
+    point_2: List[int],
 ) -> np.ndarray:
-    figure[figure == 1] = class_id
+    obj_mask[obj_mask == 1] = class_id
     mask[
-        points_start[0]: points_end[0],
-        points_start[1]: points_end[1],
-    ] = figure[:, :]
+        point_1[1] : point_2[1],
+        point_1[0] : point_2[0],
+    ] = obj_mask[:, :]
     return mask
