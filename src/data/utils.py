@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 from typing import List, Union
 
-import numpy as np
-
 CLASS_MAP = {
     'Arteriole lumen': {
         'id': 1,
@@ -106,18 +104,3 @@ def get_file_list(
                     all_files.append(file_path)
     all_files.sort()
     return all_files
-
-
-def build_mask(
-    mask: np.ndarray,
-    obj_mask: np.ndarray,
-    class_id: int,
-    point_1: List[int],
-    point_2: List[int],
-) -> np.ndarray:
-    obj_mask[obj_mask == 1] = class_id
-    mask[
-        point_1[1] : point_2[1],
-        point_1[0] : point_2[0],
-    ] = obj_mask[:, :]
-    return mask
