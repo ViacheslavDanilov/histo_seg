@@ -2,15 +2,15 @@ defaults:
 - main
 - _self_
 
-df_path: data/interim/metadata.xlsx
+data_dir: data/interim
 save_dir: data/final/smp
-train_size: 0.85
+train_size: 0.80
 seed: 11
-classes: |
-  - Arteriole lumen
-  - Arteriole media
-  - Arteriole adventitia
-  - Capillary lumen
-  - Capillary wall
-  - Venula lumen
-  - Venule wall
+class_names:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Capillary lumen
+- Capillary wall
+- Venule lumen
+- Venule wall

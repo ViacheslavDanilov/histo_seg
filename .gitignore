@@ -372,3 +372,4 @@ cython_debug/
 
 # Data
 /data/sly/
+/data/interim/

@@ -33,15 +33,15 @@ CLASS_MAP = {
     },
     'Immune cells': {
         'id': 8,
-        'color': [100, 100, 100],  # TODO: define a unique color
+        'color': [150, 240, 52],
     },
     'Nerve trunks': {
         'id': 9,
-        'color': [127, 127, 127],  # TODO: define a unique color
+        'color': [144, 19, 254],
     },
     'Cell nucleus': {
         'id': 10,
-        'color': [150, 150, 150],  # TODO: define a unique color
+        'color': [150, 150, 150],
     },
 }
 
@@ -70,9 +70,9 @@ METADATA_COLUMNS = [
     'box_height',
     'area',
     'area_label',
-    'mask',
+    'encoded_mask',
     'class_id',
-    'class',
+    'class_name',
 ]
 
 

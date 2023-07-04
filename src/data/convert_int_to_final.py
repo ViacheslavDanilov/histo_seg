@@ -1,7 +1,8 @@
 import logging
 import os
 import shutil
-from typing import List
+from pathlib import Path
+from typing import List, Tuple
 
 import cv2
 import hydra
@@ -13,24 +14,82 @@ from omegaconf import DictConfig, OmegaConf
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
+from src.data.utils import CLASS_COLOR, CLASS_ID
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
-def get_mask(
+def process_mask(
     img_path: str,
-    classes: List[str],
-    data: pd.DataFrame,
+    df: pd.DataFrame,
     save_dir: str,
 ) -> None:
-    if len(data) > 0 and len(list(set(classes) & set(data.class_name.unique()))) > 0:
-        mask = np.zeros((int(data.image_width.mean()), int(data.image_height.mean())))
-        for _, row in data.iterrows():
-            if row.class_name in classes:
-                figure_data = sly.Bitmap.base64_2_data(row.mask_b64)
-                mask[figure_data is True] = row.class_id + 1
-        cv2.imwrite(f'{save_dir}/mask/{os.path.basename(img_path)}', mask)
-        shutil.copy(img_path, f'{save_dir}/img/{os.path.basename(img_path)}')
+    image_width = int(df.image_width.unique())
+    image_height = int(df.image_height.unique())
+    mask = np.zeros((image_height, image_width), dtype='uint8')
+    mask_color = np.zeros((image_height, image_width, 3), dtype='uint8')
+    mask_color[:, :] = (128, 128, 128)
+    for _, row in df.iterrows():
+        obj_mask = sly.Bitmap.base64_2_data(row.encoded_mask).astype(int)
+        mask = build_mask(
+            mask=mask,
+            obj_mask=obj_mask,
+            class_id=CLASS_ID[row.class_name],  # type: ignore
+            origin=[row['x1'], row['y1']],
+        )
+        mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
+
+    img_name = Path(img_path).name
+    new_img_path = os.path.join(save_dir, 'img', img_name)
+    mask_path = os.path.join(save_dir, 'mask', img_name)
+    color_mask_path = os.path.join(save_dir, 'mask_color', img_name)
+    cv2.imwrite(mask_path, mask)
+    cv2.imwrite(color_mask_path, mask_color)
+    shutil.copy(img_path, new_img_path)
+
+
+def build_mask(
+    mask: np.ndarray,
+    obj_mask: np.ndarray,
+    class_id: int,
+    origin: List[int],
+) -> np.ndarray:
+    obj_mask[obj_mask == 1] = class_id
+    obj_height, obj_width = obj_mask.shape
+    mask[
+        origin[1] : origin[1] + obj_height,
+        origin[0] : origin[0] + obj_width,
+    ] = obj_mask[:, :]
+    return mask
+
+
+def process_metadata(
+    df: pd.DataFrame,
+    classes: List[str],
+) -> pd.DataFrame:
+    df = df[df['class_name'].isin(classes)]
+    df = df[df['area'] > 0]
+    return df
+
+
+def split_dataset(
+    df: pd.DataFrame,
+    train_size: float,
+    seed: int,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    slides = df.slide.unique()
+    train_slides, test_slides = train_test_split(
+        slides,
+        train_size=train_size,
+        shuffle=True,
+        random_state=seed,
+    )
+
+    df_train = df[df['slide'].isin(train_slides)]
+    df_test = df[df['slide'].isin(test_slides)]
+
+    return df_train, df_test
 
 
 @hydra.main(
@@ -41,48 +100,43 @@ def get_mask(
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
-    for subset in ['train', 'val']:
-        for dir_type in ['img', 'mask']:
+    for subset in ['train', 'test']:
+        for dir_type in ['img', 'mask', 'mask_color']:
             os.makedirs(f'{cfg.save_dir}/{subset}/{dir_type}', exist_ok=True)
 
-    df = pd.read_excel(cfg.df_path)
-    images_path = np.unique(df.image_path.values)
-    train_data, test_data = train_test_split(
-        images_path,
+    # Read and process metadata
+    df_path = os.path.join(cfg.data_dir, 'metadata.csv')
+    df = pd.read_csv(df_path)
+    df_filtered = process_metadata(df=df, classes=cfg.class_names)
+
+    # Split dataset
+    df_train, df_test = split_dataset(
+        df=df_filtered,
         train_size=cfg.train_size,
-        shuffle=True,
-        random_state=cfg.seed,
+        seed=cfg.seed,
     )
+    gb_train = df_train.groupby(['image_path'])
+    gb_test = df_test.groupby(['image_path'])
+    log.info(f'Train images...: {len(gb_train)}')
+    log.info(f'Test images....: {len(gb_test)}')
 
-    train_img_paths = df[df['image_path'].isin(train_data)].image_path.values
-    test_img_paths = df[df['image_path'].isin(test_data)].image_path.values
-    log.info(f'Train images...: {len(train_img_paths)}')
-    log.info(f'Test images....: {len(train_img_paths)}')
-
-    test_df = df.loc[df['image_path'].isin(test_img_paths)]
-    train_df = df.loc[df['image_path'].isin(train_img_paths)]
-
-    test_df.class_name.value_counts()
-    train_df.class_name.value_counts()
-
+    # Process train and test subsets
     Parallel(n_jobs=-1, backend='threading')(
-        delayed(get_mask)(
+        delayed(process_mask)(
             img_path=img_path,
-            classes=cfg.classes,
-            data=df.loc[df['image_path'] == img_path],
+            df=df,
             save_dir=f'{cfg.save_dir}/train',
         )
-        for img_path in tqdm(train_img_paths, desc='Preparing the training subset')
+        for img_path, df in tqdm(gb_train, desc='Process train subset')
     )
 
     Parallel(n_jobs=-1, backend='threading')(
-        delayed(get_mask)(
+        delayed(process_mask)(
             img_path=img_path,
-            classes=cfg.classes,
-            data=df.loc[df['image_path'] == img_path],
-            save_dir=f'{cfg.save_dir}/val',
+            df=df,
+            save_dir=f'{cfg.save_dir}/test',
         )
-        for img_path in tqdm(test_img_paths, desc='Preparing the testing subset')
+        for img_path, df in tqdm(gb_test, desc='Process test subset')
     )
 
 
