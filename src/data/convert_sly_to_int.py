@@ -31,9 +31,10 @@ def get_obj_coords(
     """
     if obj['geometryType'] == 'bitmap':
         bitmap = sly.Bitmap.base64_2_data(obj['bitmap']['data'])
-        x1, y1 = obj['bitmap']['origin'][0], obj['bitmap']['origin'][1]
-        x2 = x1 + bitmap.shape[0]
-        y2 = y1 + bitmap.shape[1]
+        x1 = obj['bitmap']['origin'][0]
+        y1 = obj['bitmap']['origin'][1]
+        x2 = x1 + bitmap.shape[1]
+        y2 = y1 + bitmap.shape[0]
     else:
         xs = [x[0] for x in obj['points']['exterior']]
         ys = [x[1] for x in obj['points']['exterior']]
@@ -63,8 +64,8 @@ def get_box_size(
     Returns:
         width and height of a box
     """
-    box_height = abs(y2 - y1 + 1)
-    box_width = abs(x2 - x1 + 1)
+    box_height = abs(y2 - y1)
+    box_width = abs(x2 - x1)
 
     return box_height, box_width
 
@@ -192,10 +193,9 @@ def main(cfg: DictConfig) -> None:
     df.sort_values(['image_path', 'class_id'], inplace=True)
     df.reset_index(drop=True, inplace=True)
     df.index += 1
-    save_path = os.path.join(cfg.save_dir, 'metadata.xlsx')
-    df.to_excel(
+    save_path = os.path.join(cfg.save_dir, 'metadata.csv')
+    df.to_csv(
         save_path,
-        sheet_name='Metadata',
         index=True,
         index_label='id',
     )
