@@ -1,0 +1,27 @@
+stages:
+
+  convert_sly_to_int:
+    cmd:
+    - rm -rf data/interim || true
+    - python src/data/convert_sly_to_int.py
+    deps:
+    - src/data/convert_sly_to_int.py
+    - src/data/utils.py
+    - configs/convert_sly_to_int.yaml
+    - data/sly
+    outs:
+    - data/interim/img
+    - data/interim/metadata.csv
+
+  convert_int_to_final:
+    cmd:
+    - rm -rf data/final || true
+    - python src/data/convert_int_to_final.py
+    deps:
+    - src/data/convert_int_to_final.py
+    - configs/convert_int_to_final.yaml
+    - data/interim/img
+    - data/interim/metadata.csv
+    outs:
+    - data/final/train
+    - data/final/test
