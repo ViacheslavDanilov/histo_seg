@@ -2,7 +2,7 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from typing import Tuple, List
+from typing import List, Tuple
 
 import cv2
 import hydra
@@ -14,7 +14,7 @@ from omegaconf import DictConfig, OmegaConf
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-from src.data.utils import CLASS_COLOR, CLASS_ID, get_figure_to_mask
+from src.data.utils import CLASS_COLOR, CLASS_ID
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -31,15 +31,12 @@ def process_mask(
     mask_color = np.zeros((image_height, image_width, 3), dtype='uint8')
     mask_color[:, :] = (128, 128, 128)
     for _, row in df.iterrows():
-        # TODO: Incorrect padding
-        import base64
-        figure_data = sly.Bitmap.base64_2_data(row.encoded_mask).astype(int)
-        mask = get_figure_to_mask(
+        obj_mask = sly.Bitmap.base64_2_data(row.encoded_mask).astype(int)
+        mask = build_mask(
             mask=mask,
-            figure=figure_data,
-            class_id=CLASS_ID[row.class_name],
-            points_start=[row['x1'], row['y1']],
-            points_end=[row['x2'], row['y2']],
+            obj_mask=obj_mask,
+            class_id=CLASS_ID[row.class_name],  # type: ignore
+            origin=[row['x1'], row['y1']],
         )
         mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
 
@@ -52,9 +49,24 @@ def process_mask(
     shutil.copy(img_path, new_img_path)
 
 
+def build_mask(
+    mask: np.ndarray,
+    obj_mask: np.ndarray,
+    class_id: int,
+    origin: List[int],
+) -> np.ndarray:
+    obj_mask[obj_mask == 1] = class_id
+    obj_height, obj_width = obj_mask.shape
+    mask[
+        origin[1] : origin[1] + obj_height,
+        origin[0] : origin[0] + obj_width,
+    ] = obj_mask[:, :]
+    return mask
+
+
 def process_metadata(
-        df: pd.DataFrame,
-        classes: List[str],
+    df: pd.DataFrame,
+    classes: List[str],
 ) -> pd.DataFrame:
     df = df[df['class_name'].isin(classes)]
     df = df[df['area'] > 0]
@@ -88,13 +100,13 @@ def split_dataset(
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
-    for subset in ['train', 'val']:
+    for subset in ['train', 'test']:
         for dir_type in ['img', 'mask', 'mask_color']:
             os.makedirs(f'{cfg.save_dir}/{subset}/{dir_type}', exist_ok=True)
 
     # Read and process metadata
-    df_path = os.path.join(cfg.data_dir, 'metadata.xlsx')
-    df = pd.read_excel(df_path)
+    df_path = os.path.join(cfg.data_dir, 'metadata.csv')
+    df = pd.read_csv(df_path)
     df_filtered = process_metadata(df=df, classes=cfg.class_names)
 
     # Split dataset
@@ -115,7 +127,7 @@ def main(cfg: DictConfig) -> None:
             df=df,
             save_dir=f'{cfg.save_dir}/train',
         )
-        for img_path, df in tqdm(gb_train, desc='Preparing the training subset')
+        for img_path, df in tqdm(gb_train, desc='Process train subset')
     )
 
     Parallel(n_jobs=-1, backend='threading')(
@@ -124,7 +136,7 @@ def main(cfg: DictConfig) -> None:
             df=df,
             save_dir=f'{cfg.save_dir}/test',
         )
-        for img_path, df in tqdm(gb_test, desc='Preparing the testing subset')
+        for img_path, df in tqdm(gb_test, desc='Process test subset')
     )
 
 
