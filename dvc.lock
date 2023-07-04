@@ -1,0 +1,55 @@
+schema: '2.0'
+stages:
+  convert_sly_to_int:
+    cmd:
+    - rm -rf data/interim || true
+    - python src/data/convert_sly_to_int.py
+    deps:
+    - path: configs/convert_sly_to_int.yaml
+      md5: 1a1c51e114ed375b92af2859454ef08e
+      size: 69
+    - path: data/sly
+      md5: af986e91497a0d27baa99d6c485817d0.dir
+      size: 460752752
+      nfiles: 1012
+    - path: src/data/convert_sly_to_int.py
+      md5: 06c6d94fba115bb6de64d9d614c3bf96
+      size: 5494
+    - path: src/data/utils.py
+      md5: dc9a01e80a64b7b5cc87a95b0b5662b7
+      size: 2545
+    outs:
+    - path: data/interim/img
+      md5: c380910a8c29d63a17838ac88045f254.dir
+      size: 436168437
+      nfiles: 500
+    - path: data/interim/metadata.csv
+      md5: f6cb53ddc35c285ccd827d9afbbeda10
+      size: 22075590
+  convert_int_to_final:
+    cmd:
+    - rm -rf data/final || true
+    - python src/data/convert_int_to_final.py
+    deps:
+    - path: configs/convert_int_to_final.yaml
+      md5: a0ec05be44c3dc6a7bf6f507cc948b7b
+      size: 233
+    - path: data/interim/img
+      md5: c380910a8c29d63a17838ac88045f254.dir
+      size: 436168437
+      nfiles: 500
+    - path: data/interim/metadata.csv
+      md5: f6cb53ddc35c285ccd827d9afbbeda10
+      size: 22075590
+    - path: src/data/convert_int_to_final.py
+      md5: 5482ec2c3d1b3c5f59366a6eb26b1b6e
+      size: 4016
+    outs:
+    - path: data/final/test
+      md5: b3401c92d3789c56a91fe701d65a84ac.dir
+      size: 104936130
+      nfiles: 261
+    - path: data/final/train
+      md5: cbcb095dffe089048c895759544a96bf.dir
+      size: 361541868
+      nfiles: 918
