@@ -9,9 +9,9 @@ stages:
       md5: 1a1c51e114ed375b92af2859454ef08e
       size: 69
     - path: data/sly
-      md5: e4d5f496838cf3e20a97c0f5ea43da0b.dir
-      size: 460687171
-      nfiles: 1002
+      md5: 041fab494b5fe9b59a917b37c587fc54.dir
+      size: 460748651
+      nfiles: 1012
     - path: src/data/convert_sly_to_int.py
       md5: 06c6d94fba115bb6de64d9d614c3bf96
       size: 5494
@@ -46,10 +46,10 @@ stages:
       size: 4016
     outs:
     - path: data/final/test
-      md5: b3401c92d3789c56a91fe701d65a84ac.dir
-      size: 104936130
-      nfiles: 261
+      md5: 78333bce17ce21cc2cde9691d4b20395.dir
+      size: 104942278
+      nfiles: 262
     - path: data/final/train
-      md5: 5609c2ebe512acd76bff885235076487.dir
-      size: 361518145
-      nfiles: 918
+      md5: c46edbff891c6a03600a4800f26ccde7.dir
+      size: 361524293
+      nfiles: 919
