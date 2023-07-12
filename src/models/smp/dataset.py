@@ -187,7 +187,7 @@ class OCTDataModule(pl.LightningDataModule):
             )
             self.val_dataloader_set = OCTDataset(
                 input_size=self.input_size,
-                data_dir=f'{self.data_dir}/val',
+                data_dir=f'{self.data_dir}/test',
                 classes=self.classes,
                 classes_idx=self.classes_idx,
                 use_augmentation=False,
