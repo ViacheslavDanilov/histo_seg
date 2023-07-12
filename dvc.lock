@@ -9,8 +9,8 @@ stages:
       md5: 1a1c51e114ed375b92af2859454ef08e
       size: 69
     - path: data/sly
-      md5: 041fab494b5fe9b59a917b37c587fc54.dir
-      size: 460748651
+      md5: 4c53387e1b208265e1673e3c22475387.dir
+      size: 460581748
       nfiles: 1012
     - path: src/data/convert_sly_to_int.py
       md5: 06c6d94fba115bb6de64d9d614c3bf96
@@ -24,8 +24,8 @@ stages:
       size: 436168437
       nfiles: 500
     - path: data/interim/metadata.csv
-      md5: b6420f73d93fca57c8ae6c4d6fa4d22d
-      size: 22071880
+      md5: 2b5f9c39be4a6779e7f640dfc45c624e
+      size: 21904537
   convert_int_to_final:
     cmd:
     - rm -rf data/final || true
@@ -39,17 +39,17 @@ stages:
       size: 436168437
       nfiles: 500
     - path: data/interim/metadata.csv
-      md5: b6420f73d93fca57c8ae6c4d6fa4d22d
-      size: 22071880
+      md5: 2b5f9c39be4a6779e7f640dfc45c624e
+      size: 21904537
     - path: src/data/convert_int_to_final.py
       md5: 5482ec2c3d1b3c5f59366a6eb26b1b6e
       size: 4016
     outs:
     - path: data/final/test
-      md5: 78333bce17ce21cc2cde9691d4b20395.dir
-      size: 104942278
-      nfiles: 262
+      md5: 267bbb8e32e3ee3d10169f0de1462a44.dir
+      size: 104971641
+      nfiles: 261
     - path: data/final/train
-      md5: c46edbff891c6a03600a4800f26ccde7.dir
-      size: 361524293
+      md5: cf850e1cb4f26c7e947e3e883dd2a76a.dir
+      size: 361979065
       nfiles: 919
