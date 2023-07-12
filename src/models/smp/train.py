@@ -43,6 +43,7 @@ def main(cfg: DictConfig) -> None:
         classes_idx=cfg.classes_idx,
         batch_size=cfg.batch_size,
         num_workers=os.cpu_count(),
+        data_location=cfg.data_location
     )
 
     # Initialize callbacks

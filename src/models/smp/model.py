@@ -44,24 +44,7 @@ def get_metrics(
     precision = smp.metrics.precision(tp, fp, fn, tn)
     sensitivity = smp.metrics.sensitivity(tp, fp, fn, tn)
     specificity = smp.metrics.specificity(tp, fp, fn, tn)
-
-    # tp = tp.cpu().numpy()
-    # fp = fp.cpu().numpy()
-    # fn = fn.cpu().numpy()
-    # tn = tn.cpu().numpy()
-    #
-    # precision, sensitivity, specificity = np.zeros(len(classes)), np.zeros(len(classes)), np.zeros(len(classes))
-    #
-    # for id_, cl in enumerate(classes):
-    #     precision[id_] = np.mean(tp[:, id_]) / (np.mean(tp[:, id_]) + np.mean(fp[:, id_]))
-    #     sensitivity[id_] = np.mean(tp[:, id_]) / (np.mean(tp[:, id_]) + np.mean(fn[:, id_]))
-    #     specificity[id_] = np.mean(tn[:, id_]) / (np.mean(fp[:, id_]) + np.mean(tn[:, id_]))
     dice_score = 1 - loss
-
-    # for num, cl in enumerate(classes):
-    #     self.training_histogram[num] += iou[:, num].mean().cpu().numpy()
-    #     if batch_idx != 0:
-    #         self.training_histogram[num] /= 2
 
     return {
         'dice_score': dice_score.detach().cpu().numpy(),

@@ -4,6 +4,7 @@ defaults:
 
 project_name: Histology segmentation
 dataset_name: data_seven_class
+data_location: local
 task_name: ResNet50_Unet
 classes: [Arteriole lumen, Arteriole media, Arteriole adventitia, Capillary lumen, Capillary wall, Venula lumen, Venule wall]
 classes_color:
