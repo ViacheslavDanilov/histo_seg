@@ -19,12 +19,12 @@ class OCTDataset(Dataset):
     """The dataset used to process OCT images and corresponding segmentation masks."""
 
     def __init__(
-            self,
-            data_dir: str,
-            classes: List[str],
-            classes_idx,
-            input_size: int = 224,
-            use_augmentation: bool = False,
+        self,
+        data_dir: str,
+        classes: List[str],
+        classes_idx,
+        input_size: int = 224,
+        use_augmentation: bool = False,
     ):
         self.classes = classes
         self.classes_idx = classes_idx
@@ -66,8 +66,8 @@ class OCTDataset(Dataset):
 
     @staticmethod
     def data_check(
-            img_dir: str,
-            ann_id: str,
+        img_dir: str,
+        ann_id: str,
     ) -> Union[Tuple[str, str], None]:
         img_path = f'{img_dir}/{os.path.basename(ann_id)}'
         if os.path.exists(img_path):
@@ -78,13 +78,13 @@ class OCTDataset(Dataset):
 
     @staticmethod
     def to_tensor(
-            x: np.ndarray,
+        x: np.ndarray,
     ) -> np.ndarray:
         return x.transpose([2, 0, 1]).astype('float32')
 
     @staticmethod
     def get_img_augmentation(
-            input_size: int,
+        input_size: int,
     ) -> albu.Compose:
         transform = [
             albu.HorizontalFlip(
@@ -144,15 +144,15 @@ class OCTDataModule(pl.LightningDataModule):
     """A data module used to create training and validation dataloaders with OCT images."""
 
     def __init__(
-            self,
-            dataset_name: str,
-            project_name: str,
-            classes: List[str],
-            classes_idx,
-            input_size: int = 224,
-            batch_size: int = 2,
-            num_workers: int = 2,
-            data_location: str = 'local'
+        self,
+        dataset_name: str,
+        project_name: str,
+        classes: List[str],
+        classes_idx,
+        input_size: int = 224,
+        batch_size: int = 2,
+        num_workers: int = 2,
+        data_location: str = 'local',
     ):
         super().__init__()
         self.data_dir = None
