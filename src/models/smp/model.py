@@ -1,8 +1,8 @@
 import os
+from csv import DictWriter
 from typing import Tuple
 
 import cv2
-from csv import DictWriter
 import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
@@ -11,11 +11,11 @@ from clearml import Logger
 
 
 def get_img_mask_union(
-        img_0: np.ndarray,
-        alpha_0: float,
-        img_1: np.ndarray,
-        alpha_1: float,
-        color: Tuple[int, int, int],
+    img_0: np.ndarray,
+    alpha_0: float,
+    img_1: np.ndarray,
+    alpha_1: float,
+    color: Tuple[int, int, int],
 ) -> np.ndarray:
     return cv2.addWeighted(
         np.array(img_0).astype('uint8'),
@@ -29,10 +29,10 @@ def get_img_mask_union(
 
 
 def get_metrics(
-        mask,
-        pred_mask,
-        loss,
-        classes,
+    mask,
+    pred_mask,
+    loss,
+    classes,
 ):
     tp, fp, fn, tn = smp.metrics.get_stats(
         pred_mask.long(),
@@ -60,9 +60,7 @@ def get_metrics(
     }
 
 
-def log_metrics(
-
-):
+def log_metrics():
     pass
 
 
@@ -71,13 +69,13 @@ class OCTSegmentationModel(pl.LightningModule):
 
     # TODO: input and output types?
     def __init__(
-            self,
-            arch,
-            encoder_name,
-            in_channels,
-            classes,
-            colors,
-            **kwargs,
+        self,
+        arch,
+        encoder_name,
+        in_channels,
+        classes,
+        colors,
+        **kwargs,
     ):
         super().__init__()
         self.model = smp.create_model(
@@ -89,6 +87,7 @@ class OCTSegmentationModel(pl.LightningModule):
         )
 
         self.classes = classes
+        # TODO: Зачем нам цвета при обучении? Почему мы не можем просто использовать индексы классов?
         self.colors = colors
         self.epoch = 0
         params = smp.encoders.get_preprocessing_params(encoder_name)
@@ -109,8 +108,8 @@ class OCTSegmentationModel(pl.LightningModule):
 
     # TODO: input and output types?
     def forward(
-            self,
-            image: torch.tensor,
+        self,
+        image: torch.tensor,
     ):
         # normalize image here
         # TODO: Should you move the normalization to the OCTDataModule?
@@ -120,9 +119,9 @@ class OCTSegmentationModel(pl.LightningModule):
 
     # TODO: input and output types?
     def training_step(
-            self,
-            batch,
-            batch_idx,
+        self,
+        batch,
+        batch_idx,
     ):
         # if batch_idx == 0:
         #     if self.epoch > 0:
@@ -177,12 +176,14 @@ class OCTSegmentationModel(pl.LightningModule):
         # dice_score = 1 - loss
 
         self.log('training/loss', loss, prog_bar=True, on_epoch=True)
-        self.training_step_outputs.append(get_metrics(
-            mask=mask,
-            pred_mask=pred_mask,
-            loss=loss,
-            classes=self.classes,
-        ))
+        self.training_step_outputs.append(
+            get_metrics(
+                mask=mask,
+                pred_mask=pred_mask,
+                loss=loss,
+                classes=self.classes,
+            ),
+        )
 
         # for num, cl in enumerate(self.classes):
         #     self.training_histogram[num] += iou[:, num].mean().cpu().numpy()
@@ -216,14 +217,22 @@ class OCTSegmentationModel(pl.LightningModule):
         for metric_name in metrics_name:
             for batch in self.training_step_outputs:
                 if metric_name not in metrics:
-                    metrics[metric_name] = batch[metric_name] if batch[metric_name].size == 1 else np.mean(
-                        batch[metric_name], axis=0)
+                    metrics[metric_name] = (
+                        batch[metric_name]
+                        if batch[metric_name].size == 1
+                        else np.mean(
+                            batch[metric_name],
+                            axis=0,
+                        )
+                    )
                 else:
                     if batch[metric_name].size == 1:
                         metrics[metric_name] = np.mean((batch[metric_name], metrics[metric_name]))
                     else:
-                        metrics[metric_name] = np.mean((np.mean(batch[metric_name], axis=0), metrics[metric_name]),
-                                                       axis=0)
+                        metrics[metric_name] = np.mean(
+                            (np.mean(batch[metric_name], axis=0), metrics[metric_name]),
+                            axis=0,
+                        )
 
         metrics_log = {
             'train/IOU (mean)': metrics['iou'].mean(),
@@ -241,7 +250,7 @@ class OCTSegmentationModel(pl.LightningModule):
             header_w = False
             if not os.path.exists(f'data/experiment/train_{cl}.csv'):
                 header_w = True
-            with open(f'data/experiment/train_{cl}.csv', 'a', newline='', ) as f_object:
+            with open(f'data/experiment/train_{cl}.csv', 'a', newline='') as f_object:
                 fieldnames = [
                     'epoch',
                     'IOU',
@@ -258,8 +267,8 @@ class OCTSegmentationModel(pl.LightningModule):
                         'IOU': metrics['iou'][num],
                         'Precision': metrics['precision'][num],
                         'Sensitivity': metrics['sensitivity'][num],
-                        'Specificity': metrics['specificity'][num]
-                    }
+                        'Specificity': metrics['specificity'][num],
+                    },
                 )
                 f_object.close()
 
@@ -286,16 +295,16 @@ class OCTSegmentationModel(pl.LightningModule):
             )
 
         header_w = False
-        if not os.path.exists(f'data/experiment/train_mean.csv'):
+        if not os.path.exists('data/experiment/train_mean.csv'):
             header_w = True
-        with open(f'data/experiment/train_mean.csv', 'a', newline='', ) as f_object:
+        with open('data/experiment/train_mean.csv', 'a', newline='') as f_object:
             fieldnames = [
                 'epoch',
                 'IOU (mean)',
                 'Precision (mean)',
                 'Sensitivity (mean)',
                 'Specificity (mean)',
-                'Dice_score (mean)'
+                'Dice_score (mean)',
             ]
             writer = DictWriter(f_object, fieldnames=fieldnames)
             if header_w:
@@ -308,16 +317,16 @@ class OCTSegmentationModel(pl.LightningModule):
                     'Sensitivity (mean)': metrics['sensitivity'].mean(),
                     'Specificity (mean)': metrics['specificity'].mean(),
                     'Dice_score (mean)': metrics['dice_score'],
-                }
+                },
             )
             f_object.close()
 
         self.training_step_outputs.clear()
 
     def validation_step(
-            self,
-            batch,
-            batch_idx,
+        self,
+        batch,
+        batch_idx,
     ):
         img, mask = batch
         logits_mask = self.forward(img)
@@ -327,15 +336,16 @@ class OCTSegmentationModel(pl.LightningModule):
         pred_mask = (prob_mask > 0.5).float()
 
         self.log('val/loss', loss, prog_bar=True, on_epoch=True)
-        self.validation_step_outputs.append(get_metrics(
-            mask=mask,
-            pred_mask=pred_mask,
-            loss=loss,
-            classes=self.classes,
-        ))
+        self.validation_step_outputs.append(
+            get_metrics(
+                mask=mask,
+                pred_mask=pred_mask,
+                loss=loss,
+                classes=self.classes,
+            ),
+        )
 
         if batch_idx == 0:
-
             img = img.permute(0, 2, 3, 1)
             img = img.squeeze().cpu().numpy().round()
             mask = mask.squeeze().cpu().numpy().round()
@@ -387,8 +397,10 @@ class OCTSegmentationModel(pl.LightningModule):
                 res = np.hstack((img_0, img_g))
                 res = np.hstack((res, img_p))
 
-                cv2.imwrite(f'data/experiment/all/Experiment_{str(idy).zfill(2)}_epoch_{str(self.epoch).zfill(3)}.png',
-                            cv2.cvtColor(res, cv2.COLOR_RGB2BGR))
+                cv2.imwrite(
+                    f'data/experiment/all/Experiment_{str(idy).zfill(2)}_epoch_{str(self.epoch).zfill(3)}.png',
+                    cv2.cvtColor(res, cv2.COLOR_RGB2BGR),
+                )
 
                 self.my_logger.report_image(
                     'All class',
@@ -548,14 +560,22 @@ class OCTSegmentationModel(pl.LightningModule):
         for metric_name in metrics_name:
             for batch in self.validation_step_outputs:
                 if metric_name not in metrics:
-                    metrics[metric_name] = batch[metric_name] if batch[metric_name].size == 1 else np.mean(
-                        batch[metric_name], axis=0)
+                    metrics[metric_name] = (
+                        batch[metric_name]
+                        if batch[metric_name].size == 1
+                        else np.mean(
+                            batch[metric_name],
+                            axis=0,
+                        )
+                    )
                 else:
                     if batch[metric_name].size == 1:
                         metrics[metric_name] = np.mean((batch[metric_name], metrics[metric_name]))
                     else:
-                        metrics[metric_name] = np.mean((np.mean(batch[metric_name], axis=0), metrics[metric_name]),
-                                                       axis=0)
+                        metrics[metric_name] = np.mean(
+                            (np.mean(batch[metric_name], axis=0), metrics[metric_name]),
+                            axis=0,
+                        )
 
         metrics_log = {
             'test/IOU (mean)': metrics['iou'].mean(),
@@ -573,7 +593,7 @@ class OCTSegmentationModel(pl.LightningModule):
             header_w = False
             if not os.path.exists(f'data/experiment/val_{cl}.csv'):
                 header_w = True
-            with open(f'data/experiment/val_{cl}.csv', 'a', newline='', ) as f_object:
+            with open(f'data/experiment/val_{cl}.csv', 'a', newline='') as f_object:
                 fieldnames = [
                     'epoch',
                     'IOU',
@@ -590,8 +610,8 @@ class OCTSegmentationModel(pl.LightningModule):
                         'IOU': metrics['iou'][num],
                         'Precision': metrics['precision'][num],
                         'Sensitivity': metrics['sensitivity'][num],
-                        'Specificity': metrics['specificity'][num]
-                    }
+                        'Specificity': metrics['specificity'][num],
+                    },
                 )
                 f_object.close()
 
@@ -600,8 +620,12 @@ class OCTSegmentationModel(pl.LightningModule):
             'Last Metrics',
             'Test',
             iteration=self.epoch,
-            values=[metrics['precision'].mean(), metrics['sensitivity'].mean(), metrics['specificity'].mean(),
-                    metrics['dice_score'].mean()],
+            values=[
+                metrics['precision'].mean(),
+                metrics['sensitivity'].mean(),
+                metrics['specificity'].mean(),
+                metrics['dice_score'].mean(),
+            ],
             xlabels=['Precision', 'Sensitivity', 'Specificity', 'Dice_score'],
             xaxis='Metrics',
             yaxis='variable',
@@ -619,16 +643,16 @@ class OCTSegmentationModel(pl.LightningModule):
             )
 
         header_w = False
-        if not os.path.exists(f'data/experiment/val_mean.csv'):
+        if not os.path.exists('data/experiment/val_mean.csv'):
             header_w = True
-        with open(f'data/experiment/val_mean.csv', 'a', newline='', ) as f_object:
+        with open('data/experiment/val_mean.csv', 'a', newline='') as f_object:
             fieldnames = [
                 'epoch',
                 'IOU (mean)',
                 'Precision (mean)',
                 'Sensitivity (mean)',
                 'Specificity (mean)',
-                'Dice_score (mean)'
+                'Dice_score (mean)',
             ]
             writer = DictWriter(f_object, fieldnames=fieldnames)
             if header_w:
@@ -641,7 +665,7 @@ class OCTSegmentationModel(pl.LightningModule):
                     'Sensitivity (mean)': metrics['sensitivity'].mean(),
                     'Specificity (mean)': metrics['specificity'].mean(),
                     'Dice_score (mean)': metrics['dice_score'],
-                }
+                },
             )
             f_object.close()
 
