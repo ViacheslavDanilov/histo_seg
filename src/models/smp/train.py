@@ -18,7 +18,7 @@ log.setLevel(logging.INFO)
 
 @hydra.main(
     config_path=os.path.join(os.getcwd(), 'configs'),
-    config_name='train_smp_model',
+    config_name='train',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
@@ -43,7 +43,7 @@ def main(cfg: DictConfig) -> None:
         classes_idx=cfg.classes_idx,
         batch_size=cfg.batch_size,
         num_workers=os.cpu_count(),
-        data_location=cfg.data_location
+        data_location=cfg.data_location,
     )
 
     # Initialize callbacks
@@ -64,8 +64,8 @@ def main(cfg: DictConfig) -> None:
 
     # Initialize model
     model = OCTSegmentationModel(
-        cfg.architecture,
-        cfg.encoder,
+        arch=cfg.architecture,
+        encoder_name=cfg.encoder,
         in_channels=3,
         classes=cfg.classes,
         colors=cfg.classes_color,
