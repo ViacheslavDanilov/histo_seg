@@ -32,8 +32,8 @@ stages:
     - python src/data/convert_int_to_final.py
     deps:
     - path: configs/convert_int_to_final.yaml
-      md5: a0ec05be44c3dc6a7bf6f507cc948b7b
-      size: 233
+      md5: c315fb8fe7fa0bec7a1473c510c3670b
+      size: 251
     - path: data/interim/img
       md5: c380910a8c29d63a17838ac88045f254.dir
       size: 436168437
@@ -42,14 +42,14 @@ stages:
       md5: 62c319f12e9074ab269b086533cb352a
       size: 19721630
     - path: src/data/convert_int_to_final.py
-      md5: 5482ec2c3d1b3c5f59366a6eb26b1b6e
-      size: 4016
+      md5: d7293ec36f77b99a240f3597724c98bc
+      size: 4351
     outs:
     - path: data/final/test
-      md5: 60bf124be4837e172c1001292856e51b.dir
-      size: 104966924
+      md5: 7f72cae3706da3ea987fdde496c29a6f.dir
+      size: 104809357
       nfiles: 262
     - path: data/final/train
-      md5: 3d51d5146323e300d80712b27c772dc1.dir
-      size: 360840481
+      md5: ca79de3e6d9d45f8c3882c787a06ffe4.dir
+      size: 360247935
       nfiles: 916
