@@ -40,7 +40,6 @@ def main(cfg: DictConfig) -> None:
         project_name=cfg.project_name,
         input_size=cfg.input_size,
         classes=cfg.classes,
-        classes_idx=cfg.classes_idx,
         batch_size=cfg.batch_size,
         num_workers=os.cpu_count(),
         data_location=cfg.data_location,
@@ -68,7 +67,6 @@ def main(cfg: DictConfig) -> None:
         encoder_name=cfg.encoder,
         in_channels=3,
         classes=cfg.classes,
-        colors=cfg.classes_color,
     )
 
     # Initialize and tun trainer

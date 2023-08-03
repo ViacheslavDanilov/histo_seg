@@ -13,6 +13,7 @@ from clearml import Dataset as cl_dataset
 from joblib import Parallel, delayed
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+from src.data.utils import CLASS_ID
 
 
 class OCTDataset(Dataset):
@@ -22,12 +23,10 @@ class OCTDataset(Dataset):
         self,
         data_dir: str,
         classes: List[str],
-        classes_idx,
         input_size: int = 224,
         use_augmentation: bool = False,
     ):
         self.classes = classes
-        self.classes_idx = classes_idx
         self.ids = glob(f'{data_dir}/mask/*.[pj][np][pge]')
         self.input_size = input_size
 
@@ -39,7 +38,7 @@ class OCTDataset(Dataset):
 
         self.images_idx = list(np.array(check_list)[:, 1])
         self.masks_idx = list(np.array(check_list)[:, 0])
-        self.class_values = [self.classes_idx[cl] + 1 for _, cl in enumerate(self.classes)]
+        self.class_values = [CLASS_ID[cl] for _, cl in enumerate(self.classes)]
 
         self.use_augmentation = use_augmentation
 
@@ -98,10 +97,8 @@ class OCTDataset(Dataset):
                 border_mode=0,
             ),
             albu.RandomCrop(
-                height=int(random.randint(7, 9) * 0.1 * input_size),
-                # TODO: random(0.7; 0.9)*input_size, seed (https://github.com/open-mmlab/mmdetection/issues/2558)
-                width=int(random.randint(7, 9) * 0.1 * input_size),
-                # TODO: random(0.7; 0.9)*input_size, seed (https://github.com/open-mmlab/mmdetection/issues/2558)
+                height=int(random.uniform(0.7, 0.9) * input_size),
+                width=int(random.uniform(0.7, 0.9) * input_size),
                 always_apply=True,
                 p=0.5,
             ),
@@ -148,7 +145,6 @@ class OCTDataModule(pl.LightningDataModule):
         dataset_name: str,
         project_name: str,
         classes: List[str],
-        classes_idx,
         input_size: int = 224,
         batch_size: int = 2,
         num_workers: int = 2,
@@ -159,7 +155,6 @@ class OCTDataModule(pl.LightningDataModule):
         self.dataset_name = dataset_name
         self.project_name = project_name
         self.classes = classes
-        self.classes_idx = classes_idx
         self.input_size = input_size
         self.batch_size = batch_size
         self.num_workers = num_workers
@@ -182,14 +177,12 @@ class OCTDataModule(pl.LightningDataModule):
                 input_size=self.input_size,
                 data_dir=f'{self.data_dir}/train',
                 classes=self.classes,
-                classes_idx=self.classes_idx,
                 use_augmentation=True,
             )
             self.val_dataloader_set = OCTDataset(
                 input_size=self.input_size,
                 data_dir=f'{self.data_dir}/test',
                 classes=self.classes,
-                classes_idx=self.classes_idx,
                 use_augmentation=False,
             )
         elif stage == 'test':
