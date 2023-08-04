@@ -1,11 +1,10 @@
 import os
+from csv import DictWriter
+from typing import List, Tuple
+
 import cv2
 import numpy as np
-
 import segmentation_models_pytorch as smp
-
-from csv import DictWriter
-from typing import Tuple, List
 
 from src.data.utils import CLASS_COLOR
 
@@ -61,11 +60,11 @@ def get_metrics(
 
 
 def save_metrics_on_epoch(
-        metrics_epoch: List[dict],
-        name: str,
-        classes: List[str],
-        epoch: int,
-        log_dict,
+    metrics_epoch: List[dict],
+    name: str,
+    classes: List[str],
+    epoch: int,
+    log_dict,
 ) -> None:
     metrics_name = metrics_epoch[0].keys()
     metrics = {}
@@ -162,12 +161,12 @@ def save_metrics_on_epoch(
 
 
 def log_predict_model_on_epoch(
-        img,
-        mask,
-        pred_mask,
-        classes,
-        my_logger,
-        epoch,
+    img,
+    mask,
+    pred_mask,
+    classes,
+    my_logger,
+    epoch,
 ):
     img = img.permute(0, 2, 3, 1)
     img = img.squeeze().cpu().numpy().round()
@@ -185,7 +184,6 @@ def log_predict_model_on_epoch(
         color_mask_gr[:, :] = (128, 128, 128)
 
         for cl, m, m_p in zip(classes, mask_, pr_mask):
-
             # Groundtruth
             img_g = get_img_mask_union(
                 img_0=img_g,

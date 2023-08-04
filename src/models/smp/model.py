@@ -5,7 +5,7 @@ import segmentation_models_pytorch as smp
 import torch
 from clearml import Logger
 
-from src.models.smp.utils import log_predict_model_on_epoch, save_metrics_on_epoch, get_metrics
+from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_metrics_on_epoch
 
 
 class OCTSegmentationModel(pl.LightningModule):
@@ -58,7 +58,7 @@ class OCTSegmentationModel(pl.LightningModule):
         logits_mask = self.forward(img)
 
         loss = self.loss_fn(logits_mask, mask)
-        prob_mask = logits_mask.sigmoid()
+        prob_mask = logits_mask.sigmoid()  # type: ignore
         pred_mask = (prob_mask > 0.5).float()
 
         self.log('training/loss', loss, prog_bar=True, on_epoch=True)
