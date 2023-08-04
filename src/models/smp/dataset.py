@@ -13,6 +13,7 @@ from clearml import Dataset as cl_dataset
 from joblib import Parallel, delayed
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+
 from src.data.utils import CLASS_ID
 
 
@@ -27,25 +28,25 @@ class OCTDataset(Dataset):
         use_augmentation: bool = False,
     ):
         self.classes = classes
-        self.ids = glob(f'{data_dir}/mask/*.[pj][np][pge]')
+        mask_paths = glob(f'{data_dir}/mask/*.[pj][np][pge]')
         self.input_size = input_size
 
         num_cores = multiprocessing.cpu_count()
         check_list = Parallel(n_jobs=num_cores, backend='threading')(
             delayed(self.data_check)(f'{data_dir}/img', mask_id)
-            for mask_id in tqdm(self.ids, desc='image load')
+            for mask_id in tqdm(mask_paths, desc='image load')
         )
 
-        self.images_idx = list(np.array(check_list)[:, 1])
-        self.masks_idx = list(np.array(check_list)[:, 0])
+        self.image_paths = list(np.array(check_list)[:, 1])
+        self.mask_paths = list(np.array(check_list)[:, 0])
         self.class_values = [CLASS_ID[cl] for _, cl in enumerate(self.classes)]
 
         self.use_augmentation = use_augmentation
 
     def __getitem__(self, i: int):
-        image = cv2.imread(self.images_idx[i])
+        image = cv2.imread(self.image_paths[i])
         image = cv2.resize(image, (self.input_size, self.input_size))
-        mask = cv2.imread(self.masks_idx[i], 0)
+        mask = cv2.imread(self.mask_paths[i], 0)
         mask = cv2.resize(mask, (self.input_size, self.input_size), interpolation=cv2.INTER_NEAREST)
 
         masks = [(mask == v) for v in self.class_values]
@@ -61,7 +62,7 @@ class OCTDataset(Dataset):
         return image, mask
 
     def __len__(self):
-        return len(self.images_idx)
+        return len(self.image_paths)
 
     @staticmethod
     def data_check(
@@ -205,3 +206,14 @@ class OCTDataModule(pl.LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
         )
+
+
+if __name__ == '__main__':
+    dataset = OCTDataset(
+        data_dir='data/final/test',
+        classes=['Arteriole lumen', 'Arteriole media', 'Arteriole adventitia'],
+        input_size=224,
+        use_augmentation=False,
+    )
+    for i in range(10):
+        img, mask = dataset[i]
