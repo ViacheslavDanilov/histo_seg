@@ -174,9 +174,7 @@ def log_predict_model_on_epoch(
     pred_mask = pred_mask.squeeze().cpu().numpy().round()
     for idy, (img_, mask_, pr_mask) in enumerate(zip(img, mask, pred_mask)):
         img_ = np.array(img_)
-        img_g = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
-        img_p = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
-        img_0 = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
+        img_ = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
 
         color_mask_gr = np.zeros(img_.shape)
         color_mask_pred = np.zeros(img_.shape)
@@ -184,55 +182,11 @@ def log_predict_model_on_epoch(
         color_mask_gr[:, :] = (128, 128, 128)
 
         for cl, m, m_p in zip(classes, mask_, pr_mask):
-            # Groundtruth
-            img_g = get_img_mask_union(
-                img_0=img_g,
-                alpha_0=1,
-                img_1=m,
-                alpha_1=0.5,
-                color=CLASS_COLOR[cl],
-            )
-            img_g_cl = get_img_mask_union(
-                img_0=img_0.copy(),
-                alpha_0=1,
-                img_1=m,
-                alpha_1=0.5,
-                color=CLASS_COLOR[cl],
-            )
             color_mask_gr[m[:, :] == 1] = CLASS_COLOR[cl]
-
-            # Prediction
-            img_p = get_img_mask_union(
-                img_0=img_p,
-                alpha_0=1,
-                img_1=m_p,
-                alpha_1=0.5,
-                color=CLASS_COLOR[cl],
-            )
-            img_p_cl = get_img_mask_union(
-                img_0=img_0.copy(),
-                alpha_0=1,
-                img_1=m_p,
-                alpha_1=0.5,
-                color=CLASS_COLOR[cl],
-            )
             color_mask_pred[m_p[:, :] == 1] = CLASS_COLOR[cl]
 
-            res = np.hstack((img_0, img_g_cl))
-            res = np.hstack((res, img_p_cl))
-
-            my_logger.report_image(
-                cl,
-                f'Experiment {idy}',
-                image=res,
-                iteration=epoch,
-            )
-
-        res = np.hstack((img_0, img_g))
-        res = np.hstack((res, img_p))
-
-        new_res = np.hstack((img_0, color_mask_gr))
-        new_res = np.hstack((new_res, color_mask_pred))
+        res = np.hstack((img_, color_mask_gr))
+        res = np.hstack((res, color_mask_pred))
 
         cv2.imwrite(
             f'data/experiment/all/Experiment_{str(idy).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
@@ -242,6 +196,6 @@ def log_predict_model_on_epoch(
         my_logger.report_image(
             'All class',
             f'Experiment {idy}',
-            image=np.vstack((res, new_res)),
+            image=res,
             iteration=epoch,
         )
