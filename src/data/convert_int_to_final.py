@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 from pathlib import Path
 from typing import List, Tuple
 
@@ -27,10 +26,10 @@ def process_mask(
     smooth_mask: bool,
     save_dir: str,
 ) -> None:
-    image_width = int(df.image_width.unique())
-    image_height = int(df.image_height.unique())
-    mask = np.zeros((image_height, image_width), dtype='uint8')
-    mask_color = np.zeros((image_height, image_width, 3), dtype='uint8')
+    img = cv2.imread(img_path)
+    img_height, img_width = img.shape[:2]
+    mask = np.zeros((img_height, img_width), dtype='uint8')
+    mask_color = np.zeros((img_height, img_width, 3), dtype='uint8')
     mask_color[:, :] = (128, 128, 128)
     mask_processor = MaskProcessor()
     for _, row in df.iterrows():
@@ -46,13 +45,13 @@ def process_mask(
         )
         mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
 
-    img_name = Path(img_path).name
-    new_img_path = os.path.join(save_dir, 'img', img_name)
-    mask_path = os.path.join(save_dir, 'mask', img_name)
-    color_mask_path = os.path.join(save_dir, 'mask_color', img_name)
+    img_stem = Path(img_path).stem
+    new_img_path = os.path.join(save_dir, 'img', f'{img_stem}.png')
+    mask_path = os.path.join(save_dir, 'mask', f'{img_stem}.png')
+    color_mask_path = os.path.join(save_dir, 'mask_color', f'{img_stem}.png')
     cv2.imwrite(mask_path, mask)
     cv2.imwrite(color_mask_path, mask_color)
-    shutil.copy(img_path, new_img_path)
+    cv2.imwrite(new_img_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
 
 
 def build_mask(

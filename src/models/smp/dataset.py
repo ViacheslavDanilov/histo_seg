@@ -37,15 +37,15 @@ class OCTDataset(Dataset):
             for mask_id in tqdm(mask_paths, desc='image load')
         )
 
-        self.image_paths = list(np.array(check_list)[:, 1])
+        self.img_paths = list(np.array(check_list)[:, 1])
         self.mask_paths = list(np.array(check_list)[:, 0])
         self.class_values = [CLASS_ID[cl] for _, cl in enumerate(self.classes)]
 
         self.use_augmentation = use_augmentation
 
     def __getitem__(self, i: int):
-        image = cv2.imread(self.image_paths[i])
-        image = cv2.resize(image, (self.input_size, self.input_size))
+        img = cv2.imread(self.img_paths[i])
+        img = cv2.resize(img, (self.input_size, self.input_size))
         mask = cv2.imread(self.mask_paths[i], 0)
         mask = cv2.resize(mask, (self.input_size, self.input_size), interpolation=cv2.INTER_NEAREST)
 
@@ -54,15 +54,15 @@ class OCTDataset(Dataset):
 
         if self.use_augmentation:
             transform = self.get_img_augmentation(input_size=self.input_size)
-            sample = transform(image=image, mask=mask)
-            image, mask = sample['image'], sample['mask']
+            sample = transform(image=img, mask=mask)
+            img, mask = sample['image'], sample['mask']
 
-        image, mask = self.to_tensor(np.array(image)), self.to_tensor(np.array(mask))
+        img, mask = self.to_tensor(np.array(img)), self.to_tensor(np.array(mask))
 
-        return image, mask
+        return img, mask
 
     def __len__(self):
-        return len(self.image_paths)
+        return len(self.img_paths)
 
     @staticmethod
     def data_check(
