@@ -57,7 +57,7 @@ class HistologyDataset(Dataset):
             sample = transform(image=img, mask=mask)
             img, mask = sample['image'], sample['mask']
 
-        img, mask = self.to_tensor(np.array(img)), self.to_tensor(np.array(mask))
+        img, mask = self.to_tensor_shape(img), self.to_tensor_shape(mask)
 
         return img, mask
 
@@ -77,7 +77,7 @@ class HistologyDataset(Dataset):
             return None
 
     @staticmethod
-    def to_tensor(
+    def to_tensor_shape(
         x: np.ndarray,
     ) -> np.ndarray:
         return x.transpose([2, 0, 1]).astype('float32')
@@ -88,31 +88,46 @@ class HistologyDataset(Dataset):
     ) -> albu.Compose:
         transform = [
             albu.HorizontalFlip(
-                p=0.5,
+                p=0.50,
             ),
             albu.ShiftScaleRotate(
-                scale_limit=0.35,
-                rotate_limit=45,
-                shift_limit=0.1,
-                p=0.65,
+                p=0.20,
+                shift_limit=0.0625,
+                scale_limit=0.1,
+                rotate_limit=15,
                 border_mode=0,
             ),
             albu.RandomCrop(
-                height=int(random.uniform(0.7, 0.9) * input_size),
-                width=int(random.uniform(0.7, 0.9) * input_size),
-                always_apply=True,
-                p=0.5,
+                p=0.2,
+                height=int(random.uniform(0.8, 0.9) * input_size),
+                width=int(random.uniform(0.8, 0.9) * input_size),
             ),
             albu.PadIfNeeded(
+                p=1.0,
                 min_height=input_size,
                 min_width=input_size,
                 always_apply=True,
                 border_mode=0,
             ),
-            albu.GaussNoise(p=0.25, var_limit=0.15),
-            albu.Perspective(p=0.5),
-            albu.RandomBrightnessContrast(p=0.5),
-            albu.HueSaturationValue(p=0.5),
+            albu.GaussNoise(
+                p=0.20,
+                var_limit=(3.0, 10.0),
+            ),
+            albu.Perspective(
+                p=0.20,
+                scale=(0.05, 0.1),
+            ),
+            albu.RandomBrightnessContrast(
+                p=0.20,
+                brightness_limit=0.2,
+                contrast_limit=0.2,
+            ),
+            albu.HueSaturationValue(
+                p=0.20,
+                hue_shift_limit=20,
+                sat_shift_limit=30,
+                val_shift_limit=20,
+            ),
         ]
         return albu.Compose(transform)
 
@@ -190,9 +205,19 @@ class HistologyDataModule(pl.LightningDataModule):
 if __name__ == '__main__':
     dataset = HistologyDataset(
         data_dir='data/final/test',
-        classes=['Arteriole lumen', 'Arteriole media', 'Arteriole adventitia'],
-        input_size=224,
-        use_augmentation=False,
+        classes=[
+            'Arteriole lumen',
+            'Arteriole media',
+            'Arteriole adventitia',
+            'Venule lumen',
+            'Venule wall',
+            'Capillary lumen',
+            'Capillary wall',
+            'Immune cells',
+            'Nerve trunks',
+        ],
+        input_size=512,
+        use_augmentation=True,
     )
-    for i in range(10):
+    for i in range(30):
         img, mask = dataset[i]
