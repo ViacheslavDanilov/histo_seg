@@ -11,13 +11,12 @@ from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_m
 class HistologySegmentationModel(pl.LightningModule):
     """The model dedicated to the segmentation of OCT images."""
 
-    # TODO: input and output types?
     def __init__(
         self,
-        arch,
-        encoder_name,
-        in_channels,
-        classes,
+        arch: str,
+        encoder_name: str,
+        in_channels: int,
+        classes: List[str],
         **kwargs,
     ):
         super().__init__()
@@ -34,8 +33,8 @@ class HistologySegmentationModel(pl.LightningModule):
         params = smp.encoders.get_preprocessing_params(encoder_name)
         self.register_buffer('std', torch.tensor(params['std']).view(1, 3, 1, 1))
         self.register_buffer('mean', torch.tensor(params['mean']).view(1, 3, 1, 1))
-        self.training_step_outputs = []
-        self.validation_step_outputs = []
+        self.training_step_outputs = []  # type: ignore
+        self.validation_step_outputs = []  # type: ignore
         self.loss_fn = smp.losses.DiceLoss(smp.losses.MULTILABEL_MODE, from_logits=True)
 
         self.my_logger = Logger.current_logger()
