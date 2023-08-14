@@ -60,12 +60,18 @@ def build_mask(
     class_id: int,
     origin: List[int],
 ) -> np.ndarray:
-    obj_mask[obj_mask == 1] = class_id
+    # obj_mask[obj_mask == 1] = class_id
     obj_height, obj_width = obj_mask.shape
-    mask[
+    new_size_mask = np.zeros(mask.shape)
+    new_size_mask[
         origin[1] : origin[1] + obj_height,
         origin[0] : origin[0] + obj_width,
     ] = obj_mask[:, :]
+    mask[new_size_mask == 1] = class_id
+    # mask[
+    #     origin[1] : origin[1] + obj_height,
+    #     origin[0] : origin[0] + obj_width,
+    # ] = obj_mask[:, :]
     return mask
 
 
