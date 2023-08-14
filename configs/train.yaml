@@ -6,7 +6,16 @@ project_name: Histology segmentation
 dataset_name: data_seven_class
 data_location: local
 task_name: ResNet50_Unet
-classes: [Arteriole lumen, Arteriole media, Arteriole adventitia, Capillary lumen, Capillary wall, Venule lumen, Venule wall, Immune cells, Nerve trunks]
+classes:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Capillary lumen
+- Capillary wall
+- Venule lumen
+- Venule wall
+- Immune cells
+- Nerve trunks
 architecture: unet
 encoder: resnet50
 input_size: 512
