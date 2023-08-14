@@ -9,8 +9,8 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
-from src.models.smp.dataset import OCTDataModule
-from src.models.smp.model import OCTSegmentationModel
+from src.models.smp.dataset import HistologyDataModule
+from src.models.smp.model import HistologySegmentationModel
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -35,7 +35,7 @@ def main(cfg: DictConfig) -> None:
     )
 
     # Initialize data module
-    oct_data_module = OCTDataModule(
+    oct_data_module = HistologyDataModule(
         dataset_name=cfg.dataset_name,
         project_name=cfg.project_name,
         input_size=cfg.input_size,
@@ -62,7 +62,7 @@ def main(cfg: DictConfig) -> None:
     )
 
     # Initialize model
-    model = OCTSegmentationModel(
+    model = HistologySegmentationModel(
         arch=cfg.architecture,
         encoder_name=cfg.encoder,
         in_channels=3,

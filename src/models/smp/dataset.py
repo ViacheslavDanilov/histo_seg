@@ -17,7 +17,7 @@ from tqdm import tqdm
 from src.data.utils import CLASS_ID
 
 
-class OCTDataset(Dataset):
+class HistologyDataset(Dataset):
     """The dataset used to process OCT images and corresponding segmentation masks."""
 
     def __init__(
@@ -89,7 +89,7 @@ class OCTDataset(Dataset):
         transform = [
             albu.HorizontalFlip(
                 p=0.5,
-            ),  # TODO: sure about the aggressiveness of this augmentation pipeline?
+            ),
             albu.ShiftScaleRotate(
                 scale_limit=0.35,
                 rotate_limit=45,
@@ -109,36 +109,15 @@ class OCTDataset(Dataset):
                 always_apply=True,
                 border_mode=0,
             ),
-            albu.GaussNoise(p=0.25),
+            albu.GaussNoise(p=0.25, var_limit=0.15),
             albu.Perspective(p=0.5),
-            albu.OneOf(
-                [
-                    albu.CLAHE(p=1),
-                    albu.RandomBrightnessContrast(p=1),
-                    albu.RandomGamma(p=1),
-                ],
-                p=0.9,
-            ),
-            albu.OneOf(
-                [
-                    albu.Sharpen(p=1),
-                    albu.Blur(blur_limit=3, p=1),
-                    albu.MotionBlur(blur_limit=3, p=1),
-                ],
-                p=0.9,
-            ),
-            albu.OneOf(
-                [
-                    albu.RandomBrightnessContrast(p=1),
-                    albu.HueSaturationValue(p=1),
-                ],
-                p=0.9,
-            ),
+            albu.RandomBrightnessContrast(p=0.5),
+            albu.HueSaturationValue(p=0.5),
         ]
         return albu.Compose(transform)
 
 
-class OCTDataModule(pl.LightningDataModule):
+class HistologyDataModule(pl.LightningDataModule):
     """A data module used to create training and validation dataloaders with OCT images."""
 
     def __init__(
@@ -174,13 +153,13 @@ class OCTDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str = 'fit'):
         if stage == 'fit':
-            self.train_dataloader_set = OCTDataset(
+            self.train_dataloader_set = HistologyDataset(
                 input_size=self.input_size,
                 data_dir=f'{self.data_dir}/train',
                 classes=self.classes,
                 use_augmentation=True,
             )
-            self.val_dataloader_set = OCTDataset(
+            self.val_dataloader_set = HistologyDataset(
                 input_size=self.input_size,
                 data_dir=f'{self.data_dir}/test',
                 classes=self.classes,
@@ -209,7 +188,7 @@ class OCTDataModule(pl.LightningDataModule):
 
 
 if __name__ == '__main__':
-    dataset = OCTDataset(
+    dataset = HistologyDataset(
         data_dir='data/final/test',
         classes=['Arteriole lumen', 'Arteriole media', 'Arteriole adventitia'],
         input_size=224,

@@ -8,7 +8,7 @@ from clearml import Logger
 from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_metrics_on_epoch
 
 
-class OCTSegmentationModel(pl.LightningModule):
+class HistologySegmentationModel(pl.LightningModule):
     """The model dedicated to the segmentation of OCT images."""
 
     # TODO: input and output types?
