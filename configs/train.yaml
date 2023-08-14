@@ -9,7 +9,7 @@ task_name: ResNet50_Unet
 classes: [Arteriole lumen, Arteriole media, Arteriole adventitia, Capillary lumen, Capillary wall, Venule lumen, Venule wall, Immune cells, Nerve trunks]
 architecture: unet
 encoder: resnet50
-input_size: 448
+input_size: 512
 batch_size: 16
 epochs: 300
 device: auto

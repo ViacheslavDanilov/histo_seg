@@ -24,7 +24,7 @@ class HistologyDataset(Dataset):
         self,
         data_dir: str,
         classes: List[str],
-        input_size: int = 224,
+        input_size: int = 512,
         use_augmentation: bool = False,
     ):
         self.classes = classes
@@ -140,7 +140,7 @@ class HistologyDataModule(pl.LightningDataModule):
         dataset_name: str,
         project_name: str,
         classes: List[str],
-        input_size: int = 224,
+        input_size: int = 512,
         batch_size: int = 2,
         num_workers: int = 2,
         data_location: str = 'local',
