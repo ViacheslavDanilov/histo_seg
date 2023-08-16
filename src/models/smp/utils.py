@@ -188,10 +188,10 @@ def log_predict_model_on_epoch(
         res = np.hstack((img_, color_mask_gr))
         res = np.hstack((res, color_mask_pred))
 
-        cv2.imwrite(
-            f'data/experiment/all/Experiment_{str(idy).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
-            cv2.cvtColor(res, cv2.COLOR_RGB2BGR),
-        )
+        # cv2.imwrite(
+        #     f'data/experiment/all/Experiment_{str(idy).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
+        #     cv2.cvtColor(res, cv2.COLOR_RGB2BGR),
+        # )
 
         my_logger.report_image(
             'All class',

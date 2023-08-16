@@ -3,8 +3,8 @@ defaults:
 - _self_
 
 project_name: Histology segmentation
-dataset_name: data_seven_class
-data_location: local
+dataset_name: smp_data
+data_location: cl_ml
 task_name: ResNet50_Unet
 classes:
 - Arteriole lumen
@@ -18,7 +18,7 @@ classes:
 - Nerve trunks
 architecture: unet
 encoder: resnet50
-input_size: 512
+input_size: 448
 batch_size: 16
 epochs: 300
 device: auto

@@ -8,6 +8,7 @@ import hydra
 import numpy as np
 import pandas as pd
 import supervisely_lib as sly
+from clearml import Dataset as cl_dataset
 from joblib import Parallel, delayed
 from omegaconf import DictConfig, OmegaConf
 from sklearn.model_selection import train_test_split
@@ -146,6 +147,17 @@ def main(cfg: DictConfig) -> None:
         )
         for img_path, df in tqdm(gb_test, desc='Process test subset')
     )
+
+    dataset = cl_dataset.create(
+        dataset_name=cfg.dataset_name,
+        dataset_project=cfg.project_name,
+    )
+    dataset.add_files(path=cfg.save_dir)
+    dataset.upload(
+        show_progress=True,
+        verbose=True,
+    )
+    dataset.finalize(verbose=True)
 
 
 if __name__ == '__main__':

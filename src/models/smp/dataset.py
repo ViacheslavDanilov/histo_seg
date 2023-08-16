@@ -144,9 +144,10 @@ class HistologyDataModule(pl.LightningDataModule):
         batch_size: int = 2,
         num_workers: int = 2,
         data_location: str = 'local',
+        data_dir: str = 'data/final',
     ):
         super().__init__()
-        self.data_dir = None
+        self.data_dir = data_dir
         self.dataset_name = dataset_name
         self.project_name = project_name
         self.classes = classes
@@ -157,12 +158,12 @@ class HistologyDataModule(pl.LightningDataModule):
 
     def prepare_data(self):
         if self.data_location == 'local':
-            self.data_dir = 'data/final'
+            pass
         elif self.data_location == 'cl_ml':
             self.data_dir = cl_dataset.get(
                 dataset_name=self.dataset_name,
                 dataset_project=self.project_name,
-            ).get_local_copy()
+            ).get_mutable_local_copy(target_folder=self.data_dir, overwrite=False)
         else:
             raise ValueError(f'The {self.data_location} method is not yet implemented')
 
