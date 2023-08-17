@@ -18,7 +18,7 @@ from src.data.utils import CLASS_ID
 
 
 class HistologyDataset(Dataset):
-    """The dataset used to process OCT images and corresponding segmentation masks."""
+    """The dataset used to process histology images and corresponding segmentation masks."""
 
     def __init__(
         self,
@@ -133,7 +133,7 @@ class HistologyDataset(Dataset):
 
 
 class HistologyDataModule(pl.LightningDataModule):
-    """A data module used to create training and validation dataloaders with OCT images."""
+    """A data module used to create training and validation dataloaders with histology images."""
 
     def __init__(
         self,
@@ -143,7 +143,7 @@ class HistologyDataModule(pl.LightningDataModule):
         input_size: int = 512,
         batch_size: int = 2,
         num_workers: int = 2,
-        data_location: str = 'local',
+        data_source: str = 'local',
         data_dir: str = 'data/final',
     ):
         super().__init__()
@@ -154,18 +154,18 @@ class HistologyDataModule(pl.LightningDataModule):
         self.input_size = input_size
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.data_location = data_location
+        self.data_source = data_source
 
     def prepare_data(self):
-        if self.data_location == 'local':
+        if self.data_source == 'local':
             pass
-        elif self.data_location == 'cl_ml':
+        elif self.data_source == 'clear_ml':
             self.data_dir = cl_dataset.get(
                 dataset_name=self.dataset_name,
                 dataset_project=self.project_name,
             ).get_mutable_local_copy(target_folder=self.data_dir, overwrite=False)
         else:
-            raise ValueError(f'The {self.data_location} method is not yet implemented')
+            raise ValueError(f'The {self.data_source} location is not supported')
 
     def setup(self, stage: str = 'fit'):
         if stage == 'fit':
