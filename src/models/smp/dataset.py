@@ -9,7 +9,6 @@ import albumentations as albu
 import cv2
 import numpy as np
 import pytorch_lightning as pl
-from clearml import Dataset as cl_dataset
 from joblib import Parallel, delayed
 from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
@@ -137,35 +136,18 @@ class HistologyDataModule(pl.LightningDataModule):
 
     def __init__(
         self,
-        dataset_name: str,
-        project_name: str,
         classes: List[str],
         input_size: int = 512,
         batch_size: int = 2,
         num_workers: int = 2,
-        data_source: str = 'local',
         data_dir: str = 'data/final',
     ):
         super().__init__()
         self.data_dir = data_dir
-        self.dataset_name = dataset_name
-        self.project_name = project_name
         self.classes = classes
         self.input_size = input_size
         self.batch_size = batch_size
         self.num_workers = num_workers
-        self.data_source = data_source
-
-    def prepare_data(self):
-        if self.data_source == 'local':
-            pass
-        elif self.data_source == 'clear_ml':
-            self.data_dir = cl_dataset.get(
-                dataset_name=self.dataset_name,
-                dataset_project=self.project_name,
-            ).get_mutable_local_copy(target_folder=self.data_dir, overwrite=False)
-        else:
-            raise ValueError(f'The {self.data_source} location is not supported')
 
     def setup(self, stage: str = 'fit'):
         if stage == 'fit':

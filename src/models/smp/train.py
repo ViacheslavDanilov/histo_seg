@@ -43,20 +43,16 @@ def main(cfg: DictConfig) -> None:
         'batch_size': cfg.batch_size,
         'epochs': cfg.epochs,
         'device': cfg.device,
-        'data_source': cfg.data_source,
         'data_dir': cfg.data_dir,
     }
     task.set_parameters(hyperparameters)
 
     # Initialize data module
     oct_data_module = HistologyDataModule(
-        dataset_name=cfg.dataset_name,
-        project_name=cfg.project_name,
         input_size=cfg.input_size,
         classes=cfg.classes,
         batch_size=cfg.batch_size,
         num_workers=os.cpu_count(),
-        data_source=cfg.data_source,
         data_dir=cfg.data_dir,
     )
 
