@@ -4,8 +4,6 @@ defaults:
 
 data_dir: data/interim
 save_dir: data/final
-project_name: histology_segmentation
-dataset_name: final
 train_size: 0.80
 seed: 11
 smooth_mask: true
