@@ -148,6 +148,7 @@ def main(cfg: DictConfig) -> None:
         for img_path, df in tqdm(gb_test, desc='Process test subset')
     )
 
+    # Create the dataset and upload it to ClearML
     dataset = cl_dataset.create(
         dataset_name=cfg.dataset_name,
         dataset_project=cfg.project_name,
