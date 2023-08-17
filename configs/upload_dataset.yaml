@@ -1,6 +1,0 @@
-defaults:
-- main
-- _self_
-
-project_name: histology_segmentation
-data_dir: data/final
