@@ -25,14 +25,28 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
     today = datetime.datetime.today()
-    model_dir = f'models/{cfg.project_name}/{cfg.task_name}_#{today.strftime("%m-%d-%H.%M")}'
+    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
+    model_dir = f'models/{cfg.project_name}/{task_name}'
 
-    # Initialize ClearML task
-    Task.init(
+    # Initialize ClearML task and log hyperparameters
+    task = Task.init(
         project_name=cfg.project_name,
-        task_name=cfg.task_name,
+        task_name=task_name,
         auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
     )
+    hyperparameters = {
+        'architecture': cfg.architecture,
+        'encoder': cfg.encoder,
+        'input_size': cfg.input_size,
+        'classes': list(cfg.classes),
+        'num_classes': len(cfg.classes),
+        'batch_size': cfg.batch_size,
+        'epochs': cfg.epochs,
+        'device': cfg.device,
+        'data_source': cfg.data_source,
+        'data_dir': cfg.data_dir,
+    }
+    task.set_parameters(hyperparameters)
 
     # Initialize data module
     oct_data_module = HistologyDataModule(
@@ -42,7 +56,8 @@ def main(cfg: DictConfig) -> None:
         classes=cfg.classes,
         batch_size=cfg.batch_size,
         num_workers=os.cpu_count(),
-        data_location=cfg.data_location,
+        data_source=cfg.data_source,
+        data_dir=cfg.data_dir,
     )
 
     # Initialize callbacks
@@ -87,6 +102,7 @@ def main(cfg: DictConfig) -> None:
         model,
         datamodule=oct_data_module,
     )
+    task.close()
 
 
 if __name__ == '__main__':
