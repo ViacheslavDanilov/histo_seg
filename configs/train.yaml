@@ -2,10 +2,10 @@ defaults:
 - main
 - _self_
 
-project_name: Histology segmentation
-dataset_name: smp_data
-data_location: cl_ml
-task_name: ResNet50_Unet
+project_name: histology_segmentation
+dataset_name: final     # TODO: rename from smp_data to final
+data_source: clear_ml   # clear_ml or local
+data_dir: data/final
 classes:
 - Arteriole lumen
 - Arteriole media
