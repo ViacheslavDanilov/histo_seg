@@ -9,9 +9,9 @@ stages:
       md5: 1a1c51e114ed375b92af2859454ef08e
       size: 69
     - path: data/sly
-      md5: fb1349bd3c12dc00fa232c19a16ad81c.dir
-      size: 456397616
-      nfiles: 1002
+      md5: 34b902ae24d51eaa3c28c54960f9fb6d.dir
+      size: 456459096
+      nfiles: 1012
     - path: src/data/convert_sly_to_int.py
       md5: 06c6d94fba115bb6de64d9d614c3bf96
       size: 5494
