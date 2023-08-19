@@ -43,15 +43,17 @@ def get_metrics(
     precision = smp.metrics.precision(tp, fp, fn, tn)
     sensitivity = smp.metrics.sensitivity(tp, fp, fn, tn)
     specificity = smp.metrics.specificity(tp, fp, fn, tn)
+    f1 = smp.metrics.f1_score(tp, fp, fn, tn)
     dice_score = 1 - loss
 
     return {
         'dice_score': dice_score.detach().cpu().numpy(),
         'loss': loss.detach().cpu().numpy(),
-        'iou': iou.cpu().numpy(),
-        'precision': precision.cpu().numpy(),
-        'sensitivity': sensitivity.cpu().numpy(),
-        'specificity': specificity.cpu().numpy(),
+        'IOU': iou.cpu().numpy(),
+        'Precision': precision.cpu().numpy(),
+        'Sensitivity': sensitivity.cpu().numpy(),
+        'Specificity': specificity.cpu().numpy(),
+        'F1': f1.cpu().numpy(),
         'tp': tp.cpu().numpy(),
         'fp': fp.cpu().numpy(),
         'fn': fn.cpu().numpy(),
@@ -61,11 +63,16 @@ def get_metrics(
 
 def save_metrics_on_epoch(
     metrics_epoch: List[dict],
-    name: str,
+    split: str,
+    model_name: str,
     classes: List[str],
     epoch: int,
     log_dict,
 ) -> None:
+    header_w = False
+    if not os.path.exists(f'models/{model_name}/metrics.csv'):
+        header_w = True
+
     metrics_name = metrics_epoch[0].keys()
     metrics = {}
     for metric_name in metrics_name:
@@ -89,74 +96,52 @@ def save_metrics_on_epoch(
                     )
 
     metrics_log = {
-        f'{name}/IOU (mean)': metrics['iou'].mean(),
-        f'{name}/Precision (mean)': metrics['precision'].mean(),
-        f'{name}/Sensitivity (mean)': metrics['sensitivity'].mean(),
-        f'{name}/Specificity (mean)': metrics['specificity'].mean(),
-        f'{name}/Dice score': metrics['dice_score'],
-        f'IOU {name}/mean': metrics['iou'].mean(),
-        f'Precision {name}/mean': metrics['precision'].mean(),
-        f'Sensitivity {name}/mean': metrics['sensitivity'].mean(),
-        f'Specificity {name}/mean': metrics['specificity'].mean(),
+        f'{split}/IOU (mean)': metrics['IOU'].mean(),
+        f'{split}/Precision (mean)': metrics['Precision'].mean(),
+        f'{split}/Sensitivity (mean)': metrics['Sensitivity'].mean(),
+        f'{split}/Specificity (mean)': metrics['Specificity'].mean(),
+        f'{split}/Dice score': metrics['dice_score'],
+        f'IOU {split}/mean': metrics['IOU'].mean(),
+        f'Precision {split}/mean': metrics['Precision'].mean(),
+        f'Sensitivity {split}/mean': metrics['Sensitivity'].mean(),
+        f'Specificity {split}/mean': metrics['Specificity'].mean(),
     }
-    for num, cl in enumerate(classes):
-        metrics_log[f'{name}/IOU ({cl})'] = metrics['iou'][num]
-        metrics_log[f'{name}/Precision ({cl})'] = metrics['precision'][num]
-        metrics_log[f'{name}/Sensitivity ({cl})'] = metrics['sensitivity'][num]
-        metrics_log[f'{name}/Specificity ({cl})'] = metrics['specificity'][num]
-        metrics_log[f'IOU {name}/{cl}'] = metrics['iou'][num]
-        metrics_log[f'Precision {name}/{cl}'] = metrics['precision'][num]
-        metrics_log[f'Sensitivity {name}/{cl}'] = metrics['sensitivity'][num]
-        metrics_log[f'Specificity {name}/{cl}'] = metrics['specificity'][num]
 
-        header_w = False
-        if not os.path.exists(f'data/experiment/{name}_{cl}.csv'):
-            header_w = True
-        with open(f'data/experiment/{name}_{cl}.csv', 'a', newline='') as f_object:
-            fieldnames = [
-                'epoch',
-                'IOU',
-                'Precision',
-                'Sensitivity',
-                'Specificity',
-            ]
-            writer = DictWriter(f_object, fieldnames=fieldnames)
-            if header_w:
-                writer.writeheader()
-            writer.writerow(
-                {
-                    'epoch': epoch,
-                    'IOU': metrics['iou'][num],
-                    'Precision': metrics['precision'][num],
-                    'Sensitivity': metrics['sensitivity'][num],
-                    'Specificity': metrics['specificity'][num],
-                },
-            )
-            f_object.close()
-    log_dict(metrics_log, on_epoch=True)
-
-    if not os.path.exists('data/experiment/val_mean.csv'):
-        writer.writeheader()
-    with open('data/experiment/val_mean.csv', 'a', newline='') as f_object:
+    with open(f'models/{model_name}/metrics.csv', 'a', newline='') as f_object:
         fieldnames = [
-            'epoch',
-            'IOU (mean)',
-            'Precision (mean)',
-            'Sensitivity (mean)',
-            'Specificity (mean)',
-            'Dice_score (mean)',
+            'Epoch',
+            'Metric',
+            'Class',
+            'Split',
+            'Value',
         ]
         writer = DictWriter(f_object, fieldnames=fieldnames)
-        writer.writerow(
-            {
-                'epoch': epoch,
-                'IOU (mean)': metrics['iou'].mean(),
-                'Precision (mean)': metrics['precision'].mean(),
-                'Sensitivity (mean)': metrics['sensitivity'].mean(),
-                'Specificity (mean)': metrics['specificity'].mean(),
-                'Dice_score (mean)': metrics['dice_score'],
-            },
-        )
+        if header_w:
+            writer.writeheader()
+
+        for metric_name in ['IOU', 'Precision', 'Sensitivity', 'Specificity', 'F1']:
+            for num, cl in enumerate(classes):
+                metrics_log[f'{split}/{metric_name} ({cl})'] = metrics[metric_name][num]
+                metrics_log[f'{metric_name} {split}/{cl}'] = metrics[metric_name][num]
+                writer.writerow(
+                    {
+                        'Epoch': epoch + 1,
+                        'Metric': metric_name,
+                        'Class': cl,
+                        'Split': split,
+                        'Value': metrics[metric_name][num],
+                    },
+                )
+            writer.writerow(
+                {
+                    'Epoch': epoch + 1,
+                    'Metric': metric_name,
+                    'Class': 'Mean',
+                    'Split': split,
+                    'Value': metrics[metric_name].mean(),
+                },
+            )
+        log_dict(metrics_log, on_epoch=True)
         f_object.close()
 
 

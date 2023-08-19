@@ -15,6 +15,7 @@ class HistologySegmentationModel(pl.LightningModule):
         self,
         arch: str,
         encoder_name: str,
+        model_name: str,
         in_channels: int,
         classes: List[str],
         **kwargs,
@@ -36,6 +37,7 @@ class HistologySegmentationModel(pl.LightningModule):
         self.training_step_outputs = []  # type: ignore
         self.validation_step_outputs = []  # type: ignore
         self.loss_fn = smp.losses.DiceLoss(smp.losses.MULTILABEL_MODE, from_logits=True)
+        self.model_name = model_name
 
         self.my_logger = Logger.current_logger()
 
@@ -76,7 +78,8 @@ class HistologySegmentationModel(pl.LightningModule):
     def on_train_epoch_end(self):
         save_metrics_on_epoch(
             metrics_epoch=self.training_step_outputs,
-            name='train',
+            split='train',
+            model_name=self.model_name,
             classes=self.classes,
             epoch=self.epoch,
             log_dict=self.log_dict,
@@ -117,7 +120,8 @@ class HistologySegmentationModel(pl.LightningModule):
     def on_validation_epoch_end(self):
         save_metrics_on_epoch(
             metrics_epoch=self.validation_step_outputs,
-            name='test',
+            split='test',
+            model_name=self.model_name,
             classes=self.classes,
             epoch=self.epoch,
             log_dict=self.log_dict,

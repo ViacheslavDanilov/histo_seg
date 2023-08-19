@@ -27,6 +27,7 @@ def main(cfg: DictConfig) -> None:
     today = datetime.datetime.today()
     task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
     model_dir = os.path.join('models', f'{task_name}')
+    os.makedirs(model_dir)
 
     # Initialize ClearML task and log hyperparameters
     task = Task.init(
@@ -78,6 +79,7 @@ def main(cfg: DictConfig) -> None:
         encoder_name=cfg.encoder,
         in_channels=3,
         classes=cfg.classes,
+        model_name=task_name,
     )
 
     # Initialize and tun trainer
@@ -98,6 +100,7 @@ def main(cfg: DictConfig) -> None:
         model,
         datamodule=oct_data_module,
     )
+    task.upload_artifact(name='Metrics', artifact_object=f'{model_dir}/metrics.csv')
     task.close()
 
 
