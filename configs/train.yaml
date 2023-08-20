@@ -2,12 +2,9 @@ defaults:
 - main
 - _self_
 
-data_dir: data/interim
-save_dir: data/final
-train_size: 0.80
-seed: 11
-smooth_mask: true
-class_names:
+project_name: histology_segmentation
+data_dir: data/final
+classes:
 - Arteriole lumen
 - Arteriole media
 - Arteriole adventitia
@@ -17,3 +14,9 @@ class_names:
 - Venule wall
 - Immune cells
 - Nerve trunks
+architecture: unet
+encoder: resnet50
+input_size: 448
+batch_size: 16
+epochs: 150
+device: auto

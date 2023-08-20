@@ -14,13 +14,13 @@ repos:
 
 # trailing comma fixer
 - repo: https://github.com/asottile/add-trailing-comma
-  rev: v2.5.1
+  rev: v3.0.0
   hooks:
   - id: add-trailing-comma
 
 # black formatter
 - repo: https://github.com/ambv/black
-  rev: 23.3.0
+  rev: 23.7.0
   hooks:
   - id: black
     args: [--config, pyproject.toml]
@@ -49,7 +49,7 @@ repos:
 
 # ruff
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: 'v0.0.275'
+  rev: 'v0.0.277'
   hooks:
   - id: ruff
     args: [--fix, --exit-non-zero-on-fix]
@@ -64,13 +64,7 @@ repos:
 
 # static type checker
 - repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.4.0
+  rev: v1.4.1
   hooks:
   - id: mypy
     args: [--config-file, pyproject.toml]
-
-exclude: |
-  (?x)(
-      ^src/models/mmdetection/|
-      ^src/models/smp
-  )

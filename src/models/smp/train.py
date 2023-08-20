@@ -9,8 +9,8 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
-from src.models.smp.dataset import OCTDataModule
-from src.models.smp.model import OCTSegmentationModel
+from src.models.smp.dataset import HistologyDataModule
+from src.models.smp.model import HistologySegmentationModel
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -18,31 +18,43 @@ log.setLevel(logging.INFO)
 
 @hydra.main(
     config_path=os.path.join(os.getcwd(), 'configs'),
-    config_name='train_smp_model',
+    config_name='train',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
     today = datetime.datetime.today()
-    model_dir = f'models/{cfg.project_name}/{cfg.task_name}_#{today.strftime("%m-%d-%H.%M")}'
+    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
+    model_dir = os.path.join('models', f'{task_name}')
+    os.makedirs(model_dir)
 
-    # Initialize ClearML task
-    Task.init(
+    # Initialize ClearML task and log hyperparameters
+    task = Task.init(
         project_name=cfg.project_name,
-        task_name=cfg.task_name,
+        task_name=task_name,
         auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
     )
+    hyperparameters = {
+        'architecture': cfg.architecture,
+        'encoder': cfg.encoder,
+        'input_size': cfg.input_size,
+        'classes': list(cfg.classes),
+        'num_classes': len(cfg.classes),
+        'batch_size': cfg.batch_size,
+        'epochs': cfg.epochs,
+        'device': cfg.device,
+        'data_dir': cfg.data_dir,
+    }
+    task.set_parameters(hyperparameters)
 
     # Initialize data module
-    oct_data_module = OCTDataModule(
-        dataset_name=cfg.dataset_name,
-        project_name=cfg.project_name,
+    oct_data_module = HistologyDataModule(
         input_size=cfg.input_size,
         classes=cfg.classes,
-        classes_idx=cfg.classes_idx,
         batch_size=cfg.batch_size,
         num_workers=os.cpu_count(),
+        data_dir=cfg.data_dir,
     )
 
     # Initialize callbacks
@@ -62,12 +74,12 @@ def main(cfg: DictConfig) -> None:
     )
 
     # Initialize model
-    model = OCTSegmentationModel(
-        cfg.architecture,
-        cfg.encoder,
+    model = HistologySegmentationModel(
+        arch=cfg.architecture,
+        encoder_name=cfg.encoder,
         in_channels=3,
         classes=cfg.classes,
-        colors=cfg.classes_color,
+        model_name=task_name,
     )
 
     # Initialize and tun trainer
@@ -88,6 +100,8 @@ def main(cfg: DictConfig) -> None:
         model,
         datamodule=oct_data_module,
     )
+    task.upload_artifact(name='Metrics', artifact_object=f'{model_dir}/metrics.csv')
+    task.close()
 
 
 if __name__ == '__main__':

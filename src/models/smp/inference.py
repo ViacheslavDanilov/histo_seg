@@ -1,21 +1,23 @@
 import os
+from glob import glob
+from typing import Tuple
+
 import cv2
 import hydra
+import numpy as np
 import torch
 import torchvision
-from glob import glob
-import numpy as np
-from omegaconf import DictConfig, OmegaConf
-from typing import Tuple
+from omegaconf import DictConfig
+
 from src.models.smp.model import OCTSegmentationModel
 
 
 def get_img_mask_union(
-        img_0: np.ndarray,
-        alpha_0: float,
-        img_1: np.ndarray,
-        alpha_1: float,
-        color: Tuple[int, int, int],
+    img_0: np.ndarray,
+    alpha_0: float,
+    img_1: np.ndarray,
+    alpha_1: float,
+    color: Tuple[int, int, int],
 ) -> np.ndarray:
     return cv2.addWeighted(
         np.array(img_0).astype('uint8'),
@@ -28,12 +30,21 @@ def get_img_mask_union(
     )
 
 
+def calculate_iou(gt_mask, pred_mask):
+    gt_mask[gt_mask > 0] = 1
+    pred_mask[pred_mask > 0] = 1
+    overlap = pred_mask * gt_mask
+    union = (pred_mask + gt_mask) > 0
+    iou = overlap.sum() / float(union.sum())
+    return iou
+
+
 def get_img_color_mask(
-        img_0: np.ndarray,
-        alpha_0: float,
-        img_1: np.ndarray,
-        alpha_1: float,
-        color: Tuple[int, int, int],
+    img_0: np.ndarray,
+    alpha_0: float,
+    img_1: np.ndarray,
+    alpha_1: float,
+    color: Tuple[int, int, int],
 ) -> np.ndarray:
     return cv2.addWeighted(
         np.array(img_0).astype('uint8'),
@@ -47,7 +58,7 @@ def get_img_color_mask(
 
 
 def to_tensor(
-        x: np.ndarray,
+    x: np.ndarray,
 ) -> np.ndarray:
     return x.transpose([2, 0, 1]).astype('float32')
 
@@ -69,7 +80,7 @@ def main(cfg: DictConfig) -> None:
     #     colors=cfg.classes_color,
     # )
     model = OCTSegmentationModel.load_from_checkpoint(
-        "models/Histology segmentation/models_epoch=161.ckpt",
+        'models/Histology segmentation/models_epoch=161.ckpt',
         arch=cfg.architecture,
         encoder_name=cfg.encoder,
         in_channels=3,
@@ -111,6 +122,7 @@ def main(cfg: DictConfig) -> None:
         color_mask_pred[:, :] = (128, 128, 128)
         color_mask_gr[:, :] = (128, 128, 128)
 
+        classes_iou = []
         for id, cl in enumerate(zip(cfg.classes)):
             # Groundtruth
             m = np.zeros(mask.shape)
@@ -126,6 +138,19 @@ def main(cfg: DictConfig) -> None:
             )
             color_mask_gr[m == 1] = cfg.classes_color[cl[0]]
 
+            a = np.nonzero(m)
+            try:
+                # if np.max(m) == 1.0:
+                if len(a[0]) > 300:
+                    iou = calculate_iou(
+                        m,
+                        mask_pred[:, :, id],
+                    )
+                    classes_iou.append((cl[0], iou))
+            except Exception as e:
+                print(f'Exception: {e}')
+                pass
+
             image_pred = get_img_mask_union(
                 img_0=image_pred,
                 alpha_0=1,
@@ -140,16 +165,90 @@ def main(cfg: DictConfig) -> None:
 
             color_mask_pred[mask_pred[:, :, id] == 1] = cfg.classes_color[cl[0]]
 
+        image_gr = cv2.putText(
+            image_gr,
+            'Annotation',
+            (10, 20),
+            cv2.FONT_HERSHEY_DUPLEX,
+            0.45,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        color_mask_gr = cv2.putText(
+            color_mask_gr,
+            'Annotation',
+            (10, 20),
+            cv2.FONT_HERSHEY_DUPLEX,
+            0.45,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+
+        image_pred = cv2.putText(
+            image_pred,
+            'Unet Resnet50',
+            (10, 20),
+            cv2.FONT_HERSHEY_DUPLEX,
+            0.45,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+        color_mask_pred = cv2.putText(
+            color_mask_pred,
+            'Unet Resnet50',
+            (10, 20),
+            cv2.FONT_HERSHEY_DUPLEX,
+            0.45,
+            (0, 0, 0),
+            1,
+            cv2.LINE_AA,
+        )
+
+        for id, (cl, c) in enumerate(classes_iou):
+            image_pred = cv2.putText(
+                image_pred,
+                f'{cl}: {np.round(c, 3)}',
+                (10, 20 * id + 40),
+                cv2.FONT_HERSHEY_DUPLEX,
+                0.45,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+            color_mask_pred = cv2.putText(
+                color_mask_pred,
+                f'{cl}: {np.round(c, 3)}',
+                (10, 20 * id + 40),
+                cv2.FONT_HERSHEY_DUPLEX,
+                0.45,
+                (0, 0, 0),
+                1,
+                cv2.LINE_AA,
+            )
+
         res = np.hstack((image_input, image_gr))
         res = np.hstack((res, image_pred))
 
         res_c = np.hstack((image_input, color_mask_gr))
         res_c = np.hstack((res_c, color_mask_pred))
 
-        cv2.imwrite(f'data/experiment/test/union_example_{idy}.png', res)
-        cv2.imwrite(f'data/experiment/test//color_mask_example_{idy}.png', res_c)
+        res_final = np.vstack((res, res_c))
 
-    pass
+        cv2.imwrite(f'data/experiment/test/union_example_{idy}.png', res)
+        cv2.imwrite(f'data/experiment/test/color_mask_example_{idy}.png', res_c)
+        cv2.imwrite(f'data/experiment/test/final_example_{idy}.png', res_final)
+
+        cv2.imwrite(
+            f'data/experiment/test/prediction/example_{idy}.png',
+            np.hstack((image_pred, color_mask_pred)),
+        )
+        cv2.imwrite(
+            f'data/experiment/test/annotation/example_{idy}.png',
+            np.hstack((image_gr, color_mask_gr)),
+        )
 
 
 if __name__ == '__main__':
