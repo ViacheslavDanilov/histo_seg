@@ -43,7 +43,6 @@ def get_metrics(
     dice = 2 * tp / (2 * tp + fp + fn)  # alternatively: dice = 2 * iou / (iou + 1)
     f1 = smp.metrics.f1_score(tp, fp, fn, tn)
     precision = smp.metrics.precision(tp, fp, fn, tn)
-    recall = smp.metrics.recall(tp, fp, fn, tn)
     sensitivity = smp.metrics.sensitivity(tp, fp, fn, tn)
     specificity = smp.metrics.specificity(tp, fp, fn, tn)
 
@@ -56,7 +55,7 @@ def get_metrics(
         'IoU': iou.cpu().numpy(),
         'Dice': dice.cpu().numpy(),
         'F1': f1.cpu().numpy(),
-        'Recall': recall.cpu().numpy(),
+        'Recall': sensitivity.cpu().numpy(),
         'Precision': precision.cpu().numpy(),
         'Sensitivity': sensitivity.cpu().numpy(),
         'Specificity': specificity.cpu().numpy(),
