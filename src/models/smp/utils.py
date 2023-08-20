@@ -45,7 +45,6 @@ def get_metrics(
     precision = smp.metrics.precision(tp, fp, fn, tn)
     sensitivity = smp.metrics.sensitivity(tp, fp, fn, tn)
     specificity = smp.metrics.specificity(tp, fp, fn, tn)
-
     return {
         'loss': loss.detach().cpu().numpy(),
         'tp': tp.cpu().numpy(),
@@ -98,12 +97,13 @@ def save_metrics_on_epoch(
 
     metrics_log = {
         f'{split}/IoU (mean)': metrics['IoU'].mean(),
-        f'{split}/Dice': metrics['Dice'],
+        f'{split}/Dice (mean)': metrics['Dice'].mean(),
         f'{split}/Precision (mean)': metrics['Precision'].mean(),
         f'{split}/Recall (mean)': metrics['Recall'].mean(),
         f'{split}/Sensitivity (mean)': metrics['Sensitivity'].mean(),
         f'{split}/Specificity (mean)': metrics['Specificity'].mean(),
         f'IoU {split}/mean': metrics['IoU'].mean(),
+        f'Dice {split}/mean': metrics['Dice'].mean(),
         f'Precision {split}/mean': metrics['Precision'].mean(),
         f'Recall {split}/mean': metrics['Recall'].mean(),
         f'Sensitivity {split}/mean': metrics['Sensitivity'].mean(),

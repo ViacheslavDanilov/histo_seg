@@ -18,5 +18,5 @@ architecture: unet
 encoder: resnet50
 input_size: 448
 batch_size: 16
-epochs: 300
+epochs: 150
 device: auto
