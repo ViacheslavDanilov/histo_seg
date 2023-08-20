@@ -40,24 +40,26 @@ def get_metrics(
         num_classes=len(classes),
     )
     iou = smp.metrics.iou_score(tp, fp, fn, tn)
+    dice = 1 - loss
+    f1 = smp.metrics.f1_score(tp, fp, fn, tn)
     precision = smp.metrics.precision(tp, fp, fn, tn)
+    recall = smp.metrics.recall(tp, fp, fn, tn)
     sensitivity = smp.metrics.sensitivity(tp, fp, fn, tn)
     specificity = smp.metrics.specificity(tp, fp, fn, tn)
-    f1 = smp.metrics.f1_score(tp, fp, fn, tn)
-    dice_score = 1 - loss
 
     return {
-        'dice_score': dice_score.detach().cpu().numpy(),
         'loss': loss.detach().cpu().numpy(),
-        'IOU': iou.cpu().numpy(),
-        'Precision': precision.cpu().numpy(),
-        'Sensitivity': sensitivity.cpu().numpy(),
-        'Specificity': specificity.cpu().numpy(),
-        'F1': f1.cpu().numpy(),
         'tp': tp.cpu().numpy(),
         'fp': fp.cpu().numpy(),
         'fn': fn.cpu().numpy(),
         'tn': tn.cpu().numpy(),
+        'IoU': iou.cpu().numpy(),
+        'Dice': dice.detach().cpu().numpy(),
+        'F1': f1.cpu().numpy(),
+        'Recall': recall.cpu().numpy(),
+        'Precision': precision.cpu().numpy(),
+        'Sensitivity': sensitivity.cpu().numpy(),
+        'Specificity': specificity.cpu().numpy(),
     }
 
 
@@ -96,13 +98,15 @@ def save_metrics_on_epoch(
                     )
 
     metrics_log = {
-        f'{split}/IOU (mean)': metrics['IOU'].mean(),
+        f'{split}/IoU (mean)': metrics['IoU'].mean(),
+        f'{split}/Dice': metrics['Dice'],
         f'{split}/Precision (mean)': metrics['Precision'].mean(),
+        f'{split}/Recall (mean)': metrics['Recall'].mean(),
         f'{split}/Sensitivity (mean)': metrics['Sensitivity'].mean(),
         f'{split}/Specificity (mean)': metrics['Specificity'].mean(),
-        f'{split}/Dice score': metrics['dice_score'],
-        f'IOU {split}/mean': metrics['IOU'].mean(),
+        f'IoU {split}/mean': metrics['IoU'].mean(),
         f'Precision {split}/mean': metrics['Precision'].mean(),
+        f'Recall {split}/mean': metrics['Recall'].mean(),
         f'Sensitivity {split}/mean': metrics['Sensitivity'].mean(),
         f'Specificity {split}/mean': metrics['Specificity'].mean(),
     }
@@ -119,7 +123,15 @@ def save_metrics_on_epoch(
         if header_w:
             writer.writeheader()
 
-        for metric_name in ['IOU', 'Precision', 'Sensitivity', 'Specificity', 'F1']:
+        for metric_name in [
+            'IoU',
+            'Dice',
+            'F1',
+            'Precision',
+            'Recall',
+            'Sensitivity',
+            'Specificity',
+        ]:
             for num, cl in enumerate(classes):
                 metrics_log[f'{split}/{metric_name} ({cl})'] = metrics[metric_name][num]
                 metrics_log[f'{metric_name} {split}/{cl}'] = metrics[metric_name][num]
@@ -157,7 +169,7 @@ def log_predict_model_on_epoch(
     img = img.squeeze().cpu().numpy().round()
     mask = mask.squeeze().cpu().numpy().round()
     pred_mask = pred_mask.squeeze().cpu().numpy().round()
-    for idy, (img_, mask_, pr_mask) in enumerate(zip(img, mask, pred_mask)):
+    for idx, (img_, mask_, pr_mask) in enumerate(zip(img, mask, pred_mask)):
         img_ = np.array(img_)
         img_ = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
 
@@ -180,7 +192,7 @@ def log_predict_model_on_epoch(
 
         my_logger.report_image(
             'All class',
-            f'Experiment {idy}',
+            f'Experiment {idx}',
             image=res,
             iteration=epoch,
         )
