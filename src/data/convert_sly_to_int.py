@@ -170,6 +170,20 @@ def parse_single_annotation(
     return df_ann
 
 
+def save_metadata(
+    df: pd.DataFrame,
+    save_dir: str,
+) -> None:
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+    save_path = os.path.join(save_dir, 'metadata.csv')
+    df.to_csv(
+        save_path,
+        index=True,
+        index_label='id',
+    )
+
+
 @hydra.main(
     config_path=os.path.join(os.getcwd(), 'configs'),
     config_name='convert_sly_to_int',
@@ -191,13 +205,9 @@ def main(cfg: DictConfig) -> None:
     # Save metadata
     df = pd.concat(df_list)
     df.sort_values(['image_path', 'class_id'], inplace=True)
-    df.reset_index(drop=True, inplace=True)
-    df.index += 1
-    save_path = os.path.join(cfg.save_dir, 'metadata.csv')
-    df.to_csv(
-        save_path,
-        index=True,
-        index_label='id',
+    save_metadata(
+        df=df,
+        save_dir=cfg.save_dir,
     )
 
 
