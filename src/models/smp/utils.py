@@ -163,11 +163,13 @@ def log_predict_model_on_epoch(
     classes,
     my_logger,
     epoch,
+    model_name,
 ):
     img = img.permute(0, 2, 3, 1)
     img = img.squeeze().cpu().numpy().round()
     mask = mask.squeeze().cpu().numpy().round()
     pred_mask = pred_mask.squeeze().cpu().numpy().round()
+
     for idx, (img_, mask_, pr_mask) in enumerate(zip(img, mask, pred_mask)):
         img_ = np.array(img_)
         img_ = cv2.cvtColor(img_, cv2.COLOR_BGR2RGB)
@@ -184,10 +186,10 @@ def log_predict_model_on_epoch(
         res = np.hstack((img_, color_mask_gr))
         res = np.hstack((res, color_mask_pred))
 
-        # cv2.imwrite(
-        #     f'data/experiment/all/Experiment_{str(idy).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
-        #     cv2.cvtColor(res, cv2.COLOR_RGB2BGR),
-        # )
+        cv2.imwrite(
+            f'models/{model_name}/images_per_epoch/Experiment_{str(idx).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
+            cv2.cvtColor(res.astype('uint8'), cv2.COLOR_RGB2BGR),
+        )
 
         my_logger.report_image(
             'All class',

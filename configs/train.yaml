@@ -16,7 +16,11 @@ classes:
 - Nerve trunks
 architecture: unet
 encoder: resnet50
+optimizer: Adam
 input_size: 448
 batch_size: 16
-epochs: 150
+dropout: 0.5
+loss: dice
+lr: 0.00012
+epochs: 50
 device: auto
