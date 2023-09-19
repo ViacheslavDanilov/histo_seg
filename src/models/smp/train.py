@@ -3,7 +3,7 @@ import logging
 import os
 import ssl
 
-ssl._create_default_https_context = ssl._create_unverified_context
+ssl._create_default_https_context = ssl._create_unverified_context  # TODO: Is it possible to move this line to the end of the import block?
 
 import hydra
 import pytorch_lightning as pl
@@ -56,13 +56,13 @@ def main(cfg: DictConfig) -> None:
     task.set_parameters(hyperparameters)
     task.add_tags(
         [
-            f'Arch: {hyperparameters["architecture"]}',
-            f'Enc: {hyperparameters["encoder"]}',
-            f'Opt: {hyperparameters["optimizer"]}',
-            f'Dr: {hyperparameters["dropout"]}',
-            f'Lr: {hyperparameters["lr"]}',
-            f'Is: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}x3',
-            f'Bs: {hyperparameters["batch_size"]}',
+            f'arch: {hyperparameters["architecture"]}',
+            f'encd: {hyperparameters["encoder"]}',
+            f'opt: {hyperparameters["optimizer"]}',
+            f'drp: {hyperparameters["dropout"]}',
+            f'lr: {hyperparameters["lr"]}',
+            f'inp: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}',
+            f'bs: {hyperparameters["batch_size"]}',
         ],
     )
 
@@ -101,7 +101,7 @@ def main(cfg: DictConfig) -> None:
         classes=cfg.classes,
         model_name=task_name,
         lr=hyperparameters['lr'],
-    )
+    )  # TODO: parameter 'save_img_per_epoch' unfilled
 
     # Initialize and tun trainer
     trainer = pl.Trainer(
@@ -121,7 +121,10 @@ def main(cfg: DictConfig) -> None:
         model,
         datamodule=oct_data_module,
     )
-    task.upload_artifact(name='Metrics', artifact_object=f'{model_dir}/metrics.csv')
+    task.upload_artifact(
+        name='Metrics',
+        artifact_object=f'{model_dir}/metrics.csv',
+    )
     task.close()
 
 
