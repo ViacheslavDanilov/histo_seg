@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
+# TODO: What is the reason for using this script?
 @hydra.main(
     config_path=os.path.join(os.getcwd(), 'configs'),
     config_name='train',
@@ -52,17 +53,6 @@ def main(cfg: DictConfig) -> None:
     }
     hyperparameters = task.connect(hyperparameters)
     task.set_parameters(hyperparameters)
-    # task.add_tags(
-    #     [
-    #         f'Arch: {hyperparameters["architecture"]}',
-    #         f'Enc: {hyperparameters["encoder"]}',
-    #         f'Opt: {hyperparameters["optimizer"]}',
-    #         f'Dr: {hyperparameters["dropout"]}',
-    #         f'Lr: {hyperparameters["lr"]}',
-    #         f'Is: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}x3',
-    #         f'Bs: {hyperparameters["batch_size"]}',
-    #     ]
-    # )
 
     # Initialize data module
     oct_data_module = HistologyDataModule(
