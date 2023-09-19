@@ -83,7 +83,7 @@ def main(cfg: DictConfig) -> None:
         save_img_per_epoch=False,
     )
 
-    # Initialize and tun trainer
+    # Initialize and run trainer
     trainer = pl.Trainer(
         devices=-1,
         accelerator=cfg.device,

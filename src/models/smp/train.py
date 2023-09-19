@@ -104,7 +104,7 @@ def main(cfg: DictConfig) -> None:
         lr=hyperparameters['lr'],
     )  # TODO: parameter 'save_img_per_epoch' unfilled
 
-    # Initialize and tun trainer
+    # Initialize and run trainer
     trainer = pl.Trainer(
         devices=-1,
         accelerator=cfg.device,
