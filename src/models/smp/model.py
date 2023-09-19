@@ -15,7 +15,7 @@ class HistologySegmentationModel(pl.LightningModule):
         self,
         arch: str,
         encoder_name: str,
-        dropout: float,
+        dropout: float,  # TODO: there is no use of the classification head for this task
         model_name: str,
         in_channels: int,
         classes: List[str],
@@ -30,7 +30,7 @@ class HistologySegmentationModel(pl.LightningModule):
             encoder_name=encoder_name,
             in_channels=in_channels,
             classes=len(classes),
-            aux_params=dict(
+            aux_params=dict(  # TODO: there is no use of the classification head for this task
                 dropout=dropout,
                 classes=len(classes),
             ),
@@ -124,7 +124,7 @@ class HistologySegmentationModel(pl.LightningModule):
                 classes=self.classes,
                 my_logger=self.my_logger,
                 epoch=self.epoch,
-                model_name=self.model_name
+                model_name=self.model_name,
             )
 
     def on_validation_epoch_end(self):
