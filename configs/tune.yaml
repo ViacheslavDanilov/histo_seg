@@ -2,9 +2,9 @@ defaults:
 - main
 - _self_
 
-project_name: histology_segmentation/hyper_parameter_optimization
+project_name: histology_segmentation/hyperparameter_optimization
 architecture: unet
-encoder:
+encoder:          # TODO: let's keep RESNET50 as the base network and add the recent and SOTA networks
 - resnet50
 - resnext50_32x4d
 - timm-resnest50d
@@ -25,7 +25,7 @@ optimizer:
 - SGD
 input_size: 448
 batch_size: 8
-encoder_depth: 3
+encoder_depth: 3    # TODO: do we need this parameter?
 dropout: 0.5
 loss: dice
 lr: 0.00012
