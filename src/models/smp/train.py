@@ -46,6 +46,7 @@ def main(cfg: DictConfig) -> None:
         'num_classes': len(cfg.classes),
         'batch_size': cfg.batch_size,
         'loss': cfg.loss,
+        # TODO: add optimizer
         'lr': cfg.lr,
         'dropout': cfg.dropout,
         'epochs': cfg.epochs,
