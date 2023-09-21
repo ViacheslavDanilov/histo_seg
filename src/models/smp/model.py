@@ -15,7 +15,6 @@ class HistologySegmentationModel(pl.LightningModule):
         self,
         arch: str,
         encoder_name: str,
-        dropout: float,  # TODO: there is no use of the classification head for this task
         model_name: str,
         in_channels: int,
         classes: List[str],
@@ -30,10 +29,6 @@ class HistologySegmentationModel(pl.LightningModule):
             encoder_name=encoder_name,
             in_channels=in_channels,
             classes=len(classes),
-            aux_params=dict(  # TODO: there is no use of the classification head for this task
-                dropout=dropout,
-                classes=len(classes),
-            ),
             **kwargs,
         )
 
@@ -68,8 +63,8 @@ class HistologySegmentationModel(pl.LightningModule):
         img, mask = batch
         logits_mask = self.forward(img)
 
-        loss = self.loss_fn(logits_mask[0], mask)
-        prob_mask = logits_mask[0].sigmoid()  # type: ignore
+        loss = self.loss_fn(logits_mask, mask)
+        prob_mask = logits_mask.sigmoid()  # type: ignore
         pred_mask = (prob_mask > 0.5).float()
 
         self.log('training/loss', loss, prog_bar=True, on_epoch=True)
@@ -103,8 +98,8 @@ class HistologySegmentationModel(pl.LightningModule):
     ):
         img, mask = batch
         logits_mask = self.forward(img)
-        loss = self.loss_fn(logits_mask[0], mask)
-        prob_mask = logits_mask[0].sigmoid()
+        loss = self.loss_fn(logits_mask, mask)
+        prob_mask = logits_mask.sigmoid()
         pred_mask = (prob_mask > 0.5).float()
 
         self.log('val/loss', loss, prog_bar=True, on_epoch=True)

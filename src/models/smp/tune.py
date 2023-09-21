@@ -1,18 +1,23 @@
 import logging
 import os
+from typing import List
 
 import hydra
 from clearml import Task
-from clearml.automation import (
-    DiscreteParameterRange,
-    HyperParameterOptimizer,
-    UniformParameterRange,
-)
+from clearml.automation import DiscreteParameterRange, HyperParameterOptimizer
 from clearml.automation.hpbandster import OptimizerBOHB
 from omegaconf import DictConfig, OmegaConf
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+
+
+def get_input_size(
+    min_value: int,
+    step_size: int,
+    max_value: int,
+) -> List[int]:
+    return range(min_value, max_value, step_size)
 
 
 @hydra.main(
@@ -33,47 +38,35 @@ def main(cfg: DictConfig) -> None:
     )
 
     optimizer = HyperParameterOptimizer(
-        base_task_id='b3aa2d33ec3344329413549955c621b2',  # TODO:
-        # Set the hyperparameter range to search
+        base_task_id='04cbe94d39bc4516ba7f389e3950f501',
         hyper_parameters=[
             DiscreteParameterRange(
                 name='General/encoder',
-                values=cfg.encoder,  # TODO: keep the values of the arguments in one place
+                values=cfg.encoder,
             ),
             DiscreteParameterRange(
                 name='General/optimizer',
-                values=cfg.optimizer,  # TODO: keep the values of the arguments in one place
-            ),
-            UniformParameterRange(
-                name='General/lr',  # TODO: LRs = [0.00001, 0.0001, 0.001]
-                min_value=0.00002,  # TODO: keep the values of the arguments in one place
-                max_value=0.0004,  # TODO: keep the values of the arguments in one place
-                step_size=0.00002,  # TODO: keep the values of the arguments in one place
+                values=cfg.optimizer,
             ),
             DiscreteParameterRange(
-                name='General/input_size',  # TODO: start = 256, step = 128, stop = 1024 (depends on the amount of GPU memory)
-                values=[224, 256, 448],  # TODO: keep the values of the arguments in one place
+                name='General/lr',
+                values=cfg.learning_rate,
             ),
             DiscreteParameterRange(
-                name='General/dropout',  # TODO: start = 0, step = 0.05, stop = 0.5
-                values=[
-                    0.0,
-                    0.1,
-                    0.25,
-                    0.35,
-                    0.5,
-                ],  # TODO: keep the values of the arguments in one place
+                name='General/input_size',
+                values=get_input_size(
+                    min_value=int(cfg.input_size_min),
+                    step_size=int(cfg.input_size_step),
+                    max_value=int(cfg.input_size_max),
+                ),
             ),
         ],
-        # Set the target metric that we want to maximize or minimize
-        objective_metric_title='val',  # TODO: move this value to tune.yaml and use it as parameter
-        objective_metric_series='f1',  # TODO: move this value to tune.yaml and use it as parameter
-        objective_metric_sign='max',  # TODO: move this value to tune.yaml and use it as parameter
-        # Set a search strategy optimizer
+        objective_metric_title=cfg.key_metric_type,
+        objective_metric_series=cfg.key_metric_name,
+        objective_metric_sign=cfg.key_metric_sign,
         optimizer_class=OptimizerBOHB,
-        # Configure optimization parameters
         execution_queue='default',
-        max_number_of_concurrent_tasks=1,  # TODO: Why did you set it to 1?
+        max_number_of_concurrent_tasks=1,
         total_max_jobs=50,
         min_iteration_per_job=1500,
         max_iteration_per_job=5000,

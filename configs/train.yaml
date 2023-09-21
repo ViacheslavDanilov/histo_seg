@@ -2,7 +2,8 @@ defaults:
 - main
 - _self_
 
-project_name: histology_segmentation
+#project_name: histology_segmentation
+project_name: histology_segmentation/hyperparameter_optimization
 data_dir: data/final
 classes:
 - Arteriole lumen
@@ -19,8 +20,7 @@ encoder: resnet50
 optimizer: Adam
 input_size: 448
 batch_size: 16
-dropout: 0.5
-loss: dice
 lr: 0.00012
 epochs: 50
 device: auto
+train_default: false

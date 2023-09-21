@@ -1,9 +1,6 @@
 import datetime
 import logging
 import os
-import ssl
-
-ssl._create_default_https_context = ssl._create_unverified_context  # TODO: Is it possible to move this line to the end of the import block?
 
 import hydra
 import pytorch_lightning as pl
@@ -26,11 +23,17 @@ log.setLevel(logging.INFO)
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
-
     today = datetime.datetime.today()
-    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
-    model_dir = os.path.join('models', f'{task_name}')
-    os.makedirs(f'{model_dir}/images_per_epoch')
+
+    if cfg.train_default:
+        task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
+        model_dir = os.path.join('models', f'{task_name}')
+        os.makedirs(f'{model_dir}/images_per_epoch')
+    else:
+        task_name = f'histology_segmentation_#{today.strftime("%d.%m_%H:%M")}'
+        model_dir = os.path.join('models', f'{task_name}')
+        os.makedirs(f'{model_dir}')
+
     task = Task.init(
         project_name=cfg.project_name,
         task_name=task_name,
@@ -45,48 +48,49 @@ def main(cfg: DictConfig) -> None:
         'classes': list(cfg.classes),
         'num_classes': len(cfg.classes),
         'batch_size': cfg.batch_size,
-        'loss': cfg.loss,
-        # TODO: add optimizer
+        'optimizer': cfg.optimizer,
         'lr': cfg.lr,
-        'dropout': cfg.dropout,
         'epochs': cfg.epochs,
         'device': cfg.device,
         'data_dir': cfg.data_dir,
     }
     hyperparameters = task.connect(hyperparameters)
     task.set_parameters(hyperparameters)
-    task.add_tags(
-        [
-            f'arch: {hyperparameters["architecture"]}',
-            f'encd: {hyperparameters["encoder"]}',
-            f'opt: {hyperparameters["optimizer"]}',
-            f'drp: {hyperparameters["dropout"]}',
-            f'lr: {hyperparameters["lr"]}',
-            f'inp: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}',
-            f'bs: {hyperparameters["batch_size"]}',
-        ],
-    )
 
-    # Initialize data module
+    callbacks = [
+        LearningRateMonitor(
+            logging_interval='epoch',
+            log_momentum=False,
+        ),
+    ]
+    if not cfg.train_default:
+        task.add_tags(
+            [
+                f'arch: {hyperparameters["architecture"]}',
+                f'encd: {hyperparameters["encoder"]}',
+                f'opt: {hyperparameters["optimizer"]}',
+                f'lr: {hyperparameters["lr"]}',
+                f'inp: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}',
+                f'bs: {hyperparameters["batch_size"]}',
+            ],
+        )
+    else:
+        callbacks.append(
+            ModelCheckpoint(
+                save_top_k=5,
+                monitor='val/loss',
+                mode='min',
+                dirpath=f'{model_dir}/ckpt/',
+                filename='models_{epoch:02d}',
+            ),
+        )
+
     oct_data_module = HistologyDataModule(
         input_size=hyperparameters['input_size'],
         classes=cfg.classes,
         batch_size=hyperparameters['batch_size'],
         num_workers=os.cpu_count(),
         data_dir=cfg.data_dir,
-    )
-
-    # Initialize callbacks
-    checkpoint = ModelCheckpoint(
-        save_top_k=5,
-        monitor='val/loss',
-        mode='min',
-        dirpath=f'{model_dir}/ckpt/',
-        filename='models_{epoch:02d}',
-    )
-    lr_monitor = LearningRateMonitor(
-        logging_interval='epoch',
-        log_momentum=False,
     )
     tb_logger = pl_loggers.TensorBoardLogger(
         save_dir='logs/',
@@ -97,12 +101,12 @@ def main(cfg: DictConfig) -> None:
         arch=hyperparameters['architecture'],
         encoder_name=hyperparameters['encoder'],
         optimizer_name=hyperparameters['optimizer'],
-        dropout=hyperparameters['dropout'],
         in_channels=3,
         classes=cfg.classes,
         model_name=task_name,
         lr=hyperparameters['lr'],
-    )  # TODO: parameter 'save_img_per_epoch' unfilled
+        save_img_per_epoch=cfg.train_default,
+    )
 
     # Initialize and run trainer
     trainer = pl.Trainer(
@@ -110,10 +114,7 @@ def main(cfg: DictConfig) -> None:
         accelerator=cfg.device,
         max_epochs=hyperparameters['epochs'],
         logger=tb_logger,
-        callbacks=[
-            lr_monitor,
-            checkpoint,
-        ],
+        callbacks=callbacks,
         enable_checkpointing=True,
         log_every_n_steps=hyperparameters['batch_size'],
         default_root_dir=model_dir,
