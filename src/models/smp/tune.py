@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import List
 
 import hydra
 from clearml import Task
@@ -10,14 +9,6 @@ from omegaconf import DictConfig, OmegaConf
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
-
-
-def get_input_size(
-    min_value: int,
-    step_size: int,
-    max_value: int,
-) -> List[int]:
-    return range(min_value, max_value, step_size)
 
 
 @hydra.main(
@@ -54,16 +45,12 @@ def main(cfg: DictConfig) -> None:
             ),
             DiscreteParameterRange(
                 name='General/input_size',
-                values=get_input_size(
-                    min_value=int(cfg.input_size_min),
-                    step_size=int(cfg.input_size_step),
-                    max_value=int(cfg.input_size_max),
-                ),
+                values=list(range(cfg.input_size_min, cfg.input_size_max + 1, cfg.input_size_step)),
             ),
         ],
-        objective_metric_title=cfg.key_metric_type,
-        objective_metric_series=cfg.key_metric_name,
-        objective_metric_sign=cfg.key_metric_sign,
+        objective_metric_title=cfg.metric_type,
+        objective_metric_series=cfg.metric_name,
+        objective_metric_sign=cfg.metric_sign,
         optimizer_class=OptimizerBOHB,
         execution_queue='default',
         max_number_of_concurrent_tasks=1,
