@@ -26,17 +26,18 @@ def main(cfg: DictConfig) -> None:
     today = datetime.datetime.today()
 
     if cfg.log_artifacts:
+        project_name = cfg.project_name
         task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
         model_dir = os.path.join('models', f'{task_name}')
         os.makedirs(f'{model_dir}/images_per_epoch')
     else:
+        project_name = os.path.join(cfg.project_name, 'hyperparameter_optimization')
         task_name = f'histology_segmentation_{today.strftime("%d%m_%H%M")}'
         model_dir = os.path.join('models', f'{task_name}')
         os.makedirs(f'{model_dir}')
 
     task = Task.init(
-        # TODO: check project_name from config: histology_segmentation or histology_segmentation/hyperparameter_optimization
-        project_name=cfg.project_name,
+        project_name=project_name,
         task_name=task_name,
         reuse_last_task_id=False,
         auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
