@@ -25,16 +25,17 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     today = datetime.datetime.today()
 
-    if cfg.train_default:
+    if cfg.log_artifacts:
         task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
         model_dir = os.path.join('models', f'{task_name}')
         os.makedirs(f'{model_dir}/images_per_epoch')
     else:
-        task_name = f'histology_segmentation_#{today.strftime("%d.%m_%H:%M")}'
+        task_name = f'histology_segmentation_{today.strftime("%d%m_%H%M")}'
         model_dir = os.path.join('models', f'{task_name}')
         os.makedirs(f'{model_dir}')
 
     task = Task.init(
+        # TODO: check project_name from config: histology_segmentation or histology_segmentation/hyperparameter_optimization
         project_name=cfg.project_name,
         task_name=task_name,
         reuse_last_task_id=False,
@@ -63,7 +64,17 @@ def main(cfg: DictConfig) -> None:
             log_momentum=False,
         ),
     ]
-    if not cfg.train_default:
+    if cfg.log_artifacts:
+        callbacks.append(
+            ModelCheckpoint(
+                save_top_k=5,
+                monitor='val/loss',
+                mode='min',
+                dirpath=f'{model_dir}/ckpt/',
+                filename='models_{epoch:02d}',
+            ),
+        )
+    else:
         task.add_tags(
             [
                 f'arch: {hyperparameters["architecture"]}',
@@ -73,16 +84,6 @@ def main(cfg: DictConfig) -> None:
                 f'inp: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}',
                 f'bs: {hyperparameters["batch_size"]}',
             ],
-        )
-    else:
-        callbacks.append(
-            ModelCheckpoint(
-                save_top_k=5,
-                monitor='val/loss',
-                mode='min',
-                dirpath=f'{model_dir}/ckpt/',
-                filename='models_{epoch:02d}',
-            ),
         )
 
     oct_data_module = HistologyDataModule(
@@ -105,7 +106,7 @@ def main(cfg: DictConfig) -> None:
         classes=cfg.classes,
         model_name=task_name,
         lr=hyperparameters['lr'],
-        save_img_per_epoch=cfg.train_default,
+        save_img_per_epoch=cfg.log_artifacts,
     )
 
     # Initialize and run trainer
