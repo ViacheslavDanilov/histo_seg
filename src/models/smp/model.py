@@ -9,7 +9,7 @@ from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_m
 
 
 class HistologySegmentationModel(pl.LightningModule):
-    """The model dedicated to the segmentation of OCT images."""
+    """The model dedicated to the segmentation of histopathological images."""
 
     def __init__(
         self,
