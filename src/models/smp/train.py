@@ -31,7 +31,7 @@ def main(cfg: DictConfig) -> None:
         model_dir = os.path.join('models', f'{task_name}')
         os.makedirs(f'{model_dir}/images_per_epoch')
     else:
-        project_name = os.path.join(cfg.project_name, 'hyperparameter_optimization')
+        project_name = os.path.join(cfg.project_name, cfg.architecture)
         task_name = f'histology_segmentation_{today.strftime("%d%m_%H%M")}'
         model_dir = os.path.join('models', f'{task_name}')
         os.makedirs(f'{model_dir}')

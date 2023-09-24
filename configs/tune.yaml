@@ -2,7 +2,8 @@ defaults:
 - main
 - _self_
 
-project_name: histology_segmentation/hyperparameter_optimization
+base_task_id: cab09e438e2e4f1ba3ec46d694e245a9
+project_name: histology_segmentation/unet
 architecture: unet
 encoder:
 - resnet18

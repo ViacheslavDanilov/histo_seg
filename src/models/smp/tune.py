@@ -29,7 +29,7 @@ def main(cfg: DictConfig) -> None:
     )
 
     optimizer = HyperParameterOptimizer(
-        base_task_id='04cbe94d39bc4516ba7f389e3950f501',
+        base_task_id=cfg.base_task_id,
         hyper_parameters=[
             DiscreteParameterRange(
                 name='General/encoder',
@@ -43,10 +43,10 @@ def main(cfg: DictConfig) -> None:
                 name='General/lr',
                 values=cfg.learning_rate,
             ),
-            DiscreteParameterRange(
-                name='General/input_size',
-                values=list(range(cfg.input_size_min, cfg.input_size_max + 1, cfg.input_size_step)),
-            ),
+            # DiscreteParameterRange(
+            #     name='General/input_size',
+            #     values=list(range(cfg.input_size_min, cfg.input_size_max + 1, cfg.input_size_step)),
+            # ),
         ],
         objective_metric_title=cfg.metric_type,
         objective_metric_series=cfg.metric_name,
