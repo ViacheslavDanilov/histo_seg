@@ -43,10 +43,10 @@ def main(cfg: DictConfig) -> None:
                 name='General/lr',
                 values=cfg.learning_rate,
             ),
-            # DiscreteParameterRange(
-            #     name='General/input_size',
-            #     values=list(range(cfg.input_size_min, cfg.input_size_max + 1, cfg.input_size_step)),
-            # ),
+            DiscreteParameterRange(
+                name='General/input_size',
+                values=list(range(cfg.input_size_min, cfg.input_size_max + 1, cfg.input_size_step)),
+            ),
         ],
         objective_metric_title=cfg.metric_type,
         objective_metric_series=cfg.metric_name,
