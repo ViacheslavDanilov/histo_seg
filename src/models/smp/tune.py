@@ -20,8 +20,9 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
     # Initialize ClearML task and log hyperparameters
+    project_name = os.path.join(cfg.project_name, cfg.architecture)
     Task.init(
-        project_name=cfg.project_name,
+        project_name=project_name,
         task_name='HPO',
         task_type=Task.TaskTypes.optimizer,
         reuse_last_task_id=False,
