@@ -25,19 +25,11 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     today = datetime.datetime.today()
 
-    if cfg.log_artifacts:
-        project_name = cfg.project_name
-        task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
-        model_dir = os.path.join('models', f'{task_name}')
-        os.makedirs(f'{model_dir}/images_per_epoch')
-    else:
-        project_name = os.path.join(cfg.project_name, cfg.architecture)
-        task_name = f'histology_segmentation_{today.strftime("%d%m_%H%M")}'
-        model_dir = os.path.join('models', f'{task_name}')
-        os.makedirs(f'{model_dir}')
+    task_name = f'histology_segmentation_{today.strftime("%d%m_%H%M")}'
+    model_dir = os.path.join('models', f'{task_name}')
 
     task = Task.init(
-        project_name=project_name,
+        project_name=cfg.project_name,
         task_name=task_name,
         reuse_last_task_id=False,
         auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
@@ -66,6 +58,7 @@ def main(cfg: DictConfig) -> None:
         ),
     ]
     if cfg.log_artifacts:
+        os.makedirs(f'{model_dir}/images_per_epoch')
         callbacks.append(
             ModelCheckpoint(
                 save_top_k=5,
@@ -76,6 +69,7 @@ def main(cfg: DictConfig) -> None:
             ),
         )
     else:
+        os.makedirs(f'{model_dir}')
         task.add_tags(
             [
                 f'arch: {hyperparameters["architecture"]}',
