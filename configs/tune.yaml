@@ -2,7 +2,7 @@ defaults:
 - main
 - _self_
 
-base_task_id: cab09e438e2e4f1ba3ec46d694e245a9
+base_task_id: 15b7242442d84f1fa12565d1b45578b8
 project_name: histology_segmentation
 architecture: unet
 encoder:
