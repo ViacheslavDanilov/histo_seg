@@ -4,11 +4,11 @@ import os
 
 import hydra
 import pytorch_lightning as pl
-from clearml import Task
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
+from clearml import Task
 from src.models.smp.dataset import HistologyDataModule
 from src.models.smp.model import HistologySegmentationModel
 
@@ -25,13 +25,11 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     today = datetime.datetime.today()
 
-    task_name = f'histology_segmentation_{today.strftime("%d%m_%H%M")}'
+    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
     model_dir = os.path.join('models', f'{task_name}')
-
     task = Task.init(
         project_name=cfg.project_name,
         task_name=task_name,
-        reuse_last_task_id=False,
         auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
     )
     # Initialize ClearML task and log hyperparameters

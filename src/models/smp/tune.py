@@ -2,10 +2,11 @@ import logging
 import os
 
 import hydra
+from omegaconf import DictConfig, OmegaConf
+
 from clearml import Task
 from clearml.automation import DiscreteParameterRange, HyperParameterOptimizer
 from clearml.automation.hpbandster import OptimizerBOHB
-from omegaconf import DictConfig, OmegaConf
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -18,15 +19,14 @@ log.setLevel(logging.INFO)
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
-
     # Initialize ClearML task and log hyperparameters
     project_name = os.path.join(cfg.project_name, cfg.architecture)
     Task.init(
         project_name=project_name,
         task_name='HPO',
         task_type=Task.TaskTypes.optimizer,
-        reuse_last_task_id=False,
         auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
+        reuse_last_task_id=False,
     )
 
     optimizer = HyperParameterOptimizer(

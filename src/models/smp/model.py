@@ -1,10 +1,11 @@
 from typing import List
 
+import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
-from clearml import Logger
 
+from clearml import Logger
 from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_metrics_on_epoch
 
 
@@ -111,6 +112,7 @@ class HistologySegmentationModel(pl.LightningModule):
                 classes=self.classes,
             ),
         )
+        self.log('val/f1', np.mean(self.validation_step_outputs[-1]['F1']).mean(), prog_bar=True, on_epoch=True)
         if batch_idx == 0 and self.save_img_per_epoch:
             log_predict_model_on_epoch(
                 img=img,
