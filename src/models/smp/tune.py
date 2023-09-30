@@ -2,11 +2,10 @@ import logging
 import os
 
 import hydra
-from omegaconf import DictConfig, OmegaConf
-
 from clearml import Task
 from clearml.automation import DiscreteParameterRange, HyperParameterOptimizer
 from clearml.automation.hpbandster import OptimizerBOHB
+from omegaconf import DictConfig, OmegaConf
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)

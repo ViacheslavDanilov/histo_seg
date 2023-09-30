@@ -9,7 +9,7 @@ import torch
 import torchvision
 from omegaconf import DictConfig
 
-from src.models.smp.model import OCTSegmentationModel
+from src.models.smp.model import HistologySegmentationModel
 
 
 def get_img_mask_union(
@@ -72,14 +72,7 @@ get_tensor = torchvision.transforms.ToTensor()
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
-    # Module = OCTSegmentationModel(
-    #     cfg.architecture,
-    #     cfg.encoder,
-    #     in_channels=3,
-    #     classes=cfg.classes,
-    #     colors=cfg.classes_color,
-    # )
-    model = OCTSegmentationModel.load_from_checkpoint(
+    model = HistologySegmentationModel.load_from_checkpoint(
         'models/Histology segmentation/models_epoch=161.ckpt',
         arch=cfg.architecture,
         encoder_name=cfg.encoder,

@@ -4,11 +4,11 @@ import os
 
 import hydra
 import pytorch_lightning as pl
+from clearml import Task
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
-from clearml import Task
 from src.models.smp.dataset import HistologyDataModule
 from src.models.smp.model import HistologySegmentationModel
 

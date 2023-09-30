@@ -4,8 +4,8 @@ import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
-
 from clearml import Logger
+
 from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_metrics_on_epoch
 
 
@@ -112,7 +112,12 @@ class HistologySegmentationModel(pl.LightningModule):
                 classes=self.classes,
             ),
         )
-        self.log('val/f1', np.mean(self.validation_step_outputs[-1]['F1']).mean(), prog_bar=True, on_epoch=True)
+        self.log(
+            'val/f1',
+            np.mean(self.validation_step_outputs[-1]['F1']).mean(),
+            prog_bar=True,
+            on_epoch=True,
+        )
         if batch_idx == 0 and self.save_img_per_epoch:
             log_predict_model_on_epoch(
                 img=img,
@@ -136,13 +141,14 @@ class HistologySegmentationModel(pl.LightningModule):
         self.validation_step_outputs.clear()
         self.epoch += 1
 
-    def configure_optimizers(self):
-        match self.optimizer:
-            case 'SGD':
-                return torch.optim.SGD(self.parameters(), lr=self.lr)
-            case 'RAdam':
-                return torch.optim.RAdam(self.parameters(), lr=self.lr)
-            case 'SAdam':
-                return torch.optim.SparseAdam(self.parameters(), lr=self.lr)
-            case _:
-                return torch.optim.Adam(self.parameters(), lr=self.lr)
+    def configure_optimizer(self):
+        if self.optimizer == 'SGD':
+            return torch.optim.SGD(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'RAdam':
+            return torch.optim.RAdam(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'SAdam':
+            return torch.optim.SparseAdam(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'Adam':
+            return torch.optim.Adam(self.parameters(), lr=self.lr)
+        else:
+            raise ValueError(f'Unknown optimizer: {self.optimizer}')
