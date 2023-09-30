@@ -25,7 +25,10 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     today = datetime.datetime.today()
 
-    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
+    if cfg.task_name is not None:
+        task_name = f'{cfg.task_name}_{today.strftime("%d%m_%H%M")}'
+    else:
+        task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
     model_dir = os.path.join('models', f'{task_name}')
     task = Task.init(
         project_name=cfg.project_name,
@@ -121,7 +124,6 @@ def main(cfg: DictConfig) -> None:
         name='Metrics',
         artifact_object=f'{model_dir}/metrics.csv',
     )
-    task.close()
 
 
 if __name__ == '__main__':

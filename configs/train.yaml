@@ -3,6 +3,7 @@ defaults:
 - _self_
 
 project_name: histology_segmentation
+task_name:
 data_dir: data/final
 classes:
 - Arteriole lumen
