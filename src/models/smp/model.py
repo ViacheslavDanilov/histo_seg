@@ -1,5 +1,6 @@
 from typing import List
 
+import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
@@ -9,7 +10,7 @@ from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_m
 
 
 class HistologySegmentationModel(pl.LightningModule):
-    """The model dedicated to the segmentation of OCT images."""
+    """The model dedicated to the segmentation of histopathological images."""
 
     def __init__(
         self,
@@ -18,6 +19,9 @@ class HistologySegmentationModel(pl.LightningModule):
         model_name: str,
         in_channels: int,
         classes: List[str],
+        lr: float,
+        optimizer_name: str,
+        save_img_per_epoch: bool,
         **kwargs,
     ):
         super().__init__()
@@ -38,7 +42,9 @@ class HistologySegmentationModel(pl.LightningModule):
         self.validation_step_outputs = []  # type: ignore
         self.loss_fn = smp.losses.DiceLoss(smp.losses.MULTILABEL_MODE, from_logits=True)
         self.model_name = model_name
-
+        self.lr = lr
+        self.optimizer = optimizer_name
+        self.save_img_per_epoch = save_img_per_epoch
         self.my_logger = Logger.current_logger()
 
     def forward(
@@ -93,7 +99,6 @@ class HistologySegmentationModel(pl.LightningModule):
     ):
         img, mask = batch
         logits_mask = self.forward(img)
-
         loss = self.loss_fn(logits_mask, mask)
         prob_mask = logits_mask.sigmoid()
         pred_mask = (prob_mask > 0.5).float()
@@ -107,7 +112,13 @@ class HistologySegmentationModel(pl.LightningModule):
                 classes=self.classes,
             ),
         )
-        if batch_idx == 0:
+        self.log(
+            'val/f1',
+            np.mean(self.validation_step_outputs[-1]['F1']).mean(),
+            prog_bar=True,
+            on_epoch=True,
+        )
+        if batch_idx == 0 and self.save_img_per_epoch:
             log_predict_model_on_epoch(
                 img=img,
                 mask=mask,
@@ -115,6 +126,7 @@ class HistologySegmentationModel(pl.LightningModule):
                 classes=self.classes,
                 my_logger=self.my_logger,
                 epoch=self.epoch,
+                model_name=self.model_name,
             )
 
     def on_validation_epoch_end(self):
@@ -130,4 +142,13 @@ class HistologySegmentationModel(pl.LightningModule):
         self.epoch += 1
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=0.00012)
+        if self.optimizer == 'SGD':
+            return torch.optim.SGD(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'RAdam':
+            return torch.optim.RAdam(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'SAdam':
+            return torch.optim.SparseAdam(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'Adam':
+            return torch.optim.Adam(self.parameters(), lr=self.lr)
+        else:
+            raise ValueError(f'Unknown optimizer: {self.optimizer}')
