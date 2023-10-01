@@ -141,7 +141,7 @@ class HistologySegmentationModel(pl.LightningModule):
         self.validation_step_outputs.clear()
         self.epoch += 1
 
-    def configure_optimizer(self):
+    def configure_optimizers(self):
         if self.optimizer == 'SGD':
             return torch.optim.SGD(self.parameters(), lr=self.lr)
         elif self.optimizer == 'RAdam':
