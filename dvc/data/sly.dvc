@@ -1,6 +1,0 @@
-wdir: ../../data
-outs:
-- md5: bab48f8682246bb490479393866d8b43.dir
-  size: 895760985
-  nfiles: 2002
-  path: sly
