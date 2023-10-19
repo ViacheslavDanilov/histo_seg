@@ -1,0 +1,6 @@
+outs:
+- md5: c60843622b631d2056f53760d97a7f25.dir
+  size: 1343867429
+  nfiles: 4499
+  hash: md5
+  path: sly
