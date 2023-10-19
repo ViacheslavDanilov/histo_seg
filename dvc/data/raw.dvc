@@ -1,6 +1,0 @@
-wdir: ../../data
-outs:
-- md5: 2ad334bbf354598d6bd765b664398200.dir
-  size: 18007344648
-  nfiles: 501
-  path: raw
