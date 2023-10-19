@@ -46,12 +46,12 @@ def process_mask(
         mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
 
     img_stem = Path(img_path).stem
-    new_img_path = os.path.join(save_dir, 'img', f'{img_stem}.png')
+    new_img_path = os.path.join(save_dir, 'img', f'{img_stem}.jpg')
     mask_path = os.path.join(save_dir, 'mask', f'{img_stem}.png')
     color_mask_path = os.path.join(save_dir, 'mask_color', f'{img_stem}.png')
     cv2.imwrite(mask_path, mask)
     cv2.imwrite(color_mask_path, mask_color)
-    cv2.imwrite(new_img_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    cv2.imwrite(new_img_path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
 
 
 def build_mask(
@@ -127,7 +127,7 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Test images....: {len(gb_test)}')
 
     # Process train and test subsets
-    Parallel(n_jobs=-1, backend='threading')(
+    Parallel(n_jobs=1, backend='threading')(
         delayed(process_mask)(
             img_path=img_path,
             df=df,
@@ -137,7 +137,7 @@ def main(cfg: DictConfig) -> None:
         for img_path, df in tqdm(gb_train, desc='Process train subset')
     )
 
-    Parallel(n_jobs=-1, backend='threading')(
+    Parallel(n_jobs=1, backend='threading')(
         delayed(process_mask)(
             img_path=img_path,
             df=df,
