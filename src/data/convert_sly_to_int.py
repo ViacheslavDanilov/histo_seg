@@ -8,12 +8,11 @@ from typing import Tuple
 import hydra
 import numpy as np
 import pandas as pd
-import supervisely_lib as sly
 from joblib import Parallel, delayed
 from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
 
-from src.data.utils import CLASS_ID, METADATA_COLUMNS
+from src.data.utils import CLASS_ID, METADATA_COLUMNS, convert_base64_to_numpy, get_file_list
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -30,7 +29,7 @@ def get_obj_coords(
         dictionary which contains coordinates for a rectangle (left, top, right, bottom)
     """
     if obj['geometryType'] == 'bitmap':
-        bitmap = sly.Bitmap.base64_2_data(obj['bitmap']['data'])
+        bitmap = convert_base64_to_numpy(obj['bitmap']['data'])
         x1 = obj['bitmap']['origin'][0]
         y1 = obj['bitmap']['origin'][1]
         x2 = x1 + bitmap.shape[1]
@@ -83,7 +82,7 @@ def get_object_area(
     """
     if obj['geometryType'] == 'bitmap':
         encoded_mask = obj['bitmap']['data']
-        mask = sly.Bitmap.base64_2_data(encoded_mask)
+        mask = convert_base64_to_numpy(encoded_mask)
         area = np.count_nonzero(mask)
     elif obj['geometryType'] == 'point':
         area = 1
@@ -116,19 +115,22 @@ def get_area_label(
 
 
 def parse_single_annotation(
-    dataset: sly.Dataset,
+    dataset_path: str,
     save_dir: str,
 ) -> pd.DataFrame:
     df_ann = pd.DataFrame(columns=METADATA_COLUMNS)
-    study = dataset.name
-    img_dir = os.path.join(save_dir, 'img')
-    os.makedirs(img_dir, exist_ok=True)
+    study = Path(dataset_path).name
+    dst_img_dir = os.path.join(save_dir, 'img')
+    os.makedirs(dst_img_dir, exist_ok=True)
 
-    for img_name in dataset:
-        ann_path = os.path.join(dataset.ann_dir, f'{img_name}.json')
+    ann_dir = os.path.join(dataset_path, 'ann')
+    src_img_dir = os.path.join(dataset_path, 'img')
+    src_img_paths = get_file_list(src_img_dir, ext_list=['.jpg', '.png'])
+    for src_img_path in src_img_paths:
+        img_name = Path(src_img_path).name
+        ann_path = os.path.join(ann_dir, f'{img_name}.json')
         ann = json.load(open(ann_path))
-        src_img_path = os.path.join(dataset.img_dir, img_name)
-        dst_img_path = os.path.join(img_dir, img_name)
+        dst_img_path = os.path.join(dst_img_dir, img_name)
         shutil.copy(src_img_path, dst_img_path)
 
         slide, tile = Path(img_name).stem.split('_')
@@ -165,7 +167,7 @@ def parse_single_annotation(
                 'class_name': class_name,
             }
 
-            df_ann = df_ann.append(obj_info, ignore_index=True)
+            df_ann = pd.concat([df_ann, pd.DataFrame([obj_info])], ignore_index=True)
 
     return df_ann
 
@@ -191,15 +193,18 @@ def save_metadata(
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
-    project = sly.Project(cfg.data_dir, sly.OpenMode.READ)
+
+    # Get list of datasets to convert
+    dataset_paths = [str(subdir) for subdir in Path(cfg.data_dir).glob('*') if subdir.is_dir()]
+    dataset_paths.sort()
 
     # Parse Supervisely dataset and get metadata
-    df_list = Parallel(n_jobs=-1, backend='threading')(
+    df_list = Parallel(n_jobs=-1)(
         delayed(parse_single_annotation)(
-            dataset=dataset,
+            dataset_path=dataset_path,
             save_dir=cfg.save_dir,
         )
-        for dataset in tqdm(project, desc='Supervisely dataset processing')
+        for dataset_path in tqdm(dataset_paths, desc='Supervisely dataset processing')
     )
 
     # Save metadata

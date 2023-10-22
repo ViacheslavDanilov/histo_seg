@@ -7,14 +7,13 @@ import cv2
 import hydra
 import numpy as np
 import pandas as pd
-import supervisely_lib as sly
 from joblib import Parallel, delayed
 from omegaconf import DictConfig, OmegaConf
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 from src import MaskProcessor
-from src.data.utils import CLASS_COLOR, CLASS_ID
+from src.data.utils import CLASS_COLOR, CLASS_ID, convert_base64_to_numpy
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -33,7 +32,7 @@ def process_mask(
     mask_color[:, :] = (128, 128, 128)
     mask_processor = MaskProcessor()
     for _, row in df.iterrows():
-        obj_mask = sly.Bitmap.base64_2_data(row.encoded_mask).astype('uint8')
+        obj_mask = convert_base64_to_numpy(row.encoded_mask).astype('uint8')
         if smooth_mask:
             obj_mask = mask_processor.smooth_mask(mask=obj_mask)
             obj_mask = mask_processor.remove_artifacts(mask=obj_mask)
