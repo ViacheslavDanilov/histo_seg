@@ -11,17 +11,17 @@ stages:
       size: 69
     - path: data/sly
       hash: md5
-      md5: c60843622b631d2056f53760d97a7f25.dir
-      size: 1343867429
-      nfiles: 4499
+      md5: 96e8ee7ba2150f5656ec391f7d76fba4.dir
+      size: 1343875625
+      nfiles: 4500
     - path: src/data/convert_sly_to_int.py
       hash: md5
-      md5: 4f1cce9cda118ca0823d5ef08f8fc928
-      size: 5634
+      md5: be2bf2a5a843ac94361a3646eadaf1fb
+      size: 5941
     - path: src/data/utils.py
       hash: md5
-      md5: dc9a01e80a64b7b5cc87a95b0b5662b7
-      size: 2545
+      md5: 126c744e55cb1f9005d14def29c2f216
+      size: 4225
     outs:
     - path: data/interim/img
       hash: md5
@@ -52,8 +52,8 @@ stages:
       size: 26985619
     - path: src/data/convert_int_to_final.py
       hash: md5
-      md5: 549f8cc4153062c9a1b44758f59d8729
-      size: 4394
+      md5: 40aa286ad3fac1ba47f4c93ac5926de8
+      size: 4384
     outs:
     - path: data/final/test
       hash: md5
