@@ -120,8 +120,8 @@ def main(cfg: DictConfig) -> None:
         train_size=cfg.train_size,
         seed=cfg.seed,
     )
-    gb_train = df_train.groupby(['image_path'])
-    gb_test = df_test.groupby(['image_path'])
+    gb_train = df_train.groupby('image_path')
+    gb_test = df_test.groupby('image_path')
     log.info(f'Train images...: {len(gb_train)}')
     log.info(f'Test images....: {len(gb_test)}')
 
