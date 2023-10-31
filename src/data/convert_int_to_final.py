@@ -7,14 +7,13 @@ import cv2
 import hydra
 import numpy as np
 import pandas as pd
-import supervisely_lib as sly
 from joblib import Parallel, delayed
 from omegaconf import DictConfig, OmegaConf
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 from src import MaskProcessor
-from src.data.utils import CLASS_COLOR, CLASS_ID
+from src.data.utils import CLASS_COLOR, CLASS_ID, convert_base64_to_numpy
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -33,7 +32,7 @@ def process_mask(
     mask_color[:, :] = (128, 128, 128)
     mask_processor = MaskProcessor()
     for _, row in df.iterrows():
-        obj_mask = sly.Bitmap.base64_2_data(row.encoded_mask).astype('uint8')
+        obj_mask = convert_base64_to_numpy(row.encoded_mask).astype('uint8')
         if smooth_mask:
             obj_mask = mask_processor.smooth_mask(mask=obj_mask)
             obj_mask = mask_processor.remove_artifacts(mask=obj_mask)
@@ -46,12 +45,12 @@ def process_mask(
         mask_color[mask == CLASS_ID[row.class_name]] = CLASS_COLOR[row.class_name]
 
     img_stem = Path(img_path).stem
-    new_img_path = os.path.join(save_dir, 'img', f'{img_stem}.png')
+    new_img_path = os.path.join(save_dir, 'img', f'{img_stem}.jpg')
     mask_path = os.path.join(save_dir, 'mask', f'{img_stem}.png')
     color_mask_path = os.path.join(save_dir, 'mask_color', f'{img_stem}.png')
     cv2.imwrite(mask_path, mask)
     cv2.imwrite(color_mask_path, mask_color)
-    cv2.imwrite(new_img_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    cv2.imwrite(new_img_path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
 
 
 def build_mask(
@@ -121,13 +120,13 @@ def main(cfg: DictConfig) -> None:
         train_size=cfg.train_size,
         seed=cfg.seed,
     )
-    gb_train = df_train.groupby(['image_path'])
-    gb_test = df_test.groupby(['image_path'])
+    gb_train = df_train.groupby('image_path')
+    gb_test = df_test.groupby('image_path')
     log.info(f'Train images...: {len(gb_train)}')
     log.info(f'Test images....: {len(gb_test)}')
 
     # Process train and test subsets
-    Parallel(n_jobs=-1, backend='threading')(
+    Parallel(n_jobs=1, backend='threading')(
         delayed(process_mask)(
             img_path=img_path,
             df=df,
@@ -137,7 +136,7 @@ def main(cfg: DictConfig) -> None:
         for img_path, df in tqdm(gb_train, desc='Process train subset')
     )
 
-    Parallel(n_jobs=-1, backend='threading')(
+    Parallel(n_jobs=1, backend='threading')(
         delayed(process_mask)(
             img_path=img_path,
             df=df,

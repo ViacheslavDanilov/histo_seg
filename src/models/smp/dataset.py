@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import random
 from glob import glob
+from pathlib import Path
 from typing import List, Tuple, Union
 
 import albumentations as albu
@@ -68,7 +69,9 @@ class HistologyDataset(Dataset):
         img_dir: str,
         ann_id: str,
     ) -> Union[Tuple[str, str], None]:
-        img_path = f'{img_dir}/{os.path.basename(ann_id)}'
+        stem = Path(ann_id).name
+        img_name = str(Path(stem).with_suffix('.jpg'))
+        img_path = os.path.join(img_dir, img_name)
         if os.path.exists(img_path):
             return ann_id, img_path
         else:
