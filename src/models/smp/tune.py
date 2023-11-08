@@ -54,7 +54,7 @@ def main(cfg: DictConfig) -> None:
         optimizer_class=OptimizerBOHB,
         execution_queue='default',
         max_number_of_concurrent_tasks=1,
-        total_max_jobs=50,
+        total_max_jobs=200,
         min_iteration_per_job=1500,
         max_iteration_per_job=5000,
     )
