@@ -144,6 +144,8 @@ class HistologySegmentationModel(pl.LightningModule):
     def configure_optimizers(self):
         if self.optimizer == 'SGD':
             return torch.optim.SGD(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'RMSprop':
+            return torch.optim.RMSprop(self.parameters(), lr=self.lr)
         elif self.optimizer == 'RAdam':
             return torch.optim.RAdam(self.parameters(), lr=self.lr)
         elif self.optimizer == 'SAdam':
@@ -152,3 +154,4 @@ class HistologySegmentationModel(pl.LightningModule):
             return torch.optim.Adam(self.parameters(), lr=self.lr)
         else:
             raise ValueError(f'Unknown optimizer: {self.optimizer}')
+            
