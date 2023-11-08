@@ -2,9 +2,9 @@ defaults:
 - main
 - _self_
 
-base_task_id: 15b7242442d84f1fa12565d1b45578b8
+base_task_id: f12d70f2cf6c41b69643c24b5d6eab52
 project_name: histology_segmentation
-architecture: unet
+architecture: linknet
 encoder:
 - resnet18
 - timm-mobilenetv3_large_100
@@ -13,21 +13,18 @@ encoder:
 - resnet50
 - timm-regnetx_064
 - se_resnet50
-- xception
 - efficientnet-b5
-- efficientnet-b7
 - timm-regnety_120
 - resnet101
-- dpn98
 optimizer:
 - Adam
 - RAdam
 - SAdam
-- SGD
+- RMSprop
 input_size_min: 512
 input_size_step: 128
-input_size_max: 1024
-batch_size: 8
+input_size_max: 896
+batch_size: 4
 learning_rate:
 - 0.0001
 - 0.00001
