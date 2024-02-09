@@ -25,3 +25,4 @@ stages:
     outs:
     - data/final/train
     - data/final/test
+    - data/final/metadata.csv
