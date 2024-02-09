@@ -102,8 +102,10 @@ def save_metadata(
     df_test: pd.DataFrame,
     save_dir: str,
 ) -> None:
-    df_train['split'] = 'train'
-    df_test['split'] = 'test'
+    df_train = df_train.copy()
+    df_test = df_test.copy()
+    df_train.loc[:, 'split'] = 'train'
+    df_test.loc[:, 'split'] = 'test'
     df = pd.concat([df_train, df_test], ignore_index=True)
     df.drop(columns=['id'], inplace=True)
     df.sort_values(['image_path', 'class_id'], inplace=True)
