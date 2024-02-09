@@ -97,6 +97,22 @@ def split_dataset(
     return df_train, df_test
 
 
+def save_metadata(
+    df_train: pd.DataFrame,
+    df_test: pd.DataFrame,
+    save_dir: str,
+) -> None:
+    df_train['split'] = 'train'
+    df_test['split'] = 'test'
+    df = pd.concat([df_train, df_test], ignore_index=True)
+    df.drop(columns=['id'], inplace=True)
+    df.sort_values(['image_path', 'class_id'], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+    save_path = os.path.join(save_dir, 'metadata.csv')
+    df.to_csv(save_path, index_label='id')
+
+
 @hydra.main(
     config_path=os.path.join(os.getcwd(), 'configs'),
     config_name='convert_int_to_final',
@@ -120,6 +136,14 @@ def main(cfg: DictConfig) -> None:
         train_size=cfg.train_size,
         seed=cfg.seed,
     )
+
+    # Save metadata
+    save_metadata(
+        df_train=df_train,
+        df_test=df_test,
+        save_dir=cfg.save_dir,
+    )
+
     gb_train = df_train.groupby('image_path')
     gb_test = df_test.groupby('image_path')
     log.info(f'Train images...: {len(gb_train)}')
