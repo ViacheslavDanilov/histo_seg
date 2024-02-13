@@ -5,6 +5,7 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 import segmentation_models_pytorch as smp
+import wandb
 
 from src.data.utils import CLASS_COLOR
 
@@ -40,7 +41,7 @@ def get_metrics(
         num_classes=len(classes),
     )
     iou = smp.metrics.iou_score(tp, fp, fn, tn)
-    dice = 2 * tp / (2 * tp + fp + fn)  # alternatively: dice = 2 * iou / (iou + 1)
+    dice = 2 * iou.cpu().numpy() / (iou.cpu().numpy() + 1)
     f1 = smp.metrics.f1_score(tp, fp, fn, tn)
     precision = smp.metrics.precision(tp, fp, fn, tn)
     sensitivity = smp.metrics.sensitivity(tp, fp, fn, tn)
@@ -52,7 +53,7 @@ def get_metrics(
         'fn': fn.cpu().numpy(),
         'tn': tn.cpu().numpy(),
         'IoU': iou.cpu().numpy(),
-        'Dice': dice.cpu().numpy(),
+        'Dice': dice,
         'F1': f1.cpu().numpy(),
         'Recall': sensitivity.cpu().numpy(),
         'Precision': precision.cpu().numpy(),
@@ -102,13 +103,21 @@ def save_metrics_on_epoch(
         f'{split}/Recall (mean)': metrics['Recall'].mean(),
         f'{split}/Sensitivity (mean)': metrics['Sensitivity'].mean(),
         f'{split}/Specificity (mean)': metrics['Specificity'].mean(),
+        f'{split}/F1 (mean)': metrics['Specificity'].mean(),
         f'IoU {split}/mean': metrics['IoU'].mean(),
         f'Dice {split}/mean': metrics['Dice'].mean(),
         f'Precision {split}/mean': metrics['Precision'].mean(),
         f'Recall {split}/mean': metrics['Recall'].mean(),
         f'Sensitivity {split}/mean': metrics['Sensitivity'].mean(),
         f'Specificity {split}/mean': metrics['Specificity'].mean(),
+        f'F1 {split}/mean': metrics['Specificity'].mean(),
     }
+
+    metrics_l = metrics_log.copy()
+    metrics_l['epoch'] = epoch
+    wandb.log(
+        metrics_l,
+    )
 
     with open(f'models/{model_name}/metrics.csv', 'a', newline='') as f_object:
         fieldnames = [
@@ -136,7 +145,7 @@ def save_metrics_on_epoch(
                 metrics_log[f'{metric_name} {split}/{cl}'] = metrics[metric_name][num]
                 writer.writerow(
                     {
-                        'Epoch': epoch + 1,
+                        'Epoch': epoch,
                         'Metric': metric_name,
                         'Class': cl,
                         'Split': split,
@@ -145,7 +154,7 @@ def save_metrics_on_epoch(
                 )
             writer.writerow(
                 {
-                    'Epoch': epoch + 1,
+                    'Epoch': epoch,
                     'Metric': metric_name,
                     'Class': 'Mean',
                     'Split': split,
@@ -161,7 +170,6 @@ def log_predict_model_on_epoch(
     mask,
     pred_mask,
     classes,
-    my_logger,
     epoch,
     model_name,
 ):
@@ -189,11 +197,4 @@ def log_predict_model_on_epoch(
         cv2.imwrite(
             f'models/{model_name}/images_per_epoch/Experiment_{str(idx).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
             cv2.cvtColor(res.astype('uint8'), cv2.COLOR_RGB2BGR),
-        )
-
-        my_logger.report_image(
-            'All class',
-            f'Experiment {idx}',
-            image=res,
-            iteration=epoch,
         )

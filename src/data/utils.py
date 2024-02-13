@@ -46,10 +46,10 @@ CLASS_MAP = {
         'id': 9,
         'color': [144, 19, 254],
     },
-    'Cell nucleus': {
-        'id': 10,
-        'color': [150, 150, 150],
-    },
+    # 'Cell nucleus': {
+    #     'id': 10,
+    #     'color': [150, 150, 150],
+    # },
 }
 
 CLASS_COLOR = {

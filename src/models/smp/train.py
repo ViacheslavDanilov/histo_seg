@@ -1,16 +1,19 @@
 import datetime
 import logging
 import os
+import ssl
 
 import hydra
 import pytorch_lightning as pl
-from clearml import Task
+import wandb
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
 from src.models.smp.dataset import HistologyDataModule
 from src.models.smp.model import HistologySegmentationModel
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -30,12 +33,7 @@ def main(cfg: DictConfig) -> None:
     else:
         task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
     model_dir = os.path.join('models', f'{task_name}')
-    task = Task.init(
-        project_name=cfg.project_name,
-        task_name=task_name,
-        auto_connect_frameworks={'tensorboard': True, 'pytorch': True},
-    )
-    # Initialize ClearML task and log hyperparameters
+
     hyperparameters = {
         'architecture': cfg.architecture,
         'encoder': cfg.encoder,
@@ -49,8 +47,11 @@ def main(cfg: DictConfig) -> None:
         'device': cfg.device,
         'data_dir': cfg.data_dir,
     }
-    hyperparameters = task.connect(hyperparameters)
-    task.set_parameters(hyperparameters)
+
+    wandb.init(
+        config=hyperparameters,
+        project='histology_segmentation',
+    )
 
     callbacks = [
         LearningRateMonitor(
@@ -59,7 +60,7 @@ def main(cfg: DictConfig) -> None:
         ),
     ]
     if cfg.log_artifacts:
-        os.makedirs(f'{model_dir}/images_per_epoch')
+        os.makedirs(f'{model_dir}/images_per_epoch', exist_ok=True)
         callbacks.append(
             ModelCheckpoint(
                 save_top_k=5,
@@ -70,17 +71,7 @@ def main(cfg: DictConfig) -> None:
             ),
         )
     else:
-        os.makedirs(f'{model_dir}')
-        task.add_tags(
-            [
-                f'arch: {hyperparameters["architecture"]}',
-                f'encd: {hyperparameters["encoder"]}',
-                f'opt: {hyperparameters["optimizer"]}',
-                f'lr: {hyperparameters["lr"]}',
-                f'inp: {hyperparameters["input_size"]}x{hyperparameters["input_size"]}',
-                f'bs: {hyperparameters["batch_size"]}',
-            ],
-        )
+        os.makedirs(f'{model_dir}', exist_ok=True)
 
     oct_data_module = HistologyDataModule(
         input_size=hyperparameters['input_size'],
@@ -107,7 +98,7 @@ def main(cfg: DictConfig) -> None:
 
     # Initialize and run trainer
     trainer = pl.Trainer(
-        devices=-1,
+        devices=cfg.cuda_num,
         accelerator=cfg.device,
         max_epochs=hyperparameters['epochs'],
         logger=tb_logger,
@@ -119,10 +110,6 @@ def main(cfg: DictConfig) -> None:
     trainer.fit(
         model,
         datamodule=oct_data_module,
-    )
-    task.upload_artifact(
-        name='Metrics',
-        artifact_object=f'{model_dir}/metrics.csv',
     )
 
 

@@ -15,12 +15,13 @@ classes:
 - Venule wall
 - Immune cells
 - Nerve trunks
-architecture: unet
-encoder: resnet50
+architecture: linknet
+encoder: efficientnet-b0
 optimizer: Adam
 input_size: 448
-batch_size: 16
+batch_size: 4
 lr: 0.00012
-epochs: 50
-device: auto
-log_artifacts: false
+epochs: 5
+device: cuda
+cuda_num: [0]
+log_artifacts: true
