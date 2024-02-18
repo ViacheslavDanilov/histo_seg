@@ -5,9 +5,9 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 import segmentation_models_pytorch as smp
-import wandb
 
-from src.data.utils import CLASS_COLOR
+import wandb
+from src.data.utils import CLASS_COLOR, CLASS_ID, CLASS_ID_REVERSED
 
 
 def get_img_mask_union(
@@ -122,45 +122,59 @@ def save_metrics_on_epoch(
     with open(f'models/{model_name}/metrics.csv', 'a', newline='') as f_object:
         fieldnames = [
             'Epoch',
-            'Metric',
-            'Class',
+            'IoU',
+            'Dice',
+            'Precision',
+            'Recall',
+            'Sensitivity',
+            'Specificity',
+            'F1',
             'Split',
-            'Value',
+            'Class',
         ]
         writer = DictWriter(f_object, fieldnames=fieldnames)
         if header_w:
             writer.writeheader()
 
-        for metric_name in [
-            'IoU',
-            'Dice',
-            'F1',
-            'Precision',
-            'Recall',
-            'Sensitivity',
-            'Specificity',
-        ]:
-            for num, cl in enumerate(classes):
+        for num, cl in enumerate(classes):
+            for metric_name in [
+                'IoU',
+                'Dice',
+                'F1',
+                'Precision',
+                'Recall',
+                'Sensitivity',
+                'Specificity',
+            ]:
                 metrics_log[f'{split}/{metric_name} ({cl})'] = metrics[metric_name][num]
                 metrics_log[f'{metric_name} {split}/{cl}'] = metrics[metric_name][num]
-                writer.writerow(
-                    {
-                        'Epoch': epoch,
-                        'Metric': metric_name,
-                        'Class': cl,
-                        'Split': split,
-                        'Value': metrics[metric_name][num],
-                    },
-                )
             writer.writerow(
                 {
                     'Epoch': epoch,
-                    'Metric': metric_name,
-                    'Class': 'Mean',
+                    'IoU': metrics['IoU'][num],
+                    'Dice': metrics['Dice'][num],
+                    'Precision': metrics['Precision'][num],
+                    'Recall': metrics['Recall'][num],
+                    'Sensitivity': metrics['Sensitivity'][num],
+                    'Specificity': metrics['Specificity'][num],
+                    'F1': metrics['F1'][num],
                     'Split': split,
-                    'Value': metrics[metric_name].mean(),
+                    'Class': cl,
                 },
             )
+        writer.writerow(
+            {
+                'IoU': metrics['IoU'].mean(),
+                'Dice': metrics['Dice'].mean(),
+                'Precision': metrics['Precision'].mean(),
+                'Recall': metrics['Recall'].mean(),
+                'Sensitivity': metrics['Sensitivity'].mean(),
+                'Specificity': metrics['Specificity'].mean(),
+                'F1': metrics['F1'].mean(),
+                'Split': split,
+                'Class': 'Mean',
+            },
+        )
         log_dict(metrics_log, on_epoch=True)
         f_object.close()
 
@@ -177,6 +191,7 @@ def log_predict_model_on_epoch(
     img = img.squeeze().cpu().numpy().round()
     mask = mask.squeeze().cpu().numpy().round()
     pred_mask = pred_mask.squeeze().cpu().numpy().round()
+    wandb_images = []
 
     for idx, (img_, mask_, pr_mask) in enumerate(zip(img, mask, pred_mask)):
         img_ = np.array(img_)
@@ -187,9 +202,13 @@ def log_predict_model_on_epoch(
         color_mask_pred[:, :] = (128, 128, 128)
         color_mask_gr[:, :] = (128, 128, 128)
 
+        wandb_mask_inference = np.zeros((img_.shape[0], img_.shape[1]))
+        wandb_mask_ground_truth = np.zeros((img_.shape[0], img_.shape[1]))
         for cl, m, m_p in zip(classes, mask_, pr_mask):
             color_mask_gr[m[:, :] == 1] = CLASS_COLOR[cl]
             color_mask_pred[m_p[:, :] == 1] = CLASS_COLOR[cl]
+            wandb_mask_inference[m_p[:, :] == 1] = CLASS_ID[cl]
+            wandb_mask_ground_truth[m[:, :] == 1] = CLASS_ID[cl]
 
         res = np.hstack((img_, color_mask_gr))
         res = np.hstack((res, color_mask_pred))
@@ -198,3 +217,23 @@ def log_predict_model_on_epoch(
             f'models/{model_name}/images_per_epoch/Experiment_{str(idx).zfill(2)}_epoch_{str(epoch).zfill(3)}.png',
             cv2.cvtColor(res.astype('uint8'), cv2.COLOR_RGB2BGR),
         )
+
+        wandb_images.append(
+            wandb.Image(
+                img_,
+                masks={
+                    'predictions': {
+                        'mask_data': wandb_mask_inference,
+                        'class_labels': CLASS_ID_REVERSED,
+                    },
+                    'ground_truth': {
+                        'mask_data': wandb_mask_ground_truth,
+                        'class_labels': CLASS_ID_REVERSED,
+                    },
+                },
+                caption=f'Example-{idx}',
+            ),
+        )
+    wandb.log(
+        {'Examples': wandb_images},
+    )
