@@ -2,37 +2,44 @@ defaults:
 - main
 - _self_
 
-base_task_id: 15b7242442d84f1fa12565d1b45578b8
-project_name: histology_segmentation
-architecture: unet
+project_name: histology_segmentati
+architecture: PSPNet
+cuda_num: [0]
+batch_size: 4
 encoder:
 - resnet18
 - timm-mobilenetv3_large_100
-- efficientnet-b0
 - timm-regnetx_002
+- efficientnet-b0
 - resnet50
 - timm-regnetx_064
 - se_resnet50
-- xception
 - efficientnet-b5
-- efficientnet-b7
 - timm-regnety_120
 - resnet101
-- dpn98
+- efficientnet-b7
 optimizer:
 - Adam
 - RAdam
-- SAdam
-- SGD
+- RMSprop
 input_size_min: 512
 input_size_step: 128
-input_size_max: 1024
-batch_size: 8
+input_size_max: 896
 learning_rate:
 - 0.0001
 - 0.00001
 - 0.000001
 log_artifacts: false
-metric_type: val
-metric_name: f1
-metric_sign: max
+metric_type: test
+metric_name: F1 (mean)
+metric_sign: maximize
+classes:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Capillary lumen
+- Capillary wall
+- Venule lumen
+- Venule wall
+- Immune cells
+- Nerve trunks

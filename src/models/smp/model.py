@@ -4,7 +4,6 @@ import numpy as np
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
-from clearml import Logger
 
 from src.models.smp.utils import get_metrics, log_predict_model_on_epoch, save_metrics_on_epoch
 
@@ -45,7 +44,6 @@ class HistologySegmentationModel(pl.LightningModule):
         self.lr = lr
         self.optimizer = optimizer_name
         self.save_img_per_epoch = save_img_per_epoch
-        self.my_logger = Logger.current_logger()
 
     def forward(
         self,
@@ -87,7 +85,7 @@ class HistologySegmentationModel(pl.LightningModule):
             split='train',
             model_name=self.model_name,
             classes=self.classes,
-            epoch=self.epoch,
+            epoch=self.epoch - 1,
             log_dict=self.log_dict,
         )
         self.training_step_outputs.clear()
@@ -124,26 +122,28 @@ class HistologySegmentationModel(pl.LightningModule):
                 mask=mask,
                 pred_mask=pred_mask,
                 classes=self.classes,
-                my_logger=self.my_logger,
                 epoch=self.epoch,
                 model_name=self.model_name,
             )
 
     def on_validation_epoch_end(self):
-        save_metrics_on_epoch(
-            metrics_epoch=self.validation_step_outputs,
-            split='test',
-            model_name=self.model_name,
-            classes=self.classes,
-            epoch=self.epoch,
-            log_dict=self.log_dict,
-        )
+        if self.epoch > 0:
+            save_metrics_on_epoch(
+                metrics_epoch=self.validation_step_outputs,
+                split='test',
+                model_name=self.model_name,
+                classes=self.classes,
+                epoch=self.epoch,
+                log_dict=self.log_dict,
+            )
         self.validation_step_outputs.clear()
         self.epoch += 1
 
     def configure_optimizers(self):
         if self.optimizer == 'SGD':
             return torch.optim.SGD(self.parameters(), lr=self.lr)
+        elif self.optimizer == 'RMSprop':
+            return torch.optim.RMSprop(self.parameters(), lr=self.lr)
         elif self.optimizer == 'RAdam':
             return torch.optim.RAdam(self.parameters(), lr=self.lr)
         elif self.optimizer == 'SAdam':

@@ -25,12 +25,14 @@ This repository is dedicated to the segmentation of histology images acquired by
 
 Installation guide: https://docs.conda.io/projects/miniconda/en/latest/index.html#quick-command-line-install
 
-**Step 2: Set up an environment and install the necessary packages**
+**Step 2: Clone the repository and change the current working directory**
 ``` bash
-conda env create --file environment.yaml --verbose
+git clone https://github.com/ViacheslavDanilov/histology_segmentation.git
+cd histology_segmentation
 ```
 
-**Step 3: Activate environment**
+**Step 3: Set up an environment and install the necessary packages**
 ``` bash
-conda activate histo_seg
+chmod +x make_env.sh
+./make_env.sh
 ```
