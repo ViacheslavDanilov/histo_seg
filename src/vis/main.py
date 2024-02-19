@@ -83,19 +83,17 @@ def inference(
 
     for class_id in CLASS_ID_REVERSED:
         m = np.zeros((source_image.shape[1], source_image.shape[0]))
-        m[mask_pred[:, :, class_id - 1] == 1] = 1
+        m[mask_pred[:, :, class_id - 1] == 1] = 1  # type: ignore
 
         source_image = get_img_mask_union(
             img_0=source_image,
             alpha_0=1,
             img_1=m,
             alpha_1=0.5,
-            color=CLASS_COLOR[CLASS_ID_REVERSED[class_id]],
+            color=CLASS_COLOR[CLASS_ID_REVERSED[class_id]],  # type: ignore
         )
 
-        color_mask_pred[mask_pred[:, :, class_id - 1] == 1] = CLASS_COLOR[
-            CLASS_ID_REVERSED[class_id]
-        ]
+        color_mask_pred[mask_pred[:, :, class_id - 1] == 1] = CLASS_COLOR[CLASS_ID_REVERSED[class_id]]  # type: ignore
 
     return Image.fromarray(np.array(source_image).astype('uint8')), Image.fromarray(
         np.array(color_mask_pred).astype('uint8'),

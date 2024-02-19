@@ -126,26 +126,20 @@ def main(cfg: DictConfig) -> None:
                     {
                         'Threshold': th,
                         'Class': CLASS_ID_REVERSED[class_id],
-                        'TP': tp[class_id - 1],
-                        'FP': fp[class_id - 1],
-                        'TN': tn[class_id - 1],
-                        'FN': fn[class_id - 1],
-                        'Precision': precision[class_id - 1],
-                        'Recall': recall[class_id - 1],
-                        'Sensitivity': sensitivity[class_id - 1],
-                        'Specificity': specificity[class_id - 1],
-                        'TPR': tp[class_id - 1] / (tp[class_id - 1] + fn[class_id - 1]),
-                        'FPR': fp[class_id - 1] / (fp[class_id - 1] + tn[class_id - 1]),
-                        'F1': f1[class_id - 1],
+                        'TP': tp[class_id - 1],  # type: ignore
+                        'FP': fp[class_id - 1],  # type: ignore
+                        'TN': tn[class_id - 1],  # type: ignore
+                        'FN': fn[class_id - 1],  # type: ignore
+                        'Precision': precision[class_id - 1],  # type: ignore
+                        'Recall': recall[class_id - 1],  # type: ignore
+                        'Sensitivity': sensitivity[class_id - 1],  # type: ignore
+                        'Specificity': specificity[class_id - 1],  # type: ignore
+                        'TPR': tp[class_id - 1] / (tp[class_id - 1] + fn[class_id - 1]),  # type: ignore
+                        'FPR': fp[class_id - 1] / (fp[class_id - 1] + tn[class_id - 1]),  # type: ignore
+                        'F1': f1[class_id - 1],  # type: ignore
                     },
                 )
         f_object.close()
-
-    # df = pd.read_csv(f'models/{cfg.model_name}/metrics_eval.csv')
-    #
-    # for class_name in CLASS_ID:
-    #     df_class = df.loc[df.Class == class_name]
-    #     print(f'{class_name} AUC: {metrics.auc(df_class.FPR, df_class.TPR)}')
 
 
 if __name__ == '__main__':
