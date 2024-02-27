@@ -152,7 +152,7 @@ def main(cfg: DictConfig) -> None:
     log.info(f'Test images....: {len(gb_test)}')
 
     # Process train and test subsets
-    Parallel(n_jobs=1, backend='threading')(
+    Parallel(n_jobs=-1, backend='threading')(
         delayed(process_mask)(
             img_path=img_path,
             df=df,
@@ -162,7 +162,7 @@ def main(cfg: DictConfig) -> None:
         for img_path, df in tqdm(gb_train, desc='Process train subset')
     )
 
-    Parallel(n_jobs=1, backend='threading')(
+    Parallel(n_jobs=-1, backend='threading')(
         delayed(process_mask)(
             img_path=img_path,
             df=df,
