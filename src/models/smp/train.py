@@ -5,11 +5,11 @@ import ssl
 
 import hydra
 import pytorch_lightning as pl
-import wandb
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
+import wandb
 from src.models.smp.dataset import HistologyDataModule
 from src.models.smp.model import HistologySegmentationModel
 
@@ -27,11 +27,7 @@ log.setLevel(logging.INFO)
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     today = datetime.datetime.today()
-
-    if cfg.task_name is not None:
-        task_name = f'{cfg.task_name}_{today.strftime("%d%m_%H%M")}'
-    else:
-        task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
+    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
     model_dir = os.path.join('models', f'{task_name}')
 
     hyperparameters = {
