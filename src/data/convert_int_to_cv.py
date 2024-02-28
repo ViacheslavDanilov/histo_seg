@@ -11,7 +11,7 @@ from sklearn.model_selection import KFold
 from tqdm import tqdm
 
 from src import PROJECT_DIR
-from src.data.convert_int_to_final import process_mask, process_metadata, save_metadata
+from src.data.convert_int_to_split import process_mask, process_metadata, save_metadata
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -104,6 +104,8 @@ def main(cfg: DictConfig) -> None:
             )
             for img_path, df in tqdm(gb_test, desc=f'Process test subset - Fold {fold_idx}')
         )
+
+    log.info('Complete')
 
 
 if __name__ == '__main__':

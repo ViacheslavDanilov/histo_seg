@@ -177,6 +177,8 @@ def main(cfg: DictConfig) -> None:
         for img_path, df in tqdm(gb_test, desc='Process test subset')
     )
 
+    log.info('Complete')
+
 
 if __name__ == '__main__':
     main()
