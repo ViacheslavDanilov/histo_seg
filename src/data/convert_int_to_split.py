@@ -118,7 +118,7 @@ def save_metadata(
 
 @hydra.main(
     config_path=os.path.join(PROJECT_DIR, 'configs'),
-    config_name='convert_int_to_final',
+    config_name='convert_int_to_split',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
