@@ -3,9 +3,9 @@ defaults:
 - _self_
 
 data_dir: data/interim
-save_dir: data/cross_val
-train_size: 0.80
-split_count: 5
+save_dir: data/cv
+num_folds: 5
+seed: 11
 split_column: slide
 smooth_mask: true
 class_names:
