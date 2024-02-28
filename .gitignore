@@ -374,5 +374,5 @@ cython_debug/
 /data/raw/
 /data/sly/
 /data/interim/
-/data/final/
-/data/cv/
+/data/final_split/
+/data/final_cv/
