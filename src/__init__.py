@@ -1,1 +1,3 @@
-from .data.mask_processor import MaskProcessor  # noqa: F401
+import os
+
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
