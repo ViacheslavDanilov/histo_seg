@@ -13,16 +13,32 @@ stages:
     - data/interim/img
     - data/interim/metadata.csv
 
-  convert_int_to_final:
+  convert_int_to_split:
     cmd:
-    - rm -rf data/final || true
-    - python src/data/convert_int_to_final.py
+    - rm -rf data/final_split || true
+    - python src/data/convert_int_to_split.py
     deps:
-    - src/data/convert_int_to_final.py
-    - configs/convert_int_to_final.yaml
+    - src/data/convert_int_to_split.py
+    - configs/convert_int_to_split.yaml
     - data/interim/img
     - data/interim/metadata.csv
     outs:
-    - data/final/train
-    - data/final/test
-    - data/final/metadata.csv
+    - data/final_split/train
+    - data/final_split/test
+    - data/final_split/metadata.csv
+
+  convert_int_to_cv:
+    cmd:
+    - rm -rf data/final_cv || true
+    - python src/data/convert_int_to_cv.py
+    deps:
+    - src/data/convert_int_to_cv.py
+    - configs/convert_int_to_cv.yaml
+    - data/interim/img
+    - data/interim/metadata.csv
+    outs:
+    - data/final_cv/fold_1
+    - data/final_cv/fold_2
+    - data/final_cv/fold_3
+    - data/final_cv/fold_4
+    - data/final_cv/fold_5
