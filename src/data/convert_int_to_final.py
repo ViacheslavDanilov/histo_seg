@@ -12,7 +12,8 @@ from omegaconf import DictConfig, OmegaConf
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-from src import MaskProcessor
+from src import PROJECT_DIR
+from src.data.mask_processor import MaskProcessor
 from src.data.utils import CLASS_COLOR, CLASS_ID, convert_base64_to_numpy
 
 log = logging.getLogger(__name__)
@@ -116,19 +117,23 @@ def save_metadata(
 
 
 @hydra.main(
-    config_path=os.path.join(os.getcwd(), 'configs'),
+    config_path=os.path.join(PROJECT_DIR, 'configs'),
     config_name='convert_int_to_final',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
+    # Define absolute paths
+    data_dir = os.path.join(PROJECT_DIR, cfg.data_dir)
+    save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
+
     for subset in ['train', 'test']:
         for dir_type in ['img', 'mask', 'mask_color']:
             os.makedirs(f'{cfg.save_dir}/{subset}/{dir_type}', exist_ok=True)
 
     # Read and process metadata
-    df_path = os.path.join(cfg.data_dir, 'metadata.csv')
+    df_path = os.path.join(data_dir, 'metadata.csv')
     df = pd.read_csv(df_path)
     df_filtered = process_metadata(df=df, classes=cfg.class_names)
 
@@ -143,7 +148,7 @@ def main(cfg: DictConfig) -> None:
     save_metadata(
         df_train=df_train,
         df_test=df_test,
-        save_dir=cfg.save_dir,
+        save_dir=save_dir,
     )
 
     gb_train = df_train.groupby('image_path')
@@ -157,7 +162,7 @@ def main(cfg: DictConfig) -> None:
             img_path=img_path,
             df=df,
             smooth_mask=cfg.smooth_mask,
-            save_dir=f'{cfg.save_dir}/train',
+            save_dir=f'{save_dir}/train',
         )
         for img_path, df in tqdm(gb_train, desc='Process train subset')
     )
@@ -167,7 +172,7 @@ def main(cfg: DictConfig) -> None:
             img_path=img_path,
             df=df,
             smooth_mask=cfg.smooth_mask,
-            save_dir=f'{cfg.save_dir}/test',
+            save_dir=f'{save_dir}/test',
         )
         for img_path, df in tqdm(gb_test, desc='Process test subset')
     )
