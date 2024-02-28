@@ -30,13 +30,12 @@ def cross_validation_split(
         random_state=seed,
     )
     splits = []
-    for train_idx, val_idx in kf.split(ids):
-        splits.append(
-            (
-                df[df[id_column].isin(train_idx)],
-                df[df[id_column].isin(val_idx)],
-            ),
-        )
+    for train_idx, test_idx in kf.split(ids):
+        train_ids = ids[train_idx]
+        test_ids = ids[test_idx]
+        df_train = df[df[id_column].isin(train_ids)]
+        df_test = df[df[id_column].isin(test_ids)]
+        splits.append((df_train, df_test))
 
     return splits
 
