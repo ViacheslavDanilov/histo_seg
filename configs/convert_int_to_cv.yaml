@@ -1,0 +1,20 @@
+defaults:
+- main
+- _self_
+
+data_dir: data/interim
+save_dir: data/final_cv
+num_folds: 5
+seed: 11
+split_column: slide
+smooth_mask: true
+class_names:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Capillary lumen
+- Capillary wall
+- Venule lumen
+- Venule wall
+- Immune cells
+- Nerve trunks

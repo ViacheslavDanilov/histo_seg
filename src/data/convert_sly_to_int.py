@@ -12,6 +12,7 @@ from joblib import Parallel, delayed
 from omegaconf import DictConfig, OmegaConf
 from tqdm import tqdm
 
+from src import PROJECT_DIR
 from src.data.utils import CLASS_ID, METADATA_COLUMNS, convert_base64_to_numpy, get_file_list
 
 log = logging.getLogger(__name__)
@@ -187,22 +188,26 @@ def save_metadata(
 
 
 @hydra.main(
-    config_path=os.path.join(os.getcwd(), 'configs'),
+    config_path=os.path.join(PROJECT_DIR, 'configs'),
     config_name='convert_sly_to_int',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
+    # Define absolute paths
+    data_dir = os.path.join(PROJECT_DIR, cfg.data_dir)
+    save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
+
     # Get list of datasets to convert
-    dataset_paths = [str(subdir) for subdir in Path(cfg.data_dir).glob('*') if subdir.is_dir()]
+    dataset_paths = [str(subdir) for subdir in Path(data_dir).glob('*') if subdir.is_dir()]
     dataset_paths.sort()
 
     # Parse Supervisely dataset and get metadata
     df_list = Parallel(n_jobs=-1)(
         delayed(parse_single_annotation)(
             dataset_path=dataset_path,
-            save_dir=cfg.save_dir,
+            save_dir=save_dir,
         )
         for dataset_path in tqdm(dataset_paths, desc='Supervisely dataset processing')
     )
@@ -212,7 +217,7 @@ def main(cfg: DictConfig) -> None:
     df.sort_values(['image_path', 'class_id'], inplace=True)
     save_metadata(
         df=df,
-        save_dir=cfg.save_dir,
+        save_dir=save_dir,
     )
 
 

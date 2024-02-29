@@ -27,11 +27,7 @@ log.setLevel(logging.INFO)
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
     today = datetime.datetime.today()
-
-    if cfg.task_name is not None:
-        task_name = f'{cfg.task_name}_{today.strftime("%d%m_%H%M")}'
-    else:
-        task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
+    task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
     model_dir = os.path.join('models', f'{task_name}')
 
     hyperparameters = {

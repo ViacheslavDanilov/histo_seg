@@ -164,6 +164,7 @@ def save_metrics_on_epoch(
             )
         writer.writerow(
             {
+                'Epoch': epoch,
                 'IoU': metrics['IoU'].mean(),
                 'Dice': metrics['Dice'].mean(),
                 'Precision': metrics['Precision'].mean(),
