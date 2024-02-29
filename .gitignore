@@ -376,3 +376,12 @@ cython_debug/
 /data/interim/
 /data/final_split/
 /data/final_cv/
+
+# Log files
+/logs/lightning_logs/
+
+# Models
+/models/*/
+
+# W&B files
+/wandb/
