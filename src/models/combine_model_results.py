@@ -26,8 +26,8 @@ def main(cfg: DictConfig) -> None:
     data_dir = os.path.join(PROJECT_DIR, cfg.data_dir)
     save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
 
-    # Initialize an empty DataFrame to store combined data
-    combined_data = pd.DataFrame()
+    # Initialize an empty list to store DataFrame objects
+    data_frames = []
 
     # Iterate through files in the directory
     csv_list = get_file_list(src_dirs=data_dir, ext_list='.csv')
@@ -43,9 +43,14 @@ def main(cfg: DictConfig) -> None:
         df['Fold'] = int(fold_idx)
         df['Model'] = model_name
 
-        # Concatenate data and sort final dataframe
-        combined_data = pd.concat([combined_data, df], ignore_index=True)
-        combined_data = combined_data.sort_values(by=['Fold', 'Model'])
+        # Append DataFrame to the list
+        data_frames.append(df)
+
+    # Concatenate all DataFrames
+    combined_data = pd.concat(data_frames, ignore_index=True)
+
+    # Sort final dataframe
+    combined_data = combined_data.sort_values(by=['Fold', 'Model'])
 
     # Save combined data
     os.makedirs(save_dir, exist_ok=True)
