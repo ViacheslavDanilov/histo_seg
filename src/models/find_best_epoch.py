@@ -41,19 +41,7 @@ def main(cfg: DictConfig) -> None:
             columns='Class',
             values='F1',
         )
-        header_order = [
-            'Arteriole lumen',
-            'Arteriole media',
-            'Arteriole adventitia',
-            'Venule lumen',
-            'Venule wall',
-            'Capillary lumen',
-            'Capillary wall',
-            'Immune cells',
-            'Nerve trunks',
-            'Mean',
-        ]
-        df_fold = df_fold[header_order]
+        df_fold = df_fold[cfg.class_names]
         data_frames.append(df_fold)
 
     df_out = pd.concat(data_frames)
