@@ -64,13 +64,13 @@ def main(cfg: DictConfig) -> None:
         plt.ylabel('Metric Value', fontsize=18)
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
-        plt.legend(fontsize=14)
+        plt.legend(fontsize=14, loc='upper right')
         plt.grid(True)
 
         # Set coordinate axis limits
         plt.ylim(0, 1)
         plt.xlim(0, 125)
-        plt.tight_layout()
+        plt.tight_layout(pad=0.9)
 
         # Save plot
         save_path = os.path.join(save_dir, f'{model_name}_loss.png')
