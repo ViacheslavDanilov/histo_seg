@@ -39,9 +39,13 @@ def main(cfg: DictConfig) -> None:
         # Read CSV file
         df = pd.read_csv(csv_path)
 
-        # Add fold number and model name as columns
+        # Add additional columns: Fold, Model, and Loss
+        df['Loss'] = 1 - df['Dice']
         df['Fold'] = int(fold_idx)
         df['Model'] = model_name
+
+        # Move the 'Loss' column to the second position
+        df.insert(1, 'Loss', df.pop('Loss'))
 
         # Append DataFrame to the list
         data_frames.append(df)
