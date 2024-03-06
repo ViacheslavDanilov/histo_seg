@@ -35,7 +35,7 @@ def main(cfg: DictConfig) -> None:
 
         # Plot
         sns.set(style='whitegrid')
-        plt.figure(figsize=(12, 8))
+        plt.figure(figsize=(12, 10))
 
         # Customize color palette
         palette = sns.color_palette('bright', 2)
@@ -46,25 +46,27 @@ def main(cfg: DictConfig) -> None:
             x='Epoch',
             y='Loss',
             color=palette[0],
+            linewidth=3.0,
             label='Loss (Train)',
             err_style='band',
-            errorbar='sd',
+            errorbar=('ci', 95),
         )
         sns.lineplot(
             data=df_filt[df_filt['Split'] == 'test'],
             x='Epoch',
             y='Dice',
             color=palette[1],
+            linewidth=3.0,
             label='DSC (Test)',
             err_style='band',
-            errorbar='sd',
+            errorbar=('ci', 95),
         )
 
-        plt.xlabel('Epoch', fontsize=18)
-        plt.ylabel('Metric Value', fontsize=18)
-        plt.xticks(fontsize=16)
-        plt.yticks(fontsize=16)
-        plt.legend(fontsize=14, loc='upper right')
+        plt.xlabel('Epoch', fontsize=36)
+        plt.ylabel('Metric Value', fontsize=36)
+        plt.xticks(fontsize=30)
+        plt.yticks(fontsize=30)
+        plt.legend(fontsize=26, loc='center right')
         plt.grid(True)
 
         # Set coordinate axis limits
