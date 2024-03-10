@@ -45,7 +45,7 @@ def main(cfg: DictConfig) -> None:
         data_frames.append(df_fold)
 
     df_out = pd.concat(data_frames)
-    df_out = df_out.sort_values(by=['Fold', 'Model'])
+    df_out = df_out.sort_values(by=['Model', 'Fold'])
 
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, 'best_metrics.xlsx')
