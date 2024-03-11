@@ -30,7 +30,7 @@ stages:
       nfiles: 1499
     - path: data/interim/metadata.csv
       hash: md5
-      md5: 76b33d98e3e6c3e8dc21726eec984c64
+      md5: 4b395ffde0e183d33850eda808e92761
       size: 27547835
   convert_int_to_split:
     cmd:
@@ -48,17 +48,17 @@ stages:
       nfiles: 1499
     - path: data/interim/metadata.csv
       hash: md5
-      md5: 76b33d98e3e6c3e8dc21726eec984c64
+      md5: 4b395ffde0e183d33850eda808e92761
       size: 27547835
     - path: src/data/convert_int_to_split.py
       hash: md5
-      md5: b7587dc42cd2095ce1f3693834df19f6
-      size: 5277
+      md5: 0b87fb0549c02e0e4e94ae78d3e62314
+      size: 5317
     outs:
     - path: data/final_split/metadata.csv
       hash: md5
-      md5: 6e134ef6bc1ae089d3cc02b1c4570687
-      size: 26993070
+      md5: 054aa6a49c3c3123a3110ad4acb060e4
+      size: 605497
     - path: data/final_split/test
       hash: md5
       md5: 860e9c3d575f50e75c3accaf8b10f244.dir
@@ -85,12 +85,12 @@ stages:
       nfiles: 1499
     - path: data/interim/metadata.csv
       hash: md5
-      md5: 76b33d98e3e6c3e8dc21726eec984c64
+      md5: 4b395ffde0e183d33850eda808e92761
       size: 27547835
     - path: src/data/convert_int_to_cv.py
       hash: md5
-      md5: ab4832419d3ecea2329370c72978410c
-      size: 3342
+      md5: 111d2efd30808326613eb9d9dbb2d291
+      size: 4409
     outs:
     - path: data/final_cv/fold_1/test
       hash: md5
@@ -142,3 +142,7 @@ stages:
       md5: 59026d78b00d216c364a316c463bd3ce.dir
       size: 5616575179
       nfiles: 3576
+    - path: data/final_cv/metadata.csv
+      hash: md5
+      md5: cdd8339c2efe168912c293e66efc8962
+      size: 3110393
