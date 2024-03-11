@@ -47,3 +47,4 @@ stages:
     - data/final_cv/fold_4/test
     - data/final_cv/fold_5/train
     - data/final_cv/fold_5/test
+    - data/final_cv/metadata.csv
