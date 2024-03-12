@@ -30,25 +30,34 @@ def main(cfg: DictConfig) -> None:
 
     # Plotting
     sns.set(style='whitegrid')
-    palette = sns.color_palette('bright', 6)
 
     # Iterate over columns except 'Model', 'Fold', and 'Epoch' to create boxplots
     classes = df.columns.difference(['Model', 'Fold', 'Epoch'])
     for class_name in classes:
-        plt.figure(figsize=(8, 6))  # Adjust figure size for better presentation
-        ax = sns.boxplot(x='Model', y=class_name, data=df, palette=palette)
-        plt.ylabel('DSC')  # Add appropriate y-axis label
-        ax.set_xlabel('')  # Remove x-axis label
-        plt.title(f'Boxplot of {class_name} across Models')  # Add a descriptive title
-        sns.despine()  # Remove the top and right spines for a cleaner look
+        plt.figure(figsize=(12, 12))  # Adjust figure size for better presentation
+
+        # Create a new palette for each figure
+        palette = sns.color_palette('bright', 6)
+
+        ax = sns.boxplot(
+            x='Model',
+            y=class_name,
+            data=df,
+            palette=palette,
+            showfliers=False,
+        )
+        plt.ylabel('DSC', fontsize=36)
+        plt.xticks(rotation=90, fontsize=30)
+        plt.yticks(fontsize=30)
+        ax.set_xlabel('')
+        ax.set_ylim(0, 1)
+        sns.despine()
         plt.tight_layout()
 
         # Save the plot as a high-quality image file in PNG format
-        plt.savefig(
-            os.path.join(save_dir, f'{class_name}_boxplot.png'),
-            dpi=300,
-            bbox_inches='tight',
-        )
+        save_path = os.path.join(save_dir, f'{class_name}_boxplot.png')
+        plt.savefig(save_path, dpi=600, bbox_inches='tight')
+        plt.show()
         plt.close()  # Close the current plot to release memory
 
 
