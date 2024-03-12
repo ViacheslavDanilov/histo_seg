@@ -34,10 +34,10 @@ def main(cfg: DictConfig) -> None:
     # Iterate over columns except 'Model', 'Fold', and 'Epoch' to create boxplots
     classes = df.columns.difference(['Model', 'Fold', 'Epoch'])
     for class_name in classes:
-        plt.figure(figsize=(12, 12))  # Adjust figure size for better presentation
+        plt.figure(figsize=(12, 12))
 
         # Create a new palette for each figure
-        palette = sns.color_palette('bright', 6)
+        palette = sns.color_palette('husl', 6)
 
         ax = sns.boxplot(
             x='Model',
@@ -58,7 +58,7 @@ def main(cfg: DictConfig) -> None:
         save_path = os.path.join(save_dir, f'{class_name}_boxplot.png')
         plt.savefig(save_path, dpi=600, bbox_inches='tight')
         plt.show()
-        plt.close()  # Close the current plot to release memory
+        plt.close()
 
 
 if __name__ == '__main__':
