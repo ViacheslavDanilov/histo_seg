@@ -58,8 +58,8 @@ def main(cfg: DictConfig) -> None:
 
     # Save combined data
     os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, 'model_results.xlsx')
-    combined_data.to_excel(save_path, index=False)
+    save_path = os.path.join(save_dir, 'model_results.csv')
+    combined_data.to_csv(save_path, index=False)
 
     log.info('Complete')
 

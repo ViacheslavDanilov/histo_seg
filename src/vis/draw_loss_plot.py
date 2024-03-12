@@ -26,7 +26,7 @@ def main(cfg: DictConfig) -> None:
     os.makedirs(save_dir, exist_ok=True)
 
     # Read DataFrame with metrics
-    df = pd.read_excel(metrics_path)
+    df = pd.read_csv(metrics_path)
     gb = df.groupby('Model')
 
     for model_name, df_model in gb:

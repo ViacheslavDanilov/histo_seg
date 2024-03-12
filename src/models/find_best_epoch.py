@@ -23,7 +23,7 @@ def main(cfg: DictConfig) -> None:
     metrics_path = os.path.join(PROJECT_DIR, cfg.metrics_path)
     save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
 
-    df = pd.read_excel(metrics_path)
+    df = pd.read_csv(metrics_path)
     gb = df.groupby(['Model', 'Fold'])
 
     # Initialize an empty list to store DataFrame objects
@@ -46,10 +46,11 @@ def main(cfg: DictConfig) -> None:
 
     df_out = pd.concat(data_frames)
     df_out = df_out.sort_values(by=['Model', 'Fold'])
+    df_out = df_out.reset_index()
 
     os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, 'best_metrics.xlsx')
-    df_out.to_excel(save_path)
+    save_path = os.path.join(save_dir, 'best_metrics.csv')
+    df_out.to_csv(save_path, index=False)
 
     log.info('Complete')
 
