@@ -1,0 +1,6 @@
+defaults:
+- main
+- _self_
+
+metrics_path: eval/best_metrics.csv
+save_dir: eval/boxplots
