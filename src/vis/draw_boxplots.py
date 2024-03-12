@@ -61,7 +61,7 @@ def main(cfg: DictConfig) -> None:
         plt.figure(figsize=(12, 12))
 
         # Create a new palette for each figure
-        palette = sns.color_palette('husl', 6)
+        palette = sns.color_palette('muted')
 
         ax = sns.boxplot(
             x='Model',
