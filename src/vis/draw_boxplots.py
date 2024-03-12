@@ -5,6 +5,7 @@ import hydra
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from matplotlib.ticker import MultipleLocator
 from omegaconf import DictConfig, OmegaConf
 
 from src import PROJECT_DIR
@@ -39,7 +40,7 @@ def main(cfg: DictConfig) -> None:
         'Capillary wall': (0.5, 1),
         'Immune cells': (0.5, 1),
         'Nerve trunks': (0.5, 1),
-        'Mean': (0.5, 1),
+        'Mean': (0.6, 1),
     }
 
     # Define the order of x-axis categories
@@ -70,6 +71,7 @@ def main(cfg: DictConfig) -> None:
             palette=palette,
             showfliers=False,
             order=model_order,
+            linewidth=2.0,
         )
         plt.ylabel('DSC', fontsize=36)
         plt.xticks(rotation=90, fontsize=30)
@@ -78,6 +80,7 @@ def main(cfg: DictConfig) -> None:
 
         # Set y-limits for the current class
         ax.set_ylim(y_limits[class_name])
+        ax.yaxis.set_major_locator(MultipleLocator(0.1))
 
         sns.despine()
         plt.tight_layout()
