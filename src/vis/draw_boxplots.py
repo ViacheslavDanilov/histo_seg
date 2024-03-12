@@ -28,6 +28,30 @@ def main(cfg: DictConfig) -> None:
     # Read DataFrame with metrics
     df = pd.read_csv(metrics_path)
 
+    # Define y-limits for each class
+    y_limits = {
+        'Arteriole lumen': (0.5, 1),
+        'Arteriole media': (0.5, 1),
+        'Arteriole adventitia': (0.5, 1),
+        'Venule lumen': (0.5, 1),
+        'Venule wall': (0.5, 1),
+        'Capillary lumen': (0.5, 1),
+        'Capillary wall': (0.5, 1),
+        'Immune cells': (0.5, 1),
+        'Nerve trunks': (0.5, 1),
+        'Mean': (0.5, 1),
+    }
+
+    # Define the order of x-axis categories
+    model_order = [
+        'U-Net',
+        'LinkNet',
+        'FPN',
+        'PSPNet',
+        'DeepLabV3',
+        'MA-Net',
+    ]
+
     # Plotting
     sns.set(style='whitegrid')
 
@@ -45,12 +69,16 @@ def main(cfg: DictConfig) -> None:
             data=df,
             palette=palette,
             showfliers=False,
+            order=model_order,
         )
         plt.ylabel('DSC', fontsize=36)
         plt.xticks(rotation=90, fontsize=30)
         plt.yticks(fontsize=30)
         ax.set_xlabel('')
-        ax.set_ylim(0, 1)
+
+        # Set y-limits for the current class
+        ax.set_ylim(y_limits[class_name])
+
         sns.despine()
         plt.tight_layout()
 
