@@ -1,0 +1,6 @@
+outs:
+- md5: bee9b5b027cdaf693bb5ca86700efe6b.dir
+  size: 11328399734
+  nfiles: 5050
+  hash: md5
+  path: MA-Net
