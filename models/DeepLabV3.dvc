@@ -1,6 +1,0 @@
-outs:
-- md5: abc23b784adf661cd06f9baf5da86240.dir
-  size: 9029301745
-  nfiles: 5050
-  hash: md5
-  path: DeepLabV3
