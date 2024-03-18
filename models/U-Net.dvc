@@ -1,6 +1,6 @@
 outs:
-- md5: 3f23ae2946e15f56adff55955dbb86bc.dir
-  size: 11961718609
+- md5: f6949309a9d52f01cea40146bf9686f5.dir
+  size: 11961637969
   nfiles: 15
   hash: md5
   path: U-Net
