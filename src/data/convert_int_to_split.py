@@ -107,9 +107,11 @@ def save_metadata(
     df_test = df_test.copy()
     df_train.loc[:, 'split'] = 'train'
     df_test.loc[:, 'split'] = 'test'
+
     df = pd.concat([df_train, df_test], ignore_index=True)
-    df.drop(columns=['id'], inplace=True)
-    df.sort_values(['image_path', 'class_id'], inplace=True)
+    df.drop(columns=['id', 'image_path', 'encoded_mask', 'type'], inplace=True)
+
+    df.sort_values(['image_name', 'class_id'], inplace=True)
     df.reset_index(drop=True, inplace=True)
     df.index += 1
     save_path = os.path.join(save_dir, 'metadata.csv')

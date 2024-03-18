@@ -11,10 +11,44 @@ from sklearn.model_selection import KFold
 from tqdm import tqdm
 
 from src import PROJECT_DIR
-from src.data.convert_int_to_split import process_mask, process_metadata, save_metadata
+from src.data.convert_int_to_split import process_mask, process_metadata
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+
+
+def update_metadata(
+    df_train: pd.DataFrame,
+    df_test: pd.DataFrame,
+    fold_idx: int,
+) -> pd.DataFrame:
+    df_train = df_train.copy()
+    df_test = df_test.copy()
+    df_train.loc[:, 'split'] = 'train'
+    df_test.loc[:, 'split'] = 'test'
+    df_train.loc[:, 'fold'] = fold_idx
+    df_test.loc[:, 'fold'] = fold_idx
+
+    df = pd.concat([df_train, df_test], ignore_index=True)
+    df.drop(columns=['id', 'image_path', 'encoded_mask', 'type'], inplace=True)
+
+    df.sort_values(['image_name', 'class_id'], inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    df.index += 1
+
+    return df
+
+
+def merge_and_save_metadata(
+    dfs: List[pd.DataFrame],
+    save_dir: str,
+) -> None:
+    df_merged = pd.concat(dfs, ignore_index=True)
+    df_merged.index += 1
+
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, 'metadata.csv')
+    df_merged.to_csv(save_path, index_label='id')
 
 
 def cross_validation_split(
@@ -70,13 +104,15 @@ def main(cfg: DictConfig) -> None:
         seed=cfg.seed,
     )
 
+    dfs = []
     for fold_idx, (df_train, df_test) in enumerate(splits, start=1):
-        # Save metadata
-        save_metadata(
+        # Update metadata
+        df = update_metadata(
             df_train=df_train,
             df_test=df_test,
-            save_dir=f'{save_dir}/fold_{fold_idx}',
+            fold_idx=fold_idx,
         )
+        dfs.append(df)
 
         gb_train = df_train.groupby('image_path')
         gb_test = df_test.groupby('image_path')
@@ -104,6 +140,12 @@ def main(cfg: DictConfig) -> None:
             )
             for img_path, df in tqdm(gb_test, desc=f'Process test subset - Fold {fold_idx}')
         )
+
+    # Merge fold dataframes and save as a single CSV file
+    merge_and_save_metadata(
+        dfs=dfs,
+        save_dir=save_dir,
+    )
 
     log.info('Complete')
 

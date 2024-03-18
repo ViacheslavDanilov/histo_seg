@@ -1,0 +1,17 @@
+defaults:
+- main
+- _self_
+
+metrics_path: eval/model_results.csv
+save_dir: eval
+class_names:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Venule lumen
+- Venule wall
+- Capillary lumen
+- Capillary wall
+- Immune cells
+- Nerve trunks
+- Mean
