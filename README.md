@@ -76,7 +76,7 @@ The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 
 
 <a name="conclusion"></a>
 ## 🏁 Conclusion
-
+This study demonstrates the potential of deep learning models for precise segmentation of histological features in regenerated tissues, paving the way for improved AI-assisted workflows during the analysis of tissue-engineered medical devices. The obtained findings foster further research in this field, contributing to the advancement of translational medicine and the implementation of next-generation tissue-engineered constructs.
 
 <a name="requirements"></a>
 ## 💻 Requirements
