@@ -23,7 +23,16 @@ This repository presents an artificial intelligence (AI)-driven approach for the
 
 <a name="data"></a>
 ## 📁 Data
-The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained from biodegradable TEVGs implanted into the carotid arteries of 20 sheep. After six months, the sheep were euthanized to assess vascular tissue regeneration patterns. The WSIs were automatically sliced into 99,831 patches, which underwent filtering and manual annotation by pathologists. A total of 1,401 patches were annotated, identifying nine histological features: _arteriole lumen_, _arteriole media_, _arteriole adventitia_, _venule lumen_, _venule wall_, _capillary lumen_, _capillary wall_, _immune cells_, and _nerve trunks_. These annotations were meticulously verified by a senior pathologist, ensuring accuracy and consistency.
+The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained from biodegradable TEVGs implanted into the carotid arteries of 20 sheep. After six months, the sheep were euthanized to assess vascular tissue regeneration patterns. The WSIs were automatically sliced into 99,831 patches, which underwent filtering and manual annotation by pathologists. A total of 1,401 patches were annotated, identifying nine histological features: _arteriole lumen_, _arteriole media_, _arteriole adventitia_, _venule lumen_, _venule wall_, _capillary lumen_, _capillary wall_, _immune cells_, and _nerve trunks_ (<a href="#figure-1">Figure 1</a>). These annotations were meticulously verified by a senior pathologist, ensuring accuracy and consistency.
+
+<p align="center">
+  <img id="figure-1" width="100%" height="100%" src=".assets/annotation_methodology.png" alt="Annotation methodology">
+</p>
+
+<p align="left">
+    <em><strong>Figure 1.</strong> Annotation methodology for histology patches (top row) depicting features associated with a blood vessel regeneration (replacement of a biodegradable polymer by de novo formed vascular tissue). Histological annotations delineated with segmentation masks (bottom row) include arteriole lumen (red), arteriole media (pink), arteriole adventitia (light pink), venule lumen (blue), venule wall (light blue), capillary lumen (brown), capillary wall (tan), immune cells (lime), and nerve trunks (yellow).</em>
+</p>
+
 
 <a name="methods"></a>
 ## 🔬 Methods
