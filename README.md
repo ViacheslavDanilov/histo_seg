@@ -64,7 +64,7 @@ The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 
 |  PSPNet   |   0.872   |   0.838   |   0.830   |   0.784   |   0.734   |   0.728   |   0.722   |   0.937   |   0.959   |   0.823   |
 | DeepLabV3 |   0.872   |   0.861   |   0.803   | **0.900** | **0.861** | **0.815** | **0.793** |   0.895   |   0.975   |   0.864   |
 |  MA-Net   | **0.939** |   0.893   | **0.860** |   0.848   |   0.830   |   0.806   |   0.787   |   0.937   |   0.978   | **0.875** |
-
+<br>
 <p align="center">
   <img id="figure-3" width="100%" height="100%" src=".assets/model_comparison.png" alt="Model comparison">
 </p>
