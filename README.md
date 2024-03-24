@@ -36,7 +36,17 @@ The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained f
 
 <a name="methods"></a>
 ## 🔬 Methods
+The methodology involved two main stages: hyperparameter tuning and model training. Six deep learning models ([U-Net](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28), [LinkNet](https://ieeexplore.ieee.org/document/8305148), [FPN](http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf), [PSPNet](https://arxiv.org/abs/1612.01105), [DeepLabV3](https://arxiv.org/abs/1706.05587), and [MA-Net](https://ieeexplore.ieee.org/document/9201310)) were rigorously tuned across 200 configurations to achieve optimal performance. Hyperparameters such as encoder architecture, input image size, optimizer, and learning rate were extensively explored using Bayesian optimization and [HyperBand](https://arxiv.org/abs/1603.06560) early termination strategies.
 
+Following the tuning stage, the models were trained and evaluated on the entire dataset using a 5-fold cross-validation approach (<a href="#figure-2">Figure 2</a>). This ensured the integrity of subject groups within each subset, preventing data leakage. During training, various augmentation techniques were applied to expand the dataset and mitigate overfitting.
+
+<p align="center">
+  <img id="figure-2" width="80%" height="80%" src=".assets/loss_evolution.png" alt="Loss and DSC evolution">
+</p>
+
+<p align="left">
+    <em><strong>Figure 2.</strong> Comparative analysis of loss and DSC evolution during training and testing phases over 5-fold cross-validation with 95% confidence interval.</em>
+</p>
 
 <a name="results"></a>
 ## 📈 Results
