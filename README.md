@@ -19,11 +19,11 @@
 
 <a name="introduction"></a>
 ## 🎯 Introduction
-
+This repository presents an artificial intelligence (AI)-driven approach for the precise segmentation and quantification of histological features observed during the microscopic examination of tissue-engineered vascular grafts (TEVGs). The development of next-generation TEVGs is a leading trend in translational medicine, offering minimally invasive surgical interventions and reducing the long-term risk of device failure. However, the analysis of regenerated tissue architecture poses challenges, necessitating AI-assisted tools for accurate histological evaluation.
 
 <a name="data"></a>
 ## 📁 Data
-
+The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained from biodegradable TEVGs implanted into the carotid arteries of 20 sheep. After six months, the sheep were euthanized to assess vascular tissue regeneration patterns. The WSIs were automatically sliced into 99,831 patches, which underwent filtering and manual annotation by pathologists. A total of 1,401 patches were annotated, identifying nine histological features: _arteriole lumen_, _arteriole media_, _arteriole adventitia_, _venule lumen_, _venule wall_, _capillary lumen_, _capillary wall_, _immune cells_, and _nerve trunks_. These annotations were meticulously verified by a senior pathologist, ensuring accuracy and consistency.
 
 <a name="methods"></a>
 ## 🔬 Methods
