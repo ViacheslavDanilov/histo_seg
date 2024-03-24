@@ -2,7 +2,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10838432.svg)](https://doi.org/10.5281/zenodo.10838432)
 [![DOI](http://img.shields.io/badge/DOI-TO.BE.UPDATED.SOON-B31B1B)](https://TO.BE.UPDATED.SOON)
 
-# AI-driven segmentation of microvascular features  of tissue-engineered vascular grafts
+# AI-driven segmentation of microvascular features of tissue-engineered vascular grafts
 
 <a name="contents"></a>
 ## 📖 Contents
@@ -38,7 +38,7 @@ The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained f
 ## 🔬 Methods
 The methodology involved two main stages: hyperparameter tuning and model training. Six deep learning models ([U-Net](https://link.springer.com/chapter/10.1007/978-3-319-24574-4_28), [LinkNet](https://ieeexplore.ieee.org/document/8305148), [FPN](http://presentations.cocodataset.org/COCO17-Stuff-FAIR.pdf), [PSPNet](https://arxiv.org/abs/1612.01105), [DeepLabV3](https://arxiv.org/abs/1706.05587), and [MA-Net](https://ieeexplore.ieee.org/document/9201310)) were rigorously tuned across 200 configurations to achieve optimal performance. Hyperparameters such as encoder architecture, input image size, optimizer, and learning rate were extensively explored using Bayesian optimization and [HyperBand](https://arxiv.org/abs/1603.06560) early termination strategies.
 
-Following the tuning stage, the models were trained and evaluated on the entire dataset using a 5-fold cross-validation approach (<a href="#figure-2">Figure 2</a>). This ensured the integrity of subject groups within each subset, preventing data leakage. During training, various augmentation techniques were applied to expand the dataset and mitigate overfitting.
+Following the tuning stage, the models were trained and evaluated on the entire dataset using a 5-fold cross-validation approach (<a href="#figure-2">Figure 2</a>). This ensured the integrity of subject groups within each subset, preventing data leakage. During training, various augmentation techniques were applied to expand the dataset and mitigate overfitting. Besides that, batch size adjusted based on GPU memory utilization (~90-100% usage).
 
 <p align="center">
   <img id="figure-2" width="80%" height="80%" src=".assets/loss_evolution.png" alt="Loss and DSC evolution">
@@ -50,6 +50,28 @@ Following the tuning stage, the models were trained and evaluated on the entire 
 
 <a name="results"></a>
 ## 📈 Results
+The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 0.875, excelling in arteriole segmentation (<a href="#table-1">Table 1</a>). DeepLabV3 performed well in segmenting venous and capillary structures, while FPN exhibited proficiency in identifying immune cells and nerve trunks. An ensemble of these three models attained an average DSC of 0.889, surpassing their individual performances.
+
+<p align="right">
+  <i><strong id="table-1">Table 1.</strong> Feature-specific and average Dice Similarity Coefficients of the studied models.</i>
+</p>
+
+|   Model   |    AL     |    AM     |    AA     |    VL     |    VW     |    CL     |    CW     |    IC     |    NT     |   Mean    |
+|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|
+|   U-Net   |   0.931   | **0.907** |   0.820   |   0.797   |   0.766   |   0.801   |   0.783   |   0.920   |   0.966   |   0.855   |
+|  LinkNet  |   0.898   |   0.881   |   0.825   |   0.799   |   0.773   |   0.778   |   0.774   |   0.935   |   0.925   |   0.843   |
+|    FPN    |   0.919   |   0.904   |   0.805   |   0.852   |   0.800   |   0.756   |   0.755   | **0.955** | **0.981** |   0.859   |
+|  PSPNet   |   0.872   |   0.838   |   0.830   |   0.784   |   0.734   |   0.728   |   0.722   |   0.937   |   0.959   |   0.823   |
+| DeepLabV3 |   0.872   |   0.861   |   0.803   | **0.900** | **0.861** | **0.815** | **0.793** |   0.895   |   0.975   |   0.864   |
+|  MA-Net   | **0.939** |   0.893   | **0.860** |   0.848   |   0.830   |   0.806   |   0.787   |   0.937   |   0.978   | **0.875** |
+
+<p align="center">
+  <img id="figure-3" width="100%" height="100%" src=".assets/model_comparison.png" alt="Model comparison">
+</p>
+
+<p align="center">
+    <em><strong>Figure 3.</strong> Comparison of models for microvascular segmentation in tissue-engineered vascular grafts.</em>
+</p>
 
 
 <a name="conclusion"></a>
