@@ -53,7 +53,7 @@ def processing_mask(
 
 @hydra.main(
     config_path=os.path.join(os.getcwd(), 'configs'),
-    config_name='inference_image',
+    config_name='predict_image_DELETE_ME',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
