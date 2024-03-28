@@ -1,0 +1,25 @@
+{
+    "model_name": "DeepLabV3",
+    "parameters": {
+        "encoder_name": "efficientnet-b0",
+        "encoder_weights": "imagenet",
+        "input_size": [
+            512,
+            512
+        ],
+        "input_channels": 3,
+        "num_classes": 1,
+        "activation": "sigmoid"
+    },
+    "classes": [
+        "Arteriole lumen",
+        "Arteriole media",
+        "Arteriole adventitia",
+        "Capillary lumen",
+        "Capillary wall",
+        "Venule lumen",
+        "Venule wall",
+        "Immune cells",
+        "Nerve trunks"
+    ]
+}
