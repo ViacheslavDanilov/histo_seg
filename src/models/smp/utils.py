@@ -6,9 +6,9 @@ import cv2
 import numpy as np
 import segmentation_models_pytorch as smp
 import torchvision
+import wandb
 from PIL import Image
 
-import wandb
 from src.data.utils import CLASS_COLOR, CLASS_ID, CLASS_ID_REVERSED
 
 

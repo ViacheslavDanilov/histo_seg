@@ -45,7 +45,7 @@ def processing_mask(
             img=image_input,
             mask=mask[:, :, idx].copy(),
             alpha=0.85,
-            color=CLASS_COLOR[class_name],
+            color=CLASS_COLOR[class_name],  # type: ignore
         )
         color_mask[mask[:, :, idx] == 1] = CLASS_COLOR[class_name]
     return image_input, Image.fromarray(color_mask.astype('uint8'))
