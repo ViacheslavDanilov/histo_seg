@@ -152,3 +152,11 @@ class HistologySegmentationModel(pl.LightningModule):
             return torch.optim.Adam(self.parameters(), lr=self.lr)
         else:
             raise ValueError(f'Unknown optimizer: {self.optimizer}')
+
+    # TODO (Vlad): implementation is needed here
+    def predict(
+        self,
+        some_val: int,
+    ) -> str:
+        new_val = str(some_val)
+        return new_val
