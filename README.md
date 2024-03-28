@@ -77,7 +77,7 @@ The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 
 To illustrate the network predictions, we provide three patches showcasing the segmentation of the studied histologic features in (<a href="#figure-4">Figure 4</a>). This figure presents predictions derived from an optimal solution: an ensemble of three models (MA-Net, DeepLabV3, and FPN).
 <br>
 <p align="center">
-  <img id="figure-4" width="100%" height="100%" src=".assets/ensemble_prediction.jpg" alt="Model comparison">
+  <img id="figure-4" width="80%" height="80%" src=".assets/ensemble_prediction.jpg" alt="Model comparison">
 </p>
 
 <p align="center">
@@ -89,7 +89,6 @@ To illustrate the network predictions, we provide three patches showcasing the s
 ## 🏁 Conclusion
 This study demonstrates the potential of deep learning models for precise segmentation of histological features in regenerated tissues, paving the way for improved AI-assisted workflows during the analysis of tissue-engineered medical devices. The obtained findings foster further research in this field, contributing to the advancement of translational medicine and the implementation of next-generation tissue-engineered constructs.
 
----
 <a name="requirements"></a>
 ## 💻 Requirements
 - Operating System
