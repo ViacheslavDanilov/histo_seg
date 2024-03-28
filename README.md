@@ -105,6 +105,24 @@ chmod +x make_env.sh
 ./make_env.sh
 ```
 
+<a name="inference"></a>
+## 🚀 Inference
+**Option 1:** Inference img
+
+Configuration file: [inference_image.yaml](configs%2Finference_image.yaml)
+
+```
+python3 src/models/smp/inference_img.py
+```
+
+**Option 2:** Inference images dir (batch)
+
+Configuration file: [inference_batch.yaml](configs%2Finference_batch.yaml)
+
+```
+python3 src/models/smp/inference_batch.py
+```
+
 <a name="data-access"></a>
 ## 🔐 Data Access
 All essential components of the study, including the curated dataset and trained models, have been made publicly available:
