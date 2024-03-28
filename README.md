@@ -11,6 +11,7 @@
 - [Methods](#methods)
 - [Results](#results)
 - [Conclusion](#conclusion)
+- [How to Run](#how-to-run)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Data Access](#data-access)
@@ -73,11 +74,22 @@ The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 
     <em><strong>Figure 3.</strong> Comparison of models for microvascular segmentation in tissue-engineered vascular grafts.</em>
 </p>
 
+To illustrate the network predictions, we provide three patches showcasing the segmentation of the studied histologic features in (<a href="#figure-4">Figure 4</a>). This figure presents predictions derived from an optimal solution: an ensemble of three models (MA-Net, DeepLabV3, and FPN).
+<br>
+<p align="center">
+  <img id="figure-4" width="100%" height="100%" src=".assets/ensemble_prediction.jpg" alt="Model comparison">
+</p>
+
+<p align="center">
+    <em><strong>Figure 4.</strong> Comparison between ground truth segmentation and ensemble predictions.</em>
+</p>
+
 
 <a name="conclusion"></a>
 ## 🏁 Conclusion
 This study demonstrates the potential of deep learning models for precise segmentation of histological features in regenerated tissues, paving the way for improved AI-assisted workflows during the analysis of tissue-engineered medical devices. The obtained findings foster further research in this field, contributing to the advancement of translational medicine and the implementation of next-generation tissue-engineered constructs.
 
+---
 <a name="requirements"></a>
 ## 💻 Requirements
 - Operating System
@@ -105,8 +117,8 @@ chmod +x make_env.sh
 ./make_env.sh
 ```
 
-<a name="inference"></a>
-## 🚀 Inference
+<a name="how-to-run"></a>
+## 🚀 How to Run
 **Option 1:** Inference img
 
 Configuration file: [inference_image.yaml](configs%2Finference_image.yaml)
