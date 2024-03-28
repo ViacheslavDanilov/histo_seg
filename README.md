@@ -26,7 +26,7 @@ This repository presents an artificial intelligence (AI)-driven approach for the
 The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained from biodegradable TEVGs implanted into the carotid arteries of 20 sheep. After six months, the sheep were euthanized to assess vascular tissue regeneration patterns. The WSIs were automatically sliced into 99,831 patches, which underwent filtering and manual annotation by pathologists. A total of 1,401 patches were annotated, identifying nine histological features: _arteriole lumen (AL)_, _arteriole media (AM)_, _arteriole adventitia (AA)_, _venule lumen (VL)_, _venule wall (VW)_, _capillary lumen (CL)_, _capillary wall (CW)_, _immune cells (IC)_, and _nerve trunks (NT)_ (<a href="#figure-1">Figure 1</a>). These annotations were meticulously verified by a senior pathologist, ensuring accuracy and consistency.
 
 <p align="center">
-  <img id="figure-1" width="80%" height="80%" src=".assets/annotation_methodology.png" alt="Annotation methodology">
+  <img id="figure-1" width="80%" height="80%" src=".assets/annotation_methodology.jpg" alt="Annotation methodology">
 </p>
 
 <p align="left">
@@ -41,7 +41,7 @@ The methodology involved two main stages: hyperparameter tuning and model traini
 Following the tuning stage, the models were trained and evaluated on the entire dataset using a 5-fold cross-validation approach (<a href="#figure-2">Figure 2</a>). This ensured the integrity of subject groups within each subset, preventing data leakage. During training, various augmentation techniques were applied to expand the dataset and mitigate overfitting. Besides that, batch size adjusted based on GPU memory utilization (~90-100% usage).
 
 <p align="center">
-  <img id="figure-2" width="80%" height="80%" src=".assets/loss_evolution.png" alt="Loss and DSC evolution">
+  <img id="figure-2" width="70%" height="70%" src=".assets/loss_evolution.jpg" alt="Loss and DSC evolution">
 </p>
 
 <p align="left">
@@ -66,7 +66,7 @@ The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 
 |  MA-Net   | **0.939** |   0.893   | **0.860** |   0.848   |   0.830   |   0.806   |   0.787   |   0.937   |   0.978   | **0.875** |
 <br>
 <p align="center">
-  <img id="figure-3" width="100%" height="100%" src=".assets/model_comparison.png" alt="Model comparison">
+  <img id="figure-3" width="100%" height="100%" src=".assets/model_comparison.jpg" alt="Model comparison">
 </p>
 
 <p align="center">
