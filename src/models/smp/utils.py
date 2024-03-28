@@ -5,8 +5,10 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 import segmentation_models_pytorch as smp
-import wandb
+import torchvision
+from PIL import Image
 
+import wandb
 from src.data.utils import CLASS_COLOR, CLASS_ID, CLASS_ID_REVERSED
 
 
@@ -238,3 +240,62 @@ def log_predict_model_on_epoch(
     wandb.log(
         {'Examples': wandb_images},
     )
+
+
+def get_img_mask_union_pil(
+    img: Image,
+    mask: np.ndarray,
+    color: tuple[int],
+    alpha: float = 0.85,
+):
+    mask *= alpha
+    mask *= 255
+    class_img = Image.new('RGB', size=img.size, color=color)
+    img.paste(class_img, (0, 0), Image.fromarray(mask.astype('uint8')))
+    return img
+
+
+def calculate_iou(gt_mask, pred_mask):
+    gt_mask[gt_mask > 0] = 1
+    pred_mask[pred_mask > 0] = 1
+    overlap = pred_mask * gt_mask
+    union = (pred_mask + gt_mask) > 0
+    iou = overlap.sum() / float(union.sum())
+    return iou
+
+
+def get_img_color_mask(
+    img_0: np.ndarray,
+    alpha_0: float,
+    img_1: np.ndarray,
+    alpha_1: float,
+    color: Tuple[int, int, int],
+) -> np.ndarray:
+    return cv2.addWeighted(
+        np.array(img_0).astype('uint8'),
+        alpha_0,
+        (cv2.cvtColor(np.array(img_1).astype('uint8'), cv2.COLOR_GRAY2BGR) * color).astype(
+            np.uint8,
+        ),
+        alpha_1,
+        0,
+    )
+
+
+def to_tensor(
+    x: np.ndarray,
+) -> np.ndarray:
+    return x.transpose([2, 0, 1]).astype('float32')
+
+
+get_tensor = torchvision.transforms.ToTensor()
+
+
+def preprocessing_img(
+    img_path: str,
+    input_size: int,
+):
+    image = cv2.imread(img_path)
+    image = cv2.resize(image, (input_size, input_size))
+    image = to_tensor(np.array(image))
+    return image

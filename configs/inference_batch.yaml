@@ -1,0 +1,23 @@
+defaults:
+- main
+- _self_
+
+data_dir: data/final_cv/fold_2/test/img
+save_dir: data/final/experiments/2
+model_name: DeepLabV3_regnetx_64
+model_weights: models/DeepLabV3/fold_1/weights.ckpt
+classes:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Capillary lumen
+- Capillary wall
+- Venule lumen
+- Venule wall
+- Immune cells
+- Nerve trunks
+architecture: DeepLabV3
+encoder: timm-regnetx_064
+input_size: 896
+batch_size: 2
+device: cuda
