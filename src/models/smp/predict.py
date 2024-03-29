@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from src import PROJECT_DIR
 from src.models.smp.model import HistologySegmentationModel
-from src.models.smp.predict_image_DELETE_ME import prediction_model, processing_mask
+from src.models.smp.predict_image_DELETE_ME import prediction_model, process_mask
 from src.models.smp.utils import preprocessing_img
 
 log = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def main(cfg: DictConfig) -> None:
                     device=cfg.device,
                 )
                 for idx, (mask, image_input) in enumerate(zip(masks, images_input)):
-                    overlay, color_mask = processing_mask(
+                    overlay, color_mask = process_mask(
                         image_input=image_input,
                         input_size=cfg.input_size,
                         classes=cfg.classes,
@@ -96,7 +96,7 @@ def main(cfg: DictConfig) -> None:
                 device=cfg.device,
             )
             for idx, (mask, image_input) in enumerate(zip(masks, images_input)):
-                overlay, color_mask = processing_mask(
+                overlay, color_mask = process_mask(
                     image_input=image_input,
                     input_size=cfg.input_size,
                     classes=cfg.classes,

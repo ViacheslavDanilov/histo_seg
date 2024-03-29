@@ -29,7 +29,7 @@ def prediction_model(
     return masks
 
 
-def processing_mask(
+def process_mask(
     image_input: Image,
     input_size: int,
     classes: list[str],
@@ -85,7 +85,7 @@ def main(cfg: DictConfig) -> None:
         os.makedirs(cfg.save_dir)
     img_name = os.path.basename(cfg.img_path).split('.')[0]
     image_input = Image.open(cfg.img_path)
-    union_mask, color_mask = processing_mask(
+    union_mask, color_mask = process_mask(
         image_input=image_input,
         input_size=cfg.input_size,
         classes=cfg.classes,
