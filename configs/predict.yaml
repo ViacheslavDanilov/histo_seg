@@ -17,4 +17,4 @@ classes:
 - Venule wall
 - Immune cells
 - Nerve trunks
-batch_size: 2
+batch_size: 1
