@@ -4,7 +4,7 @@ defaults:
 
 data_path: data/demo/input
 save_dir: data/demo/output
-model_dir: models/DeepLabV3/fold_1
+model_dir: models/FPN/fold_1
 output_size: [1000, 1000]
 device: auto   # cpu, cuda, or auto
 classes:
