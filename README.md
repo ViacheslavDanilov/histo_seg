@@ -140,4 +140,4 @@ All essential components of the study, including the curated dataset and trained
 ## 🖊️ How to Cite
 Please cite [our paper](https://TO.BE.UPDATED.SOON) if you found our data, methods, or results helpful for your research:
 
-> Danilov V.V., et al. (**2024**). _AI-driven segmentation of microvascular features during histological examination of tissue-engineered vascular grafts_. **Frontiers in Cell and Developmental Biology**. DOI: [TO.BE.UPDATED.SOON](TO.BE.UPDATED.SOON)
+> Danilov V.V., Laptev V.V., Klyshnikov K.Yu., Stepanov A.D., Bogdanov L.A., Antonova L.V., Krivkina E.O., Kutikhin A.G., Ovcharenko E.A. (**2024**). _AI-driven segmentation of microvascular features during histological examination of tissue-engineered vascular grafts_. **Frontiers in Cell and Developmental Biology**. DOI: [TO.BE.UPDATED.SOON](TO.BE.UPDATED.SOON)
