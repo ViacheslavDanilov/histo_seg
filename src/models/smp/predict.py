@@ -3,10 +3,12 @@ import logging
 import os
 import time
 from glob import glob
+from typing import Generator, List, Tuple
 
 import cv2
 import hydra
 import numpy as np
+import torch
 from omegaconf import DictConfig, OmegaConf
 from PIL import Image
 from tqdm import tqdm
@@ -19,18 +21,52 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
 
+def pick_device(
+    option: str,
+) -> str:
+    """Pick the appropriate device based on the provided option.
+
+    Args:
+        option (str): Available device option ('cpu', 'cuda', 'auto').
+
+    Returns:
+        str: Selected device.
+    """
+    if option == 'auto':
+        return 'cuda' if torch.cuda.is_available() else 'cpu'
+    elif option in ['cpu', 'cuda']:
+        return option
+    else:
+        raise ValueError("Invalid device option. Please specify 'cpu', 'cuda', or 'auto'.")
+
+
 def process_mask(
     source_image: Image,
-    output_size: list[int, int],
-    classes: list[str],
-    classes_model: list[str],
+    output_size: List[int],
+    classes: List[str],
+    classes_model: List[str],
     mask: np.ndarray,
-) -> tuple[Image, Image]:
+) -> Tuple[Image, Image]:
+    """Process the predicted mask to overlay on the source image and generate a color mask.
+
+    Args:
+        source_image: The original histology image.
+        output_size: The desired output size for the image and mask.
+        classes: The list of classes to be considered for segmentation.
+        classes_model: The list of classes that the model can predict.
+        mask: The predicted mask from the model.
+
+    Returns:
+        A tuple containing the overlay image and the color mask image.
+    """
+    # Resize the source image to the output size
     source_image = source_image.resize((output_size[0], output_size[1]))
+    # Initialize a color mask with a default color
     color_mask = np.zeros((source_image.size[0], source_image.size[1], 3))
     mask = cv2.resize(mask, (output_size[0], output_size[1]))
-    color_mask[:, :] = (128, 128, 128)
+    color_mask[:, :] = (128, 128, 128)  # Default color
 
+    # Overlay the mask on the source image for the specified classes
     for idx, cl in enumerate(classes_model):
         if cl in classes:
             source_image = get_img_mask_union_pil(
@@ -43,18 +79,28 @@ def process_mask(
     return source_image, Image.fromarray(color_mask.astype('uint8'))
 
 
-def data_batch_generator(
-    data: list[str],
+def data_generator(
+    data: List[str],
     batch_size: int,
-):
-    batch = []
-    for _ in range(batch_size):
-        if len(data) > 0:
-            img_path = data.pop()
-            batch.append(img_path)
-        else:
-            return batch
-    return batch
+) -> Generator[List[str], None, None]:
+    """Generator function to yield batches of data paths.
+
+    Args:
+        data: A list of data paths.
+        batch_size: The size of each batch.
+
+    Yields:
+        A batch of data paths.
+    """
+    while data:
+        batch = []
+        for _ in range(batch_size):
+            if data:
+                img_path = data.pop()
+                batch.append(img_path)
+            else:
+                break
+        yield batch
 
 
 @hydra.main(
@@ -63,13 +109,22 @@ def data_batch_generator(
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
-    log.warning(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
+    """Main function to perform histology image segmentation prediction.
 
-    # Define absolute paths
+    Args:
+        cfg: Configuration parameters loaded from a YAML file using Hydra.
+    """
+    log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
+
+    # Pick the appropriate device based on the provided option
+    device = pick_device(option=cfg.device)
+
+    # Define absolute paths for data, save directory, and model directory
     data_path = os.path.join(PROJECT_DIR, cfg.data_path)
     save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
     model_dir = os.path.join(PROJECT_DIR, cfg.model_dir)
 
+    # Load model configuration and initialize the model
     model_weights = f'{model_dir}/weights.ckpt'
     with open(f'{model_dir}/config.json', 'r') as file:
         model_cfg = json.load(file)
@@ -81,26 +136,26 @@ def main(cfg: DictConfig) -> None:
         model_name=model_cfg['model_name'],
         in_channels=3,
         classes=model_cfg['classes'],
-        map_location='cuda:0' if cfg.device == 'cuda' else cfg.device,
+        map_location='cuda:0' if device == 'cuda' else device,
     )
     model.eval()
     log.info(
-        f"Model: {model_cfg['model_name']} loaded successfully. Time taken: {time.time() - start:.1f} s",
+        f"{model_cfg['model_name']} loaded successfully. Time taken: {time.time() - start:.1f} s",
     )
 
+    # Perform inference on the dataset
     start_inference = time.time()
     os.makedirs(save_dir, exist_ok=True)
     if os.path.isfile(data_path):
         images_path = [data_path]
     else:
         images_path = glob(f'{data_path}/*.[pj][np][ge]*')
-    with tqdm(total=len(images_path), desc='Images predict') as pbar:
-        while True:
-            images_batch = data_batch_generator(data=images_path, batch_size=cfg.batch_size)
-            if not images_batch:
-                break
+    log.info(f'Number of images: {len(images_path)}')
+
+    with tqdm(total=len(images_path), desc='Image segmentation', unit='image') as pbar:
+        for images_batch in data_generator(data=images_path, batch_size=cfg.batch_size):
             images, source_images, images_name = [], [], []
-            for _, img_path in enumerate(images_batch):
+            for img_path in images_batch:
                 images.append(
                     preprocessing_img(
                         img_path=img_path,
@@ -109,10 +164,12 @@ def main(cfg: DictConfig) -> None:
                 )
                 source_images.append(Image.open(img_path))
                 images_name.append(os.path.basename(img_path).split('.')[0])
+
             masks = model.predict(
                 images=np.array(images),
-                device=cfg.device,
+                device=device,
             )
+
             for image_name, source_image, mask in zip(images_name, source_images, masks):
                 overlay, color_mask = process_mask(
                     source_image=source_image,
@@ -123,9 +180,12 @@ def main(cfg: DictConfig) -> None:
                 )
                 color_mask.save(f'{save_dir}/{image_name}_mask.png')
                 overlay.save(f'{save_dir}/{image_name}_overlay.png')
+
             pbar.update(len(images_batch))
+
     log.info(f'Prediction time: {time.time() - start_inference:.1f} s')
     log.info(f'Overall computation time: {time.time() - start:.1f} s')
+    log.info('Complete')
 
 
 if __name__ == '__main__':
