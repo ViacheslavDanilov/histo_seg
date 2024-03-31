@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import ssl
 import time
 from glob import glob
 from typing import Generator, List, Tuple
@@ -17,6 +18,7 @@ from src import PROJECT_DIR
 from src.models.smp.model import HistologySegmentationModel
 from src.models.smp.utils import CLASS_COLOR, get_img_mask_union_pil, preprocessing_img
 
+ssl._create_default_https_context = ssl._create_unverified_context
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
