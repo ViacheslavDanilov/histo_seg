@@ -4,6 +4,7 @@ import os
 import time
 from glob import glob
 
+import cv2
 import hydra
 import numpy as np
 from omegaconf import DictConfig, OmegaConf
@@ -12,11 +13,48 @@ from tqdm import tqdm
 
 from src import PROJECT_DIR
 from src.models.smp.model import HistologySegmentationModel
-from src.models.smp.predict_image_DELETE_ME import prediction_model, process_mask
-from src.models.smp.utils import preprocessing_img
+from src.models.smp.utils import CLASS_COLOR, get_img_mask_union_pil, preprocessing_img
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+
+
+def process_mask(
+    source_image: Image,
+    output_size: list[int, int],
+    classes: list[str],
+    classes_model: list[str],
+    mask: np.ndarray,
+) -> tuple[Image, Image]:
+    source_image = source_image.resize((output_size[0], output_size[1]))
+    color_mask = np.zeros((source_image.size[0], source_image.size[1], 3))
+    mask = cv2.resize(mask, (output_size[0], output_size[1]))
+    color_mask[:, :] = (128, 128, 128)
+
+    for idx, cl in enumerate(classes_model):
+        if cl in classes:
+            source_image = get_img_mask_union_pil(
+                img=source_image,
+                mask=mask[:, :, idx].copy(),
+                alpha=0.85,
+                color=CLASS_COLOR[cl],  # type: ignore
+            )
+            color_mask[mask[:, :, idx] == 1] = CLASS_COLOR[cl]
+    return source_image, Image.fromarray(color_mask.astype('uint8'))
+
+
+def data_batch_generator(
+    data: list[str],
+    batch_size: int,
+):
+    batch = []
+    for _ in range(batch_size):
+        if len(data) > 0:
+            img_path = data.pop()
+            batch.append(img_path)
+        else:
+            return batch
+    return batch
 
 
 @hydra.main(
@@ -28,83 +66,64 @@ def main(cfg: DictConfig) -> None:
     log.warning(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
 
     # Define absolute paths
-    data_dir = os.path.join(PROJECT_DIR, cfg.data_dir)
+    data_path = os.path.join(PROJECT_DIR, cfg.data_path)
     save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
     model_dir = os.path.join(PROJECT_DIR, cfg.model_dir)
 
-    # TODO: check what you need and don't need from model_config
-    # Load the model with its configuration and weights
-    model_weights = os.path.join(model_dir, 'weights.ckpt')
-    with open(os.path.join(model_dir, 'config.json'), 'r') as file:
+    model_weights = f'{model_dir}/weights.ckpt'
+    with open(f'{model_dir}/config.json', 'r') as file:
         model_cfg = json.load(file)
-        print(model_cfg)  # TODO: remove it after debug
     start = time.time()
     model = HistologySegmentationModel.load_from_checkpoint(
         checkpoint_path=model_weights,
-        arch=cfg.architecture,
-        encoder_name=cfg.encoder,
-        model_name=cfg.model_name,
+        arch=model_cfg['architecture'],
+        encoder_name=model_cfg['encoder'],
+        model_name=model_cfg['model_name'],
         in_channels=3,
-        classes=cfg.classes,
+        classes=model_cfg['classes'],
         map_location='cuda:0' if cfg.device == 'cuda' else cfg.device,
     )
     model.eval()
     log.info(
-        f'Model "{cfg.model_name}" loaded successfully. Time taken: {time.time() - start:.1f} s',
+        f"Model: {model_cfg['model_name']} loaded successfully. Time taken: {time.time() - start:.1f} s",
     )
 
-    # Process images
     start_inference = time.time()
     os.makedirs(save_dir, exist_ok=True)
-    images_batch, images_input, images_name = [], [], []
-    images_path = glob(f'{data_dir}/*.[pj][np][ge]*')
+    if os.path.isfile(data_path):
+        images_path = [data_path]
+    else:
+        images_path = glob(f'{data_path}/*.[pj][np][ge]*')
     with tqdm(total=len(images_path), desc='Images predict') as pbar:
-        for _, img_path in enumerate(images_path):
-            images_batch.append(
-                preprocessing_img(
-                    img_path=img_path,
-                    input_size=cfg.input_size,
-                ),
-            )
-            image_input = Image.open(img_path)
-            images_input.append(
-                image_input.resize((cfg.input_size, cfg.input_size)),
-            )
-            images_name.append(os.path.basename(img_path).split('.')[0])
-            if len(images_batch) == cfg.batch_size:
-                # TODO: think of this method instead -> model.predict(images)
-                masks = prediction_model(
-                    model=model,
-                    images=np.array(images_batch),
-                    device=cfg.device,
+        while True:
+            images_batch = data_batch_generator(data=images_path, batch_size=cfg.batch_size)
+            if not images_batch:
+                break
+            images, source_images, images_name = [], [], []
+            for _, img_path in enumerate(images_batch):
+                images.append(
+                    preprocessing_img(
+                        img_path=img_path,
+                        input_size=model_cfg['input_size'],
+                    ),
                 )
-                for idx, (mask, image_input) in enumerate(zip(masks, images_input)):
-                    overlay, color_mask = process_mask(
-                        image_input=image_input,
-                        input_size=cfg.input_size,
-                        classes=cfg.classes,
-                        mask=mask,
-                    )
-                    color_mask.save(f'{save_dir}/{images_name[idx]}_mask.png')
-                    overlay.save(f'{save_dir}/{images_name[idx]}_overlay.png')
-                images_batch, images_input, images_name = [], [], []
-                pbar.update(cfg.batch_size)
-        if len(images_input) != 0:
-            masks = prediction_model(
-                model=model,
-                images=np.array(images_batch),
+                source_images.append(Image.open(img_path))
+                images_name.append(os.path.basename(img_path).split('.')[0])
+            masks = model.predict(
+                images=np.array(images),
                 device=cfg.device,
             )
-            for idx, (mask, image_input) in enumerate(zip(masks, images_input)):
+            for image_name, source_image, mask in zip(images_name, source_images, masks):
                 overlay, color_mask = process_mask(
-                    image_input=image_input,
-                    input_size=cfg.input_size,
+                    source_image=source_image,
+                    output_size=cfg.output_size,
+                    classes_model=model_cfg['classes'],
                     classes=cfg.classes,
                     mask=mask,
                 )
-                color_mask.save(f'{save_dir}/{images_name[idx]}_mask.png')
-                overlay.save(f'{save_dir}/{images_name[idx]}_overlay.png')
-            pbar.update(len(images_input))
+                color_mask.save(f'{save_dir}/{image_name}_mask.png')
+                overlay.save(f'{save_dir}/{image_name}_overlay.png')
+            pbar.update(len(images_batch))
     log.info(f'Prediction time: {time.time() - start_inference:.1f} s')
     log.info(f'Overall computation time: {time.time() - start:.1f} s')
 

@@ -120,18 +120,19 @@ chmod +x make_env.sh
 ## 🚀 How to Run
 **Option 1:** Inference img
 
-Configuration file: [inference_image.yaml](configs%2Finference_image.yaml)
+Configuration file: [predict.yaml](configs%2Fpredict.yaml)
 
-```
-python3 src/models/smp/inference_img.py
-```
+`data_path: data/demo/input`
 
 **Option 2:** Inference images dir (batch)
 
-Configuration file: [inference_batch.yaml](configs%2Finference_batch.yaml)
+Configuration file: [predict.yaml](configs%2Fpredict.yaml)
+
+`data_path: data/demo/input/004_0247.jpg`
+
 
 ```
-python3 src/models/smp/inference_batch.py
+python3 src/models/smp/predict.py
 ```
 
 <a name="data-access"></a>

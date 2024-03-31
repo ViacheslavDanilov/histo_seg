@@ -153,10 +153,14 @@ class HistologySegmentationModel(pl.LightningModule):
         else:
             raise ValueError(f'Unknown optimizer: {self.optimizer}')
 
-    # TODO (Vlad): implementation is needed here
     def predict(
         self,
-        some_val: int,
-    ) -> str:
-        new_val = str(some_val)
-        return new_val
+        images: np.ndarray,
+        device: str,
+    ):
+        y_hat = self.model(torch.Tensor(images).to(device)).cpu().detach()
+        masks = y_hat.sigmoid()
+        masks = (masks > 0.5).float()
+        masks = masks.permute(0, 2, 3, 1)
+        masks = masks.numpy().round()
+        return masks
