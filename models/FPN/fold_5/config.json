@@ -1,8 +1,8 @@
 {
-  "model_name": "DeepLabV3_regnetx_064_896",
-  "architecture": "DeepLabV3",
-  "encoder": "timm-regnetx_064",
-  "input_size": 768,
+  "model_name": "FPN_efficientnet-b7",
+  "architecture": "FPN",
+  "encoder": "efficientnet-b7",
+  "input_size": 640,
   "classes": [
     "Arteriole lumen",
     "Arteriole media",
