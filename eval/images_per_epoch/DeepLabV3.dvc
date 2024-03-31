@@ -1,0 +1,6 @@
+outs:
+- md5: 3d9481d4839fed5f66cc953b11f1d2fe.dir
+  size: 7427446620
+  nfiles: 5
+  hash: md5
+  path: DeepLabV3

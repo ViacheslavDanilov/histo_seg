@@ -1,0 +1,6 @@
+outs:
+- md5: d9dc0c7e23b2edc23a5af2bd151cb922.dir
+  size: 5210135507
+  nfiles: 5
+  hash: md5
+  path: FPN
