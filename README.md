@@ -96,7 +96,7 @@ This study demonstrates the potential of deep learning models for precise segmen
   - [x] Linux
   - [x] Windows (limited testing carried out)
 - Python 3.11.x
-- Required core libraries: [environment.yaml](https://github.com/ViacheslavDanilov/histology_segmentation/blob/main/environment.yaml)
+- Required core libraries: [environment.yaml](environment.yaml)
 
 <a name="installation"></a>
 ## ⚙ Installation
@@ -118,22 +118,12 @@ chmod +x make_env.sh
 
 <a name="how-to-run"></a>
 ## 🚀 How to Run
-**Option 1:** Single Image
 
 Configuration file: [predict.yaml](configs/predict.yaml)
 
-Default data path: `data/demo/input`
-
-Command:
-``` bash
-python src/models/smp/predict.py
-```
-
-**Option 2:** A set of iamges
-
-Configuration file: [predict.yaml](configs/predict.yaml)
-
-`data_path: data/demo/input/004_0247.jpg`
+Data path:
+- **Option 1** - Directory with images (default): `data/demo/input`
+- **Option 2** - Single image: `data/demo/input/011_0123.jpg`
 
 Command:
 ``` bash
