@@ -1,5 +1,5 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10838384.svg)](https://doi.org/10.5281/zenodo.10838384)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10838432.svg)](https://doi.org/10.5281/zenodo.10838432)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10838384.svg)](https://zenodo.org/doi/10.5281/zenodo.10838383)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10901377.svg)](https://zenodo.org/doi/10.5281/zenodo.10838431)
 [![DOI](http://img.shields.io/badge/DOI-TO.BE.UPDATED.SOON-B31B1B)](https://TO.BE.UPDATED.SOON)
 
 # AI-driven segmentation of microvascular features of tissue-engineered vascular grafts
@@ -133,8 +133,8 @@ python src/models/smp/predict.py
 <a name="data-access"></a>
 ## 🔐 Data Access
 All essential components of the study, including the curated dataset and trained models, have been made publicly available:
-- **Dataset:** [https://doi.org/10.5281/zenodo.10838384](https://doi.org/10.5281/zenodo.10838384)
-- **Models:** [https://doi.org/10.5281/zenodo.10838432](https://doi.org/10.5281/zenodo.10838432)
+- **Dataset:** [https://zenodo.org/doi/10.5281/zenodo.10838383](https://zenodo.org/doi/10.5281/zenodo.10838383)
+- **Models:** [https://zenodo.org/doi/10.5281/zenodo.10838431](https://zenodo.org/doi/10.5281/zenodo.10838431)
 
 <a name="how-to-cite"></a>
 ## 🖊️ How to Cite
