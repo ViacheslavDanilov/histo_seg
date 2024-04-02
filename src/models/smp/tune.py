@@ -86,7 +86,7 @@ def tune(config=None):
 
         os.makedirs(f'{model_dir}')
 
-        oct_data_module = HistologyDataModule(
+        histo_data_module = HistologyDataModule(
             input_size=config.input_size,
             classes=config.classes,
             batch_size=config.batch_size,
@@ -124,7 +124,7 @@ def tune(config=None):
         try:
             trainer.fit(
                 model,
-                datamodule=oct_data_module,
+                datamodule=histo_data_module,
             )
         except Exception:
             print('Run status: CUDA out-of-memory error or HyperBand stop')
