@@ -1,0 +1,20 @@
+defaults:
+- main
+- _self_
+
+data_path: data/demo/input
+save_dir: data/demo/output
+model_dir: models/FPN/fold_1
+output_size: [1000, 1000]
+device: auto   # cpu, cuda, or auto
+classes:
+- Arteriole lumen
+- Arteriole media
+- Arteriole adventitia
+- Capillary lumen
+- Capillary wall
+- Venule lumen
+- Venule wall
+- Immune cells
+- Nerve trunks
+batch_size: 1

@@ -1,0 +1,17 @@
+{
+  "model_name": "Unet_se_resnet50",
+  "architecture": "Unet",
+  "encoder": "se_resnet50",
+  "input_size": 896,
+  "classes": [
+    "Arteriole lumen",
+    "Arteriole media",
+    "Arteriole adventitia",
+    "Capillary lumen",
+    "Capillary wall",
+    "Venule lumen",
+    "Venule wall",
+    "Immune cells",
+    "Nerve trunks"
+  ]
+}

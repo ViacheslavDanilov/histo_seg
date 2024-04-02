@@ -1,6 +1,6 @@
 outs:
-- md5: 96fe952d16abe302373552f0102e2c35.dir
-  size: 11291052466
-  nfiles: 15
+- md5: 5c72db78da51ac559f49e2047f72d47a.dir
+  size: 7795114140
+  nfiles: 5
   hash: md5
   path: MA-Net

@@ -1,0 +1,17 @@
+{
+  "model_name": "DeepLabV3_regnetx_064_896",
+  "architecture": "DeepLabV3",
+  "encoder": "timm-regnetx_064",
+  "input_size": 768,
+  "classes": [
+    "Arteriole lumen",
+    "Arteriole media",
+    "Arteriole adventitia",
+    "Capillary lumen",
+    "Capillary wall",
+    "Venule lumen",
+    "Venule wall",
+    "Immune cells",
+    "Nerve trunks"
+  ]
+}

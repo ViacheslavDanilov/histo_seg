@@ -11,6 +11,7 @@
 - [Methods](#methods)
 - [Results](#results)
 - [Conclusion](#conclusion)
+- [How to Run](#how-to-run)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Data Access](#data-access)
@@ -26,7 +27,7 @@ This repository presents an artificial intelligence (AI)-driven approach for the
 The study utilized a dataset comprising 104 Whole Slide Images (WSIs) obtained from biodegradable TEVGs implanted into the carotid arteries of 20 sheep. After six months, the sheep were euthanized to assess vascular tissue regeneration patterns. The WSIs were automatically sliced into 99,831 patches, which underwent filtering and manual annotation by pathologists. A total of 1,401 patches were annotated, identifying nine histological features: _arteriole lumen (AL)_, _arteriole media (AM)_, _arteriole adventitia (AA)_, _venule lumen (VL)_, _venule wall (VW)_, _capillary lumen (CL)_, _capillary wall (CW)_, _immune cells (IC)_, and _nerve trunks (NT)_ (<a href="#figure-1">Figure 1</a>). These annotations were meticulously verified by a senior pathologist, ensuring accuracy and consistency.
 
 <p align="center">
-  <img id="figure-1" width="80%" height="80%" src=".assets/annotation_methodology.png" alt="Annotation methodology">
+  <img id="figure-1" width="80%" height="80%" src=".assets/annotation_methodology.jpg" alt="Annotation methodology">
 </p>
 
 <p align="left">
@@ -41,7 +42,7 @@ The methodology involved two main stages: hyperparameter tuning and model traini
 Following the tuning stage, the models were trained and evaluated on the entire dataset using a 5-fold cross-validation approach (<a href="#figure-2">Figure 2</a>). This ensured the integrity of subject groups within each subset, preventing data leakage. During training, various augmentation techniques were applied to expand the dataset and mitigate overfitting. Besides that, batch size adjusted based on GPU memory utilization (~90-100% usage).
 
 <p align="center">
-  <img id="figure-2" width="80%" height="80%" src=".assets/loss_evolution.png" alt="Loss and DSC evolution">
+  <img id="figure-2" width="70%" height="70%" src=".assets/loss_evolution.jpg" alt="Loss and DSC evolution">
 </p>
 
 <p align="left">
@@ -66,11 +67,21 @@ The MA-Net model achieved the highest mean Dice Similarity Coefficient (DSC) of 
 |  MA-Net   | **0.939** |   0.893   | **0.860** |   0.848   |   0.830   |   0.806   |   0.787   |   0.937   |   0.978   | **0.875** |
 <br>
 <p align="center">
-  <img id="figure-3" width="100%" height="100%" src=".assets/model_comparison.png" alt="Model comparison">
+  <img id="figure-3" width="100%" height="100%" src=".assets/model_comparison.jpg" alt="Model comparison">
 </p>
 
 <p align="center">
     <em><strong>Figure 3.</strong> Comparison of models for microvascular segmentation in tissue-engineered vascular grafts.</em>
+</p>
+
+To illustrate the network predictions, we provide three patches showcasing the segmentation of the studied histologic features in (<a href="#figure-4">Figure 4</a>). This figure presents predictions derived from an optimal solution: an ensemble of three models (MA-Net, DeepLabV3, and FPN).
+<br>
+<p align="center">
+  <img id="figure-4" width="80%" height="80%" src=".assets/ensemble_prediction.jpg" alt="Model comparison">
+</p>
+
+<p align="center">
+    <em><strong>Figure 4.</strong> Comparison between ground truth segmentation and ensemble predictions.</em>
 </p>
 
 
@@ -85,7 +96,7 @@ This study demonstrates the potential of deep learning models for precise segmen
   - [x] Linux
   - [x] Windows (limited testing carried out)
 - Python 3.11.x
-- Required core libraries: [environment.yaml](https://github.com/ViacheslavDanilov/histology_segmentation/blob/main/environment.yaml)
+- Required core libraries: [environment.yaml](environment.yaml)
 
 <a name="installation"></a>
 ## ⚙ Installation
@@ -105,6 +116,20 @@ chmod +x make_env.sh
 ./make_env.sh
 ```
 
+<a name="how-to-run"></a>
+## 🚀 How to Run
+
+Configuration file: [predict.yaml](configs/predict.yaml)
+
+Data path:
+- **Option 1** - Directory with images (default): `data/demo/input`
+- **Option 2** - Single image: `data/demo/input/011_0123.jpg`
+
+Command:
+``` bash
+python src/models/smp/predict.py
+```
+
 <a name="data-access"></a>
 ## 🔐 Data Access
 All essential components of the study, including the curated dataset and trained models, have been made publicly available:
@@ -115,4 +140,4 @@ All essential components of the study, including the curated dataset and trained
 ## 🖊️ How to Cite
 Please cite [our paper](https://TO.BE.UPDATED.SOON) if you found our data, methods, or results helpful for your research:
 
-> Danilov V.V., et al. (**2024**). _AI-driven segmentation of microvascular features during histological examination of tissue-engineered vascular grafts_. **Frontiers in Cell and Developmental Biology**. DOI: [TO.BE.UPDATED.SOON](TO.BE.UPDATED.SOON)
+> Danilov V.V., Laptev V.V., Klyshnikov K.Yu., Stepanov A.D., Bogdanov L.A., Antonova L.V., Krivkina E.O., Kutikhin A.G., Ovcharenko E.A. (**2024**). _AI-driven segmentation of microvascular features during histological examination of tissue-engineered vascular grafts_. **Frontiers in Cell and Developmental Biology**. DOI: [TO.BE.UPDATED.SOON](TO.BE.UPDATED.SOON)

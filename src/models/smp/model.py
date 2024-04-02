@@ -18,9 +18,9 @@ class HistologySegmentationModel(pl.LightningModule):
         model_name: str,
         in_channels: int,
         classes: List[str],
-        lr: float,
-        optimizer_name: str,
-        save_img_per_epoch: bool,
+        lr: float = 0.0001,
+        optimizer_name: str = 'Adam',
+        save_img_per_epoch: bool = False,
         **kwargs,
     ):
         super().__init__()
@@ -152,3 +152,15 @@ class HistologySegmentationModel(pl.LightningModule):
             return torch.optim.Adam(self.parameters(), lr=self.lr)
         else:
             raise ValueError(f'Unknown optimizer: {self.optimizer}')
+
+    def predict(
+        self,
+        images: np.ndarray,
+        device: str,
+    ):
+        y_hat = self.model(torch.Tensor(images).to(device)).cpu().detach()
+        masks = y_hat.sigmoid()
+        masks = (masks > 0.5).float()
+        masks = masks.permute(0, 2, 3, 1)
+        masks = masks.numpy().round()
+        return masks

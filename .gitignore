@@ -381,7 +381,8 @@ cython_debug/
 /logs/lightning_logs/
 
 # Models
-/models/*/
+models/*/*/*.ckpt
+eval/images_per_epoch/*/*.zip
 
 # W&B files
 /wandb/

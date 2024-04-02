@@ -1,0 +1,6 @@
+outs:
+- md5: b74860c63153d54654c67c563fef0dff.dir
+  size: 5288437966
+  nfiles: 5
+  hash: md5
+  path: PSPNet

@@ -1,6 +1,6 @@
 outs:
-- md5: d4999b3a74cd9cc82ecb01a560ef762a.dir
-  size: 11419978955
-  nfiles: 15
+- md5: 356163d518890f5241106be733c5909d.dir
+  size: 1350897280
+  nfiles: 5
   hash: md5
   path: LinkNet

@@ -69,7 +69,7 @@ def main(cfg: DictConfig) -> None:
     else:
         os.makedirs(f'{model_dir}', exist_ok=True)
 
-    oct_data_module = HistologyDataModule(
+    histo_data_module = HistologyDataModule(
         input_size=hyperparameters['input_size'],
         classes=cfg.classes,
         batch_size=hyperparameters['batch_size'],
@@ -105,7 +105,7 @@ def main(cfg: DictConfig) -> None:
     )
     trainer.fit(
         model,
-        datamodule=oct_data_module,
+        datamodule=histo_data_module,
     )
 
 

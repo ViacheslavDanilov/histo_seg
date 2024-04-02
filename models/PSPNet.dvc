@@ -1,6 +1,6 @@
 outs:
-- md5: 03fb1643a256706ac061962b81fcd30a.dir
-  size: 5926714542
-  nfiles: 15
+- md5: af16f7925f4653b7883a7c010a046be4.dir
+  size: 637074200
+  nfiles: 5
   hash: md5
   path: PSPNet

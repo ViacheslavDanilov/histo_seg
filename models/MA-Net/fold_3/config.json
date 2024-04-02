@@ -1,0 +1,17 @@
+{
+  "model_name": "MaNet_timm-regnety_120",
+  "architecture": "MaNet",
+  "encoder": "timm-regnety_120",
+  "input_size": 512,
+  "classes": [
+    "Arteriole lumen",
+    "Arteriole media",
+    "Arteriole adventitia",
+    "Capillary lumen",
+    "Capillary wall",
+    "Venule lumen",
+    "Venule wall",
+    "Immune cells",
+    "Nerve trunks"
+  ]
+}
