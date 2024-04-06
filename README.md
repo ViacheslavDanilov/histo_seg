@@ -11,9 +11,9 @@
 - [Methods](#methods)
 - [Results](#results)
 - [Conclusion](#conclusion)
-- [How to Run](#how-to-run)
 - [Requirements](#requirements)
 - [Installation](#installation)
+- [How to Run](#how-to-run)
 - [Data Access](#data-access)
 - [How to Cite](#how-to-cite)
 
@@ -119,13 +119,13 @@ chmod +x make_env.sh
 <a name="how-to-run"></a>
 ## 🚀 How to Run
 
-Configuration file: [predict.yaml](configs/predict.yaml)
+Specify the `data_path` and `save_dir` parameters in the [predict.yaml](configs/predict.yaml) configuration file. By default, all images within the specified `data_path` will be processed and saved to the `save_dir` directory.
 
-Data path:
+Available `data_path` options:
 - **Option 1** - Directory with images (default): `data/demo/input`
 - **Option 2** - Single image: `data/demo/input/011_0123.jpg`
 
-Command:
+To run the pipeline, execute [predict.py](src/models/smp/predict.py) from your IDE or command prompt with:
 ``` bash
 python src/models/smp/predict.py
 ```
