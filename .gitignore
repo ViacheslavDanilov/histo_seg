@@ -371,11 +371,10 @@ cython_debug/
 .dvc/cache
 
 # Data
-/data/raw/
-/data/sly/
-/data/interim/
-/data/final_split/
-/data/final_cv/
+/data/raw*/
+/data/sly*/
+/data/interim*/
+/data/cv*/
 
 # Log files
 /logs/lightning_logs/

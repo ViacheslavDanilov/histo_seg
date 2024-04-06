@@ -30,54 +30,17 @@ stages:
       nfiles: 1499
     - path: data/interim/metadata.csv
       hash: md5
-      md5: 4b395ffde0e183d33850eda808e92761
-      size: 27547835
-  convert_int_to_split:
-    cmd:
-    - rm -rf data/final_split || true
-    - python src/data/convert_int_to_split.py
-    deps:
-    - path: configs/convert_int_to_split.yaml
-      hash: md5
-      md5: 1adde81d2e2ab3e43ef7762362634f94
-      size: 287
-    - path: data/interim/img
-      hash: md5
-      md5: 9cac7cf69ad7348b8e75cefa33aa1e57.dir
-      size: 1312907018
-      nfiles: 1499
-    - path: data/interim/metadata.csv
-      hash: md5
-      md5: 4b395ffde0e183d33850eda808e92761
-      size: 27547835
-    - path: src/data/convert_int_to_split.py
-      hash: md5
-      md5: 0b87fb0549c02e0e4e94ae78d3e62314
-      size: 5317
-    outs:
-    - path: data/final_split/metadata.csv
-      hash: md5
-      md5: 054aa6a49c3c3123a3110ad4acb060e4
-      size: 605497
-    - path: data/final_split/test
-      hash: md5
-      md5: 860e9c3d575f50e75c3accaf8b10f244.dir
-      size: 1127936677
-      nfiles: 699
-    - path: data/final_split/train
-      hash: md5
-      md5: c2374513b3584449db45be98afd220f3.dir
-      size: 5501469390
-      nfiles: 3504
+      md5: 0b4be467c612f7e17aab7067239511c0
+      size: 27429951
   convert_int_to_cv:
     cmd:
-    - rm -rf data/final_cv || true
+    - rm -rf data/cv || true
     - python src/data/convert_int_to_cv.py
     deps:
     - path: configs/convert_int_to_cv.yaml
       hash: md5
-      md5: 3f3844a08ec55bcee33e8f7e3be205a8
-      size: 300
+      md5: 3ad7316cfc4e175ad4168eb4f187b99a
+      size: 294
     - path: data/interim/img
       hash: md5
       md5: 9cac7cf69ad7348b8e75cefa33aa1e57.dir
@@ -85,64 +48,64 @@ stages:
       nfiles: 1499
     - path: data/interim/metadata.csv
       hash: md5
-      md5: 4b395ffde0e183d33850eda808e92761
-      size: 27547835
+      md5: 0b4be467c612f7e17aab7067239511c0
+      size: 27429951
     - path: src/data/convert_int_to_cv.py
       hash: md5
-      md5: 111d2efd30808326613eb9d9dbb2d291
-      size: 4409
+      md5: 0c00f87b38ed5cf3fee61e01c92d4cba
+      size: 6384
     outs:
-    - path: data/final_cv/fold_1/test
+    - path: data/cv/fold_1/test
       hash: md5
       md5: 860e9c3d575f50e75c3accaf8b10f244.dir
       size: 1127936677
       nfiles: 699
-    - path: data/final_cv/fold_1/train
+    - path: data/cv/fold_1/train
       hash: md5
       md5: c2374513b3584449db45be98afd220f3.dir
       size: 5501469390
       nfiles: 3504
-    - path: data/final_cv/fold_2/test
+    - path: data/cv/fold_2/test
       hash: md5
       md5: 4767304f08594b81d174975b2f89bd65.dir
       size: 1638705191
       nfiles: 1044
-    - path: data/final_cv/fold_2/train
+    - path: data/cv/fold_2/train
       hash: md5
       md5: d4c54e821fbef4e4b88be6358e90df2d.dir
       size: 4990700876
       nfiles: 3159
-    - path: data/final_cv/fold_3/test
+    - path: data/cv/fold_3/test
       hash: md5
       md5: bf698d8bf634c20242371060b6ae7f7d.dir
       size: 1332620093
       nfiles: 822
-    - path: data/final_cv/fold_3/train
+    - path: data/cv/fold_3/train
       hash: md5
       md5: 1b35decad379e684f041079658f80ded.dir
       size: 5296785974
       nfiles: 3381
-    - path: data/final_cv/fold_4/test
+    - path: data/cv/fold_4/test
       hash: md5
       md5: bf9a7af6187514b19d1b89df19d4ca57.dir
       size: 1517313218
       nfiles: 1011
-    - path: data/final_cv/fold_4/train
+    - path: data/cv/fold_4/train
       hash: md5
       md5: 9d358866aa6d7c328a99b1ac601d84f0.dir
       size: 5112092849
       nfiles: 3192
-    - path: data/final_cv/fold_5/test
+    - path: data/cv/fold_5/test
       hash: md5
       md5: c9de26c60b2fe9681eb5076eef8faf08.dir
       size: 1012830888
       nfiles: 627
-    - path: data/final_cv/fold_5/train
+    - path: data/cv/fold_5/train
       hash: md5
       md5: 59026d78b00d216c364a316c463bd3ce.dir
       size: 5616575179
       nfiles: 3576
-    - path: data/final_cv/metadata.csv
+    - path: data/cv/metadata.csv
       hash: md5
       md5: cdd8339c2efe168912c293e66efc8962
       size: 3110393

@@ -2,7 +2,7 @@ defaults:
 - main
 - _self_
 
-project_name: histology_segmentati
+project_name: histology_segmentation
 architecture: PSPNet
 cuda_num: [0]
 batch_size: 4

@@ -3,7 +3,7 @@ defaults:
 - _self_
 
 data_dir: data/interim
-save_dir: data/final_cv
+save_dir: data/cv
 num_folds: 5
 seed: 11
 split_column: slide
