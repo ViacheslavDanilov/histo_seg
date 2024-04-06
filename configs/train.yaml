@@ -3,7 +3,7 @@ defaults:
 - _self_
 
 project_name: histology_segmentation
-data_dir: data/final_split
+data_dir: data/cv/fold_1
 classes:
 - Arteriole lumen
 - Arteriole media
