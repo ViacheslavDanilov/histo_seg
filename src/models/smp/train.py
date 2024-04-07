@@ -10,6 +10,7 @@ from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
+from src import PROJECT_DIR
 from src.models.smp.dataset import HistologyDataModule
 from src.models.smp.model import HistologySegmentationModel
 
@@ -20,15 +21,20 @@ log.setLevel(logging.INFO)
 
 
 @hydra.main(
-    config_path=os.path.join(os.getcwd(), 'configs'),
+    config_path=os.path.join(PROJECT_DIR, 'configs'),
     config_name='train',
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
     log.info(f'Config:\n\n{OmegaConf.to_yaml(cfg)}')
+
+    # Define absolute paths
+    data_dir = os.path.join(PROJECT_DIR, cfg.data_dir)
+    save_dir = os.path.join(PROJECT_DIR, cfg.save_dir)
+
     today = datetime.datetime.today()
     task_name = f'{cfg.architecture}_{cfg.encoder}_{today.strftime("%d%m_%H%M")}'
-    model_dir = os.path.join('models', f'{task_name}')
+    model_dir = os.path.join(save_dir, f'{task_name}')
 
     hyperparameters = {
         'architecture': cfg.architecture,
@@ -41,7 +47,7 @@ def main(cfg: DictConfig) -> None:
         'lr': cfg.lr,
         'epochs': cfg.epochs,
         'device': cfg.device,
-        'data_dir': cfg.data_dir,
+        'data_dir': data_dir,
     }
 
     wandb.init(
@@ -74,7 +80,7 @@ def main(cfg: DictConfig) -> None:
         classes=cfg.classes,
         batch_size=hyperparameters['batch_size'],
         num_workers=os.cpu_count(),
-        data_dir=cfg.data_dir,
+        data_dir=data_dir,
     )
     tb_logger = pl_loggers.TensorBoardLogger(
         save_dir='logs/',

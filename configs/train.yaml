@@ -24,3 +24,4 @@ epochs: 5
 device: cuda
 cuda_num: [0]
 log_artifacts: true
+save_dir: models
