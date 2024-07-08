@@ -1,8 +1,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10838384.svg)](https://zenodo.org/doi/10.5281/zenodo.10838383)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10901377.svg)](https://zenodo.org/doi/10.5281/zenodo.10838431)
-[![DOI](http://img.shields.io/badge/DOI-TO.BE.UPDATED.SOON-B31B1B)](https://TO.BE.UPDATED.SOON)
+[![DOI](http://img.shields.io/badge/DOI-10.3389/fbioe.2024.1411680-B31B1B)](https://doi.org/10.3389/fbioe.2024.1411680)
 
-# AI-driven segmentation of microvascular features of tissue-engineered vascular grafts
+# ML-driven segmentation of microvascular features of tissue-engineered vascular grafts
 
 <a name="contents"></a>
 ## 📖 Contents
@@ -138,6 +138,6 @@ All essential components of the study, including the curated dataset and trained
 
 <a name="how-to-cite"></a>
 ## 🖊️ How to Cite
-Please cite [our paper](https://TO.BE.UPDATED.SOON) if you found our data, methods, or results helpful for your research:
+Please cite [our paper](https://www.frontiersin.org/journals/bioengineering-and-biotechnology/articles/10.3389/fbioe.2024.1411680/full) if you found our data, methods, or results helpful for your research:
 
-> Danilov V.V., Laptev V.V., Klyshnikov K.Yu., Stepanov A.D., Bogdanov L.A., Antonova L.V., Krivkina E.O., Kutikhin A.G., Ovcharenko E.A. (**2024**). _AI-driven segmentation of microvascular features during histological examination of tissue-engineered vascular grafts_. **Frontiers in Cell and Developmental Biology**. DOI: [TO.BE.UPDATED.SOON](TO.BE.UPDATED.SOON)
+> Danilov V.V., Laptev V.V., Klyshnikov K.Yu., Stepanov A.D., Bogdanov L.A., Antonova L.V., Krivkina E.O., Kutikhin A.G., Ovcharenko E.A. (**2024**). _ML-driven segmentation of microvascular features during histological examination of tissue-engineered vascular grafts_. **Frontiers in Cell and Developmental Biology**. DOI: [https://doi.org/10.3389/fbioe.2024.1411680](https://doi.org/10.3389/fbioe.2024.1411680)
