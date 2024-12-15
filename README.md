@@ -132,7 +132,8 @@ python src/models/smp/predict.py
 
 <a name="data-access"></a>
 ## 🔐 Data Access
-All essential components of the study, including the curated dataset and trained models, have been made publicly available:
+All essential components of the study, including the curated source code, dataset, and trained models, are publicly available:
+- **Source code:** [https://github.com/ViacheslavDanilov/histology_segmentation](https://github.com/ViacheslavDanilov/histology_segmentation)
 - **Dataset:** [https://zenodo.org/doi/10.5281/zenodo.10838383](https://zenodo.org/doi/10.5281/zenodo.10838383)
 - **Models:** [https://zenodo.org/doi/10.5281/zenodo.10838431](https://zenodo.org/doi/10.5281/zenodo.10838431)
 
